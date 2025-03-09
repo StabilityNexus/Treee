@@ -3,7 +3,7 @@
 
 <!-- Organization Logo -->
 <div align="center">
-  <img alt="Stability Nexus" src="public/readme-assets/logo.png" width="175">
+  <img alt="Stability Nexus" src="./treee-frontend/public/logo.png" width="175">
 </div>
 
 &nbsp;
@@ -151,5 +151,5 @@ flutter run
 <!-- Don't delete it -->
 <!-- Funding Badge -->
 <div align="center" name="fund">
-<a href="https://docs.stability.nexus/about-us/fund-us"><img src="public/readme-assets/fund-badge.svg" alt="Fund Stability Nexus Badge"/></a>
+<a href="https://docs.stability.nexus/about-us/fund-us"><img src="./treee-frontend/public/fund-badge.svg" alt="Fund Stability Nexus Badge"/></a>
 </div>
