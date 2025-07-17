@@ -22,7 +22,6 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
   flutter: ">=3.16.0"
 
-
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -32,7 +31,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   walletconnect_flutter_v2: ^2.1.15
+  reown_appkit: ^1.0.0
   http: ^1.1.0
   crypto: ^3.0.3
   qr_flutter: ^4.1.0
@@ -41,6 +42,7 @@ dependencies:
   shared_preferences: ^2.2.2
   go_router: ^15.2.4
   cupertino_icons: ^1.0.8
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -58,22 +60,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
+  # Add your .env file to assets
+  assets:
+    - .env
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

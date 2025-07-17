@@ -26,6 +26,7 @@ class BaseScaffold extends StatelessWidget {
     final currentRoute = GoRouterState.of(context).uri.toString();
     
     return Scaffold(
+      
       appBar: UniversalNavbar(title: title, actions: actions),
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       body: SafeArea(
