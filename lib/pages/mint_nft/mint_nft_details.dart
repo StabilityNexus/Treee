@@ -37,7 +37,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Details submitted successfully.")),
     );
-    context.push(RouteConstants.mintNftDetailsPath);
+    context.push(RouteConstants.mintNftImagesPath);
   }
 
   @override
