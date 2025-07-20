@@ -13,14 +13,14 @@ class MintNftDetailsPage extends StatefulWidget {
 }
 
 class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
-  final latitudeController = TextEditingController();
-  final longitudeController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final speciesController = TextEditingController();
 
-  void submitCoordinates() {
-    final latitude = latitudeController.text;
-    final longitude = longitudeController.text;
+  void submitDetails() {
+    final description = descriptionController.text;
+    final species = speciesController.text;
 
-    if (latitude.isEmpty || longitude.isEmpty) {
+    if (description.isEmpty || species.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text("Please enter both latitude and longitude.")),
@@ -28,14 +28,14 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
       return;
     }
     Provider.of<MintNftProvider>(context, listen: false)
-        .setLatitude(double.parse(latitude));
+        .setDescription(description);
     Provider.of<MintNftProvider>(context, listen: false)
-        .setLongitude(double.parse(longitude));
-    latitudeController.clear();
-    longitudeController.clear();
+        .setSpecies(species);
+    speciesController.clear();
+    descriptionController.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Coordinates submitted successfully.")),
+      const SnackBar(content: Text("Details submitted successfully.")),
     );
     context.push(RouteConstants.mintNftDetailsPath);
   }
@@ -54,25 +54,25 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: latitudeController,
+              controller: descriptionController,
               decoration: const InputDecoration(
-                labelText: "Latitude",
+                labelText: "Description",
                 border: OutlineInputBorder(),
                 constraints: BoxConstraints(maxWidth: 300),
               ),
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: longitudeController,
+              controller: speciesController,
               decoration: const InputDecoration(
-                labelText: "Longitude",
+                labelText: "Species",
                 border: OutlineInputBorder(),
                 constraints: BoxConstraints(maxWidth: 300),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: submitCoordinates,
+              onPressed: submitDetails,
               child: const Text(
                 "->",
                 style: TextStyle(fontSize: 20, color: Colors.white),
@@ -86,8 +86,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
 
   @override
   void dispose() {
-    latitudeController.dispose();
-    longitudeController.dispose();
+    descriptionController.dispose();
+    speciesController.dispose();
     super.dispose();
   }
 }

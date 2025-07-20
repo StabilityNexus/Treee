@@ -5,9 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:tree_planting_protocol/models/wallet_option.dart';
-import 'package:http/http.dart' as http;
-import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
-import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 enum InitializationState {
@@ -25,7 +22,6 @@ class WalletProvider extends ChangeNotifier {
   InitializationState _initializationState = InitializationState.notStarted;
   String _statusMessage = 'Initializing...';
   String? _currentChainId;
-  final Map<String, String> _rpcUrls = rpcUrls;
 
   static const String _defaultChainId = '11155111';
 
