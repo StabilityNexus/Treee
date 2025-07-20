@@ -23,7 +23,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     if (description.isEmpty || species.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Please enter both latitude and longitude.")),
+            content: Text("Please enter both desriptiona and species.")),
       );
       return;
     }
@@ -43,14 +43,15 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      title: "Mint NFT Coordinates",
+      title: "NFT Details",
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "This is the Mint NFT Coordinates page.",
+              "Enter NFT Details",
               style: TextStyle(fontSize: 30),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             TextField(
@@ -58,7 +59,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
               decoration: const InputDecoration(
                 labelText: "Description",
                 border: OutlineInputBorder(),
-                constraints: BoxConstraints(maxWidth: 300),
+                constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
               ),
             ),
             const SizedBox(height: 10),
@@ -74,7 +75,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ElevatedButton(
               onPressed: submitDetails,
               child: const Text(
-                "->",
+                "Next",
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             )

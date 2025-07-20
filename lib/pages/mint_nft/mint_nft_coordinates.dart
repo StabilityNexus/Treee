@@ -49,8 +49,9 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "This is the Mint NFT Coordinates page.",
+              "Enter your coordinates",
               style: TextStyle(fontSize: 30),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             TextField(
@@ -74,7 +75,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             ElevatedButton(
               onPressed: submitCoordinates,
               child: const Text(
-                "->",
+                "Next",
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             )
