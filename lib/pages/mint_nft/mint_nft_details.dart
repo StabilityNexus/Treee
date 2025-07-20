@@ -5,14 +5,14 @@ import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
-class MintNftCoordinatesPage extends StatefulWidget {
-  const MintNftCoordinatesPage({super.key});
+class MintNftDetailsPage extends StatefulWidget {
+  const MintNftDetailsPage ({super.key});
 
   @override
-  State<MintNftCoordinatesPage> createState() => _MintNftCoordinatesPageState();
+  State<MintNftDetailsPage> createState() => _MintNftCoordinatesPageState();
 }
 
-class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
+class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
 

@@ -29,5 +29,11 @@ class BottomNavConstants {
       activeIcon: Icons.forest,
       route: RouteConstants.allTreesPath,
     ),
+    BottomNavItem(
+      label: 'Mint NFT',
+      icon: Icons.nature_people_outlined,
+      activeIcon: Icons.nature_people,
+      route: RouteConstants.mintNftPath,
+    ),
   ];
 }
