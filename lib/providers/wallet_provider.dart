@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:tree_planting_protocol/models/wallet_option.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 
 enum InitializationState {
   notStarted,
@@ -15,6 +16,7 @@ enum InitializationState {
 }
 
 class WalletProvider extends ChangeNotifier {
+  // ignore: deprecated_member_use
   Web3App? _web3App;
   String? _currentAddress;
   bool _isConnected = false;
@@ -92,7 +94,7 @@ class WalletProvider extends ChangeNotifier {
           chainId: accountData[1],
           message: 'Connected successfully',
         );
-        print('Session connected: ${event.session.topic}');
+        ('Session connected: ${event.session.topic}');
       }
     }
   }
@@ -110,7 +112,7 @@ class WalletProvider extends ChangeNotifier {
 
   void _onSessionEvent(SessionEvent? event) {
     if (event != null) {
-      print('Session event: ${event.name}, data: ${event.data}');
+      logger.d('Session event: ${event.name}, data: ${event.data}');
 
       if (event.name == 'chainChanged') {
         final newChainId = event.data.toString();
@@ -120,7 +122,7 @@ class WalletProvider extends ChangeNotifier {
 
         if (_currentChainId != chainId) {
           _currentChainId = chainId;
-          _updateStatus('Chain changed to ${currentChainName}');
+          _updateStatus('Chain changed to $currentChainName');
           notifyListeners();
         }
       }
@@ -169,7 +171,9 @@ class WalletProvider extends ChangeNotifier {
 
   Future<String?> connectWallet() async {
     if (_initializationState != InitializationState.initialized ||
-        _isConnecting) return null;
+        _isConnecting) {
+      return null;
+    }
 
     _updateStatus('Creating connection...');
     _isConnecting = true;
@@ -238,6 +242,7 @@ class WalletProvider extends ChangeNotifier {
 
   final Map<String, Map<String, dynamic>> _chainInfo = chainInfoList;
   Map<String, Map<String, dynamic>> get chainInfo => chainInfoList;
+
   Future<bool> switchChain(String chainId) async {
     if (!_isConnected) {
       throw Exception('Wallet not connected');
@@ -366,13 +371,13 @@ class WalletProvider extends ChangeNotifier {
 
           if (_currentChainId != chainId) {
             _currentChainId = chainId;
-            _updateStatus('Chain updated to ${currentChainName}');
+            _updateStatus('Chain updated to $currentChainName');
             notifyListeners();
           }
         }
       }
     } catch (e) {
-      print('Error refreshing chain info: $e');
+      logger.e('Error refreshing chain info: $e');
     }
   }
 
@@ -409,7 +414,7 @@ class WalletProvider extends ChangeNotifier {
         return chainId;
       }
     } catch (e) {
-      print('Error getting current chain from wallet: $e');
+      logger.e('Error getting current chain from wallet: $e');
     }
 
     return _currentChainId;

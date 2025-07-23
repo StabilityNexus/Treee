@@ -3,7 +3,6 @@ Map<String, dynamic>? findFunctionInAbi(
   final functions = abi['functions'] ?? abi;
 
   if (functions is List) {
-    // Standard ABI format (array of function definitions)
     for (var func in functions) {
       if (func['name'] == functionName && func['type'] == 'function') {
         return func;

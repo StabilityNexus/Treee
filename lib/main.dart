@@ -14,16 +14,18 @@ import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
 
 void main() async {
+  
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    print("No .env file found or error loading it: $e");
+    logger.d("No .env file found or error loading it: $e");
   }
 
   runApp(const MyApp());
