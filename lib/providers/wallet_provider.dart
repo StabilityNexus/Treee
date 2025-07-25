@@ -387,12 +387,6 @@ class WalletProvider extends ChangeNotifier {
     return true;
   }
 
-
-
-
-
-  
-
   Future<dynamic> readContract({
     required String contractAddress,
     required String functionName,
@@ -438,23 +432,237 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
+  Future<String> writeContract({
+    required String contractAddress,
+    required String functionName,
+    required dynamic abi,
+    String? chainId,
+    List<dynamic> params = const [],
+    BigInt? value,
+    BigInt? gasLimit,
+  }) async {
+    try {
+      if (!_isConnected || _web3App == null || _currentAddress == null) {
+        throw Exception('Wallet not connected');
+      }
+      _updateStatus('Preparing transaction...');
+      List<dynamic> abiList;
+      if (abi is String) {
+        abiList = json.decode(abi);
+      } else if (abi is List) {
+        abiList = abi;
+      } else {
+        throw Exception('Invalid ABI format');
+      }
+      final contract = DeployedContract(
+        ContractAbi.fromJson(json.encode(abiList), ''),
+        EthereumAddress.fromHex(contractAddress),
+      );
+      final function = contract.function(functionName);
+      final encodedFunction = function.encodeCall(params);
+      final targetChainId = chainId ?? _currentChainId ?? _defaultChainId;
+      if (_currentChainId != targetChainId) {
+        logger.w(
+            'Target chain ($targetChainId) differs from current chain ($_currentChainId)');
+        _updateStatus(
+            'Chain mismatch detected. Current: $_currentChainId, Target: $targetChainId');
+      }
+      final rpcUrl = getChainDetails(targetChainId).first['rpcUrl'] as String?;
+      final httpClient = http.Client();
+      final ethClient = Web3Client(rpcUrl as String, httpClient);
+      final nonce = await ethClient.getTransactionCount(
+        EthereumAddress.fromHex(_currentAddress!),
+      );
+      BigInt estimatedGas = gasLimit ?? BigInt.from(100000);
+      if (gasLimit == null) {
+        try {
+          estimatedGas = await ethClient.estimateGas(
+            sender: EthereumAddress.fromHex(_currentAddress!),
+            to: EthereumAddress.fromHex(contractAddress),
+            data: encodedFunction,
+            value: value != null ? EtherAmount.inWei(value) : null,
+          );
+          estimatedGas = (estimatedGas * BigInt.from(120)) ~/ BigInt.from(100);
+        } catch (e) {
+          logger.w('Gas estimation failed, using default: $e');
+        }
+      }
+      final gasPrice = await ethClient.getGasPrice();
+      httpClient.close();
+      final transaction = {
+        'from': _currentAddress!,
+        'to': contractAddress,
+        'data':
+            '0x${encodedFunction.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join()}',
+        'gas': '0x${estimatedGas.toRadixString(16)}',
+        'gasPrice': '0x${gasPrice.getInWei.toRadixString(16)}',
+        'nonce': '0x${nonce.toRadixString(16)}',
+      };
 
+      if (value != null && value > BigInt.zero) {
+        transaction['value'] = '0x${value.toRadixString(16)}';
+      }
 
+      _updateStatus('Opening wallet for transaction approval...');
+      final sessions = _web3App!.sessions.getAll();
+      if (sessions.isEmpty) {
+        throw Exception('No active WalletConnect session');
+      }
+      final session = sessions.first;
+      final requestParams = SessionRequestParams(
+        method: 'eth_sendTransaction',
+        params: [transaction],
+      );
+      final requestFuture = _web3App!.request(
+        topic: session.topic,
+        chainId: 'eip155:$targetChainId',
+        request: requestParams,
+      );
+      await _openConnectedWalletForTransaction(session);
+      _updateStatus('Waiting for transaction approval in wallet...');
+      final result = await requestFuture.timeout(
+        const Duration(minutes: 5),
+        onTimeout: () {
+          throw Exception('Transaction approval timeout - please try again');
+        },
+      );
 
+      final txHash = result.toString();
+      _updateStatus('Transaction sent: ${txHash.substring(0, 10)}...');
+      logger.i('Transaction hash: $txHash');
 
+      return txHash;
+    } catch (e) {
+      _updateStatus('Transaction failed: ${e.toString()}');
+      logger.e('Error writing to contract: $e');
+      throw Exception('Failed to write to contract: $e');
+    }
+  }
+  Future<void> _openConnectedWalletForTransaction(SessionData session) async {
+    try {
+      final peerMetadata = session.peer.metadata;
+      final walletName = peerMetadata.name.toLowerCase();
+      WalletOption? matchedWallet;
 
+      for (final wallet in walletOptionsList) {
+        final walletNameLower = wallet.name.toLowerCase();
+        if (walletName.contains(walletNameLower) ||
+            walletNameLower
+                .contains(walletName.split(' ').first.toLowerCase())) {
+          matchedWallet = wallet;
+          break;
+        }
+      }
 
+      if (matchedWallet != null) {
+        logger.d('Opening ${matchedWallet.name} for transaction approval');
+        await _openWalletAppForTransaction(matchedWallet);
+      } else {
+        logger.d('Unknown wallet: $walletName, trying generic approach');
+        await _openGenericWallet(walletName);
+      }
+    } catch (e) {
+      logger.w('Failed to auto-open wallet app: $e');
+    }
+  }
 
+  Future<void> _openWalletAppForTransaction(WalletOption wallet) async {
+    try {
+      String deepLinkBase = wallet.deepLink.replaceAll('wc?uri=', '');
+      if (!deepLinkBase.endsWith('://')) {
+        deepLinkBase = deepLinkBase.replaceAll('://', '://');
+      }
 
+      final Uri deepLink = Uri.parse('${deepLinkBase}wc');
+      bool launched = false;
 
+      if (await canLaunchUrl(deepLink)) {
+        launched = await launchUrl(
+          deepLink,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+      if (!launched && wallet.fallbackUrl != null) {
+        String fallbackBase = wallet.fallbackUrl!.replaceAll('wc?uri=', '');
+        final Uri fallbackUri = Uri.parse('${fallbackBase}wc');
+        if (await canLaunchUrl(fallbackUri)) {
+          await launchUrl(
+            fallbackUri,
+            mode: LaunchMode.externalApplication,
+          );
+        }
+      }
+    } catch (e) {
+      logger.w('Failed to open ${wallet.name}: $e');
+    }
+  }
 
+  Future<void> _openGenericWallet(String walletName) async {
+    try {
+      final List<String> commonSchemes = [
+        '${walletName.replaceAll(' ', '').toLowerCase()}://',
+        '${walletName.replaceAll(' ', '').toLowerCase()}wallet://',
+        '${walletName.split(' ').first.toLowerCase()}://',
+      ];
 
+      for (final scheme in commonSchemes) {
+        try {
+          final Uri uri = Uri.parse('${scheme}wc');
+          if (await canLaunchUrl(uri)) {
+            final launched = await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            if (launched) {
+              logger.d('Successfully opened wallet with scheme: $scheme');
+              return;
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    } catch (e) {
+      logger.w('Failed to open wallet with generic approach: $e');
+    }
+  }
 
+  Future<String> signMessage(String message, {String? chainId}) async {
+    try {
+      if (!_isConnected || _web3App == null || _currentAddress == null) {
+        throw Exception('Wallet not connected');
+      }
 
+      _updateStatus('Signing message...');
 
+      final sessions = _web3App!.sessions.getAll();
+      if (sessions.isEmpty) {
+        throw Exception('No active WalletConnect session');
+      }
 
+      final targetChainId = chainId ?? _currentChainId ?? _defaultChainId;
+      final result = await _web3App!.request(
+        topic: sessions.first.topic,
+        chainId: 'eip155:$targetChainId',
+        request: SessionRequestParams(
+          method: 'personal_sign',
+          params: [
+            '0x${utf8.encode(message).map((byte) => byte.toRadixString(16).padLeft(2, '0')).join()}',
+            _currentAddress!,
+          ],
+        ),
+      );
 
+      final signature = result.toString();
+      _updateStatus('Message signed');
 
+      return signature;
+    } catch (e) {
+      _updateStatus('Message signing failed: ${e.toString()}');
+      logger.e('Error signing message: $e');
+      throw Exception('Failed to sign message: $e');
+    }
+  }
 
   Future<void> disconnectWallet() async {
     if (!_isConnected) return;
