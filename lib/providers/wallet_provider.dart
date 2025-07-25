@@ -11,7 +11,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 
 import 'dart:convert';
-import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' as http;
 
 enum InitializationState {
@@ -373,7 +372,7 @@ class WalletProvider extends ChangeNotifier {
   Future<bool> switchChain(String newChainId) async {
     logger.d('[switchChain] Requested chain id: $newChainId');
     if (!_isConnected) {
-      print('[switchChain] Wallet not connected.');
+      logger.e('[switchChain] Wallet not connected.');
       throw Exception('Wallet not connected');
     }
 
