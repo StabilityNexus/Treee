@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';  
 
 class MintNftDetailsPage extends StatefulWidget {
   const MintNftDetailsPage ({super.key});
@@ -48,6 +49,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const NewNFTWidget(),
+            const SizedBox(height: 20),
             const Text(
               "Enter NFT Details",
               style: TextStyle(fontSize: 30),
@@ -55,11 +58,14 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
             const SizedBox(height: 20),
             TextField(
+              minLines: 4,
+              maxLines: 8,
               controller: descriptionController,
               decoration: const InputDecoration(
                 labelText: "Description",
                 border: OutlineInputBorder(),
                 constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
+                alignLabelWithHint: true,
               ),
             ),
             const SizedBox(height: 10),

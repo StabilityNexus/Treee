@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';
 
 class MultipleImageUploadPage extends StatefulWidget {
   const MultipleImageUploadPage({Key? key}) : super(key: key);
@@ -163,6 +164,8 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const NewNFTWidget(),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(

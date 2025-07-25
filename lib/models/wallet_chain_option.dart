@@ -59,7 +59,7 @@ class WalletOption {
   final Map<String, Map<String, dynamic>> chainInfoList = {
     '1': {
       'name': 'Ethereum Mainnet',
-      'rpcUrl': 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY',
+      'rpcUrl': 'https://eth-mainnet.g.alchemy.com/v2/ghiIjYuaumHfkffONpzBEItpKXWt9952',
       'nativeCurrency': {
         'name': 'Ether',
         'symbol': 'ETH',
@@ -78,34 +78,7 @@ class WalletOption {
       },
       'blockExplorerUrl': 'https://sepolia.etherscan.io',
     },
-    '56': {
-      'name': 'BNB Smart Chain',
-      'rpcUrl': 'https://bsc-dataseed.binance.org',
-      'nativeCurrency': {
-        'name': 'BNB',
-        'symbol': 'BNB',
-        'decimals': 18,
-      },
-      'blockExplorerUrl': 'https://bscscan.com',
-    },
-    '137': {
-      'name': 'Polygon',
-      'rpcUrl': 'https://polygon-rpc.com',
-      'nativeCurrency': {
-        'name': 'MATIC',
-        'symbol': 'MATIC',
-        'decimals': 18,
-      },
-      'blockExplorerUrl': 'https://polygonscan.com',
-    },
-    '43114': {
-      'name': 'Avalanche C-Chain',
-      'rpcUrl': 'https://api.avax.network/ext/bc/C/rpc',
-      'nativeCurrency': {
-        'name': 'AVAX',
-        'symbol': 'AVAX',
-        'decimals': 18,
-      },
-      'blockExplorerUrl': 'https://snowtrace.io',
-    },
   };
+
+
+  

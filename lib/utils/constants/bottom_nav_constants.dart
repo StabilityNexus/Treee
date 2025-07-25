@@ -35,5 +35,11 @@ class BottomNavConstants {
       activeIcon: Icons.nature_people,
       route: RouteConstants.mintNftPath,
     ),
+    BottomNavItem(
+      label: 'Counter',
+      icon: Icons.nature_people_outlined,
+      activeIcon: Icons.nature_people,
+      route: '/counter',
+    ),
   ];
 }

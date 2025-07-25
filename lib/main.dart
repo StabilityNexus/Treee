@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
+import 'package:tree_planting_protocol/pages/switch_chain_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
+import 'package:tree_planting_protocol/pages/counter_page.dart';
 
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
@@ -20,8 +22,8 @@ class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
 
+final contractAddress = "0xa122109493B90e322824c3444ed8D6236CAbAB7C";
 void main() async {
-  
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
@@ -47,6 +49,13 @@ class MyApp extends StatelessWidget {
           },
         ),
         GoRoute(
+          path: '/counter',
+          name: 'counter_page',
+          builder: (BuildContext context, GoRouterState state) {
+            return CounterPage();
+          },
+        ),
+        GoRoute(
             path: RouteConstants.mintNftPath,
             name: RouteConstants.mintNft,
             builder: (context, state) => const MintNftCoordinatesPage(),
@@ -65,14 +74,12 @@ class MyApp extends StatelessWidget {
                   return const MultipleImageUploadPage();
                 },
               ),
-            ]
-        ),
-            
+            ]),
         GoRoute(
           path: RouteConstants.allTreesPath,
           name: RouteConstants.allTrees,
           builder: (BuildContext context, GoRouterState state) {
-            return const AllTreesPage();
+            return const SwitchChainPage();
           },
           routes: [
             GoRoute(

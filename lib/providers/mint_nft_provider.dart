@@ -16,6 +16,7 @@ class MintNftProvider extends ChangeNotifier {
   String getImageUri() => _imageUri;
   String getQrIpfsHash() => _qrIpfsHash;
   String getGeoHash() => _geoHash;
+  String getDescription() => _description;
   List<String> getInitialPhotos() => _initialPhotos;
 
   void setLatitude(double latitude) {

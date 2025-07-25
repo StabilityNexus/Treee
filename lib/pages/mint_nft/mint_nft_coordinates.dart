@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';
 
 class MintNftCoordinatesPage extends StatefulWidget {
   const MintNftCoordinatesPage({super.key});
@@ -48,6 +49,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const NewNFTWidget(),
+            const SizedBox(height: 20),
             const Text(
               "Enter your coordinates",
               style: TextStyle(fontSize: 30),
