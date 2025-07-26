@@ -5,6 +5,8 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
 import 'package:tree_planting_protocol/components/wallet_connect_dialog.dart';
 import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
+import 'package:tree_planting_protocol/utils/constants/tree_images.dart';
+import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
 
 class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -14,24 +16,6 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(120.0);
-
-  // Updated to use PNG file names instead of icons
-  final List<String> treeImages = const [
-    'tree-1.png',
-    'tree-2.png',
-    'tree-3.png',
-    'tree-4.png',
-    'tree-5.png',
-    'tree-6.png',
-    'tree-7.png',
-    'tree-8.png',
-    'tree-9.png',
-    'tree-10.png',
-    'tree-11.png',
-    'tree-12.png',
-    'tree-13.png',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final walletProvider = Provider.of<WalletProvider>(context);
@@ -39,7 +23,9 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       height: 140,
       decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? const Color.fromARGB(255, 1, 135, 12) : const Color.fromARGB(255, 28, 211, 129),
+        color: themeProvider.isDarkMode
+            ? const Color.fromARGB(255, 1, 135, 12)
+            : const Color.fromARGB(255, 28, 211, 129),
       ),
       child: Stack(
         children: [
@@ -72,7 +58,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                               width: 1,
                             ),
                           ),
-                           child: Image.asset(
+                          child: Image.asset(
                             'assets/tree-navbar-images/logo.png', // Fixed path to match your folder structure
                             width: 28,
                             height: 28,
@@ -82,9 +68,9 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                                 Icons.eco,
                                 color: Colors.green[600],
                                 size: 28,
-                            );
-                        },
-                      ),
+                              );
+                            },
+                          ),
                         ),
                         const SizedBox(width: 8),
                         if (title != null)
@@ -129,8 +115,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             icon: Icon(
-                              themeProvider.isDarkMode 
-                                  ? Icons.light_mode 
+                              themeProvider.isDarkMode
+                                  ? Icons.light_mode
                                   : Icons.dark_mode,
                               color: Colors.white,
                               size: 18,
@@ -138,16 +124,15 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                             onPressed: () {
                               themeProvider.toggleTheme();
                             },
-                            tooltip: themeProvider.isDarkMode 
-                                ? 'Switch to Light Mode' 
+                            tooltip: themeProvider.isDarkMode
+                                ? 'Switch to Light Mode'
                                 : 'Switch to Dark Mode',
                           ),
                         ),
-                        
                         const SizedBox(width: 6),
                         if (actions != null) ...actions!,
-                        
-                        if (walletProvider.isConnected && walletProvider.currentAddress != null)
+                        if (walletProvider.isConnected &&
+                            walletProvider.currentAddress != null)
                           _buildWalletMenu(context, walletProvider)
                         else
                           _buildConnectButton(context, walletProvider),
@@ -166,7 +151,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildPlantIllustrations() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 251, 251, 99).withOpacity(0.9), // Beige background
+        color: const Color.fromARGB(255, 251, 251, 99)
+            .withOpacity(0.9), // Beige background
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(40),
           topRight: Radius.circular(40),
@@ -185,13 +171,15 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, constraints) {
             final availableWidth = constraints.maxWidth;
             final plantWidth = 35.0;
-            final plantSpacing = 0.0; 
+            final plantSpacing = 0.0;
             final totalPlantWidth = plantWidth + plantSpacing;
-            final visiblePlantCount = (availableWidth / totalPlantWidth).floor();
-            
+            final visiblePlantCount =
+                (availableWidth / totalPlantWidth).floor();
+
             if (visiblePlantCount >= treeImages.length) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: treeImages.map((imagePath) {
@@ -216,7 +204,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               );
             }
-          
+
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -329,6 +317,10 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
               );
             }
           }
+
+          else if (value == 'Switch Chain') {
+            showChainSelector(context, walletProvider);
+          }
         },
         itemBuilder: (BuildContext context) => [
           const PopupMenuItem<String>(
@@ -336,6 +328,17 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
             child: ListTile(
               leading: Icon(Icons.copy, size: 20),
               title: Text('Copy Address'),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'Switch Chain',
+            child: ListTile(
+              leading: Icon(Icons.logout, color: Colors.red, size: 20),
+              title: Text(
+                'Switch Chain',
+                style: TextStyle(color: Colors.green),
+              ),
               contentPadding: EdgeInsets.symmetric(horizontal: 8),
             ),
           ),
@@ -355,7 +358,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildConnectButton(BuildContext context, WalletProvider walletProvider) {
+  Widget _buildConnectButton(
+      BuildContext context, WalletProvider walletProvider) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 80), // Limit max width
       decoration: BoxDecoration(
@@ -387,7 +391,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

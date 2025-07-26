@@ -247,6 +247,8 @@ class WalletProvider extends ChangeNotifier {
   final Map<String, Map<String, dynamic>> _chainInfo = chainInfoList;
   Map<String, Map<String, dynamic>> get chainInfo => chainInfoList;
 
+  get userAddress => null;
+
   List<Map<String, dynamic>> getSupportedChains() {
     return _chainInfo.entries.map((entry) {
       return {
