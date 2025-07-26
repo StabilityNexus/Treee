@@ -10,23 +10,27 @@ class AllTreesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: appName,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: () => context.push('/mint-nft'),
-            child: const Text(
-              'Mint NFT',
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'This page will display all the recent and nearby trees.',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               textAlign: TextAlign.center,
             ),
-
-          ),
-          Text(
-            'This is the All Trees Page',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-        ],
-      )
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                context.push('/mint-nft');
+              },
+              child: const Text('Mint a new NFT'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
