@@ -28,10 +28,3 @@ Future<String?> uploadToIPFS(File imageFile, Function(bool) setUploadingState) a
     return null;
   }
 }
-
-// Usage in your main file:
-// String? result = await uploadToIPFS(imageFile, (isUploading) {
-//   setState(() {
-//     _isUploading = isUploading;
-//   });
-// });

@@ -5,6 +5,7 @@ import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';
+import 'package:dart_geohash/dart_geohash.dart';
 
 class MintNftCoordinatesPage extends StatefulWidget {
   const MintNftCoordinatesPage({super.key});
@@ -16,10 +17,16 @@ class MintNftCoordinatesPage extends StatefulWidget {
 class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
+  var geoHasher = GeoHasher();
 
   void submitCoordinates() {
     final latitude = latitudeController.text;
     final longitude = longitudeController.text;
+    final geohash = geoHasher.encode(
+      double.parse(latitude),
+      double.parse(longitude),
+      precision: 12,
+    );
 
     if (latitude.isEmpty || longitude.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,6 +39,9 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         .setLatitude(double.parse(latitude));
     Provider.of<MintNftProvider>(context, listen: false)
         .setLongitude(double.parse(longitude));
+    Provider.of<MintNftProvider>(context, listen: false)
+        .setGeoHash(geohash);
+        
     latitudeController.clear();
     longitudeController.clear();
 

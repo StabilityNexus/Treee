@@ -111,8 +111,6 @@ class _CounterPageState extends State<CounterPage> {
 
       _showSuccessDialog('Transaction Sent!', 
           'Transaction hash: ${txHash.substring(0, 10)}...\n\nThe counter will update once the transaction is confirmed.');
-
-      // Auto-refresh count after a delay to allow transaction confirmation
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
           _loadCount();
@@ -204,8 +202,6 @@ class _CounterPageState extends State<CounterPage> {
             ),
             
             const SizedBox(height: 24),
-            
-            // Count Display Card
             Card(
               elevation: 4,
               color: Theme.of(context).primaryColor.withOpacity(0.1),
@@ -287,8 +283,6 @@ class _CounterPageState extends State<CounterPage> {
             ),
             
             const SizedBox(height: 24),
-            
-            // Action Buttons
             Row(
               children: [
                 Expanded(
@@ -335,8 +329,6 @@ class _CounterPageState extends State<CounterPage> {
                 ),
               ],
             ),
-            
-            // Transaction Hash Display
             if (lastTransactionHash != null) ...[
               const SizedBox(height: 16),
               Card(
@@ -383,8 +375,6 @@ class _CounterPageState extends State<CounterPage> {
             ],
             
             const Spacer(),
-            
-            // Status Information
             Consumer<WalletProvider>(
               builder: (context, walletProvider, child) {
                 return Card(

@@ -39,6 +39,10 @@ class _NewNFTWidgetState extends State<NewNFTWidget> {
                 style: const TextStyle(fontSize: 20),
               ),
               Text(
+                'GeoHash: ${(Provider.of<MintNftProvider>(ctx, listen: true).getGeoHash())}',
+                style: const TextStyle(fontSize: 20),
+              ),
+              Text(
                 'Species: ${Provider.of<MintNftProvider>(ctx, listen: true).getSpecies()}',
                 style: const TextStyle(fontSize: 20),
               ),
