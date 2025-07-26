@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
+import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/switch_chain_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
@@ -49,6 +50,13 @@ class MyApp extends StatelessWidget {
           },
         ),
         GoRoute(
+          path: '/settings',
+          name: 'settings_page',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SettingsPage();
+          },
+        ),
+        GoRoute(
           path: '/counter',
           name: 'counter_page',
           builder: (BuildContext context, GoRouterState state) {
@@ -79,7 +87,7 @@ class MyApp extends StatelessWidget {
           path: RouteConstants.allTreesPath,
           name: RouteConstants.allTrees,
           builder: (BuildContext context, GoRouterState state) {
-            return const SwitchChainPage();
+            return const AllTreesPage();
           },
           routes: [
             GoRoute(

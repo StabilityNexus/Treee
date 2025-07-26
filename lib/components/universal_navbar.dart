@@ -266,15 +266,18 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.green[700],
               ),
               const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  formatAddress(walletProvider.currentAddress!),
-                  style: TextStyle(
-                    color: Colors.green[700],
-                    fontWeight: FontWeight.w600,
-                    fontSize: 10,
+              Container(
+                width: 10,
+                child: Flexible(
+                  child: Text(
+                    formatAddress(walletProvider.currentAddress!),
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Icon(

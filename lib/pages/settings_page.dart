@@ -21,6 +21,8 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             Consumer<WalletProvider>(
               builder: (ctx, walletProvider, __) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'User Address: ${walletProvider.userAddress}',
