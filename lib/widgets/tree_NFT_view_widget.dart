@@ -10,50 +10,59 @@ class NewNFTWidget extends StatefulWidget {
   State<NewNFTWidget> createState() => _NewNFTWidgetState();
 }
 
-
-String _formatDescription(String description) {
-  return description.length > 50
-      ? '${description.substring(0, 50)}...'
-      : description;
-}
 class _NewNFTWidgetState extends State<NewNFTWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.green, width: 2),
-        borderRadius: BorderRadius.circular(8.0),
-        color: Colors.white,
-      ),
-      child: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Consumer<MintNftProvider>(builder: (ctx, _, __) {
-            return Column(children: [
-              Text(
-                'Latitude: ${Provider.of<MintNftProvider>(ctx, listen: true).getLatitude()}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Longitude: ${Provider.of<MintNftProvider>(ctx, listen: true).getLongitude()}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                'GeoHash: ${(Provider.of<MintNftProvider>(ctx, listen: true).getGeoHash())}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Species: ${Provider.of<MintNftProvider>(ctx, listen: true).getSpecies()}',
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Description: ${formatAddress(Provider.of<MintNftProvider>(ctx, listen: true).getDescription())}',
-                style: const TextStyle(fontSize: 20),
-              ),
-            ]);
-          })
-        ]),
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 350),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.green, width: 2),
+          borderRadius: BorderRadius.circular(8.0),
+          color: Colors.white,
+        ),
+        child: Consumer<MintNftProvider>(
+          builder: (ctx, provider, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Latitude: ${provider.getLatitude()}',
+                  style: const TextStyle(fontSize: 18),
+                  softWrap: true,
+                ),
+                Text(
+                  'Longitude: ${provider.getLongitude()}',
+                  style: const TextStyle(fontSize: 18),
+                  softWrap: true,
+                ),
+                Text(
+                  'GeoHash: ${provider.getGeoHash()}',
+                  style: const TextStyle(fontSize: 18),
+                  softWrap: true,
+                ),
+                Text(
+                  'Species: ${provider.getSpecies()}',
+                  style: const TextStyle(fontSize: 18),
+                  softWrap: true,
+                ),
+                Text(
+                  'Description: ${_formatDescription(provider.getDescription())}',
+                  style: const TextStyle(fontSize: 18),
+                  softWrap: true,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
+}
+
+String _formatDescription(String description) {
+  return description.length > 80
+      ? '${description.substring(0, 80)}...'
+      : description;
 }

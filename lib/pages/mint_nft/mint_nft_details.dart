@@ -46,46 +46,49 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     return BaseScaffold(
       title: "NFT Details",
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const NewNFTWidget(),
-            const SizedBox(height: 20),
-            const Text(
-              "Enter NFT Details",
-              style: TextStyle(fontSize: 30),
-              textAlign: TextAlign.center,
+        child: SingleChildScrollView(
+          child: 
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const NewNFTWidget(),
+                const SizedBox(height: 20),
+                const Text(
+                  "Enter NFT Details",
+                  style: TextStyle(fontSize: 30),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  minLines: 4,
+                  maxLines: 8,
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: "Description",
+                    border: OutlineInputBorder(),
+                    constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
+                    alignLabelWithHint: true,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: speciesController,
+                  decoration: const InputDecoration(
+                    labelText: "Species",
+                    border: OutlineInputBorder(),
+                    constraints: BoxConstraints(maxWidth: 300),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: submitDetails,
+                  child: const Text(
+                    "Next",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                )
+              ],
             ),
-            const SizedBox(height: 20),
-            TextField(
-              minLines: 4,
-              maxLines: 8,
-              controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: "Description",
-                border: OutlineInputBorder(),
-                constraints: BoxConstraints(maxWidth: 300, maxHeight: 200),
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: speciesController,
-              decoration: const InputDecoration(
-                labelText: "Species",
-                border: OutlineInputBorder(),
-                constraints: BoxConstraints(maxWidth: 300),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: submitDetails,
-              child: const Text(
-                "Next",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
-            )
-          ],
         ),
       ),
     );

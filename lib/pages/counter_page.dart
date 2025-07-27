@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
@@ -11,8 +12,8 @@ class CounterPage extends StatefulWidget {
 }
 
 class _CounterPageState extends State<CounterPage> {
-  static const String contractAddress = '0xa122109493B90e322824c3444ed8D6236CAbAB7C';
-  static const String chainId = '11155111'; // Sepolia testnet
+  static final String contractAddress = dotenv.env['CONTRACT_ADDRESS'] ?? '0xa122109493B90e322824c3444ed8D6236CAbAB7C';
+  static const String chainId = '11155111'; 
   
   static const List<Map<String, dynamic>> contractAbi = [
     {
