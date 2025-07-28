@@ -1,6 +1,8 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CoordinatesMap extends StatefulWidget {
@@ -26,60 +28,67 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
     return Scaffold(
       body: Stack(
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: LatLng(28.7041, 77.1025), // Delhi coordinates
-              initialZoom: 10.0,
-              minZoom: 3.0,
-              maxZoom: 18.0,
-              onMapReady: () {
-                setState(() {
-                  _mapLoaded = true;
-                });
-              },
-              onTap: (tapPosition, point) {
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'tree_planting_protocol', 
-                retinaMode: true,
-                errorTileCallback: (tile, error, stackTrace) {
-                  setState(() {
-                    _errorMessage = 'Tile loading error: $error';
-                  });
-                },
-                tileBuilder: (context, tileWidget, tile) {
-                  return tileWidget;
-                },
-              ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: LatLng(28.7041, 77.1025),
-                    width: 80,
-                    height: 80,
-                    child: Icon(
-                      Icons.location_pin,
-                      color: Colors.red,
-                      size: 40,
-                    ),
+          Consumer<MintNftProvider>(
+            builder: (context, provider, _) {
+              return Center(
+                child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: LatLng(50, 30.15), 
+                  initialZoom: 10.0,
+                  minZoom: 3.0,
+                  maxZoom: 18.0,
+                  onMapReady: () {
+                    setState(() {
+                      _mapLoaded = true;
+                    });
+                  },
+                  onTap: (tapPosition, point) {
+                  },
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'tree_planting_protocol', 
+                    retinaMode: true,
+                    errorTileCallback: (tile, error, stackTrace) {
+                      setState(() {
+                        _errorMessage = 'Tile loading error: $error';
+                      });
+                    },
+                    tileBuilder: (context, tileWidget, tile) {
+                      return tileWidget;
+                    },
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(180,67),
+                        width: 80,
+                        height: 80,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                          size: 40,
+                        ),
+                      ),
+                    ],
+                  ),
+                  RichAttributionWidget(
+                    attributions: [
+                      TextSourceAttribution(
+                        'OpenStreetMap contributors',
+                        onTap: () => launchUrl(
+                          Uri.parse('https://openstreetmap.org/copyright'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              RichAttributionWidget(
-                attributions: [
-                  TextSourceAttribution(
-                    'OpenStreetMap contributors',
-                    onTap: () => launchUrl(
-                      Uri.parse('https://openstreetmap.org/copyright'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              );
+            },
+            
           ),
           Positioned(
             top: 10,
