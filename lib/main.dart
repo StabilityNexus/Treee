@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
@@ -79,6 +80,13 @@ class MyApp extends StatelessWidget {
                 name: '${RouteConstants.mintNft}_images',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MultipleImageUploadPage();
+                },
+              ),
+              GoRoute(
+                path: 'submit-nft', // This will be /trees/details
+                name: '${RouteConstants.mintNft}_submit',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const SubmitNFTPage();
                 },
               ),
             ]),

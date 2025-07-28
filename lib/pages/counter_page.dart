@@ -66,7 +66,6 @@ class _CounterPageState extends State<CounterPage> {
       );
 
       setState(() {
-        // The result is a List, and getCount returns a single uint256
         currentCount = result.isNotEmpty ? result[0].toString() : '0';
         isLoading = false;
       });

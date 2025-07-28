@@ -71,7 +71,6 @@ class _LocationWidgetState extends State<LocationWidget> {
     Location location = Location();
 
     try {
-      // Check if location service is enabled
       bool serviceEnabled = await location.serviceEnabled();
       if (!serviceEnabled) {
         serviceEnabled = await location.requestService();
@@ -83,8 +82,6 @@ class _LocationWidgetState extends State<LocationWidget> {
           return;
         }
       }
-
-      // Check and request location permissions
       PermissionStatus permissionGranted = await location.hasPermission();
       if (permissionGranted == PermissionStatus.denied) {
         permissionGranted = await location.requestPermission();
@@ -96,8 +93,6 @@ class _LocationWidgetState extends State<LocationWidget> {
           return;
         }
       }
-
-      // Get current location
       LocationData locationData = await location.getLocation();
 
       setState(() {
@@ -115,7 +110,6 @@ class _LocationWidgetState extends State<LocationWidget> {
   }
 }
 
-// Example usage in your main app
 class LocationApp extends StatelessWidget {
   const LocationApp({Key? key}) : super(key: key);
 
