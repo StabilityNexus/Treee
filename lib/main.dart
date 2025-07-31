@@ -9,7 +9,6 @@ import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
-import 'package:tree_planting_protocol/pages/counter_page.dart';
 
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
@@ -54,13 +53,6 @@ class MyApp extends StatelessWidget {
           name: 'settings_page',
           builder: (BuildContext context, GoRouterState state) {
             return const SettingsPage();
-          },
-        ),
-        GoRoute(
-          path: '/counter',
-          name: 'counter_page',
-          builder: (BuildContext context, GoRouterState state) {
-            return CounterPage();
           },
         ),
         GoRoute(

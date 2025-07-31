@@ -436,7 +436,7 @@ class WalletProvider extends ChangeNotifier {
   Future<String> writeContract({
     required String contractAddress,
     required String functionName,
-    required dynamic abi,
+    required String abi, // Changed to only accept String
     String? chainId,
     List<dynamic> params = const [],
     BigInt? value,
@@ -446,34 +446,36 @@ class WalletProvider extends ChangeNotifier {
       if (!_isConnected || _web3App == null || _currentAddress == null) {
         throw Exception('Wallet not connected');
       }
+      
       _updateStatus('Preparing transaction...');
-      List<dynamic> abiList;
-      if (abi is String) {
-        abiList = json.decode(abi);
-      } else if (abi is List) {
-        abiList = abi;
-      } else {
-        throw Exception('Invalid ABI format');
-      }
+      
+      // Decode the JSON ABI string
+      final abiList = json.decode(abi) as List<dynamic>;
+      
       final contract = DeployedContract(
         ContractAbi.fromJson(json.encode(abiList), ''),
         EthereumAddress.fromHex(contractAddress),
       );
+      
       final function = contract.function(functionName);
       final encodedFunction = function.encodeCall(params);
       final targetChainId = chainId ?? _currentChainId ?? _defaultChainId;
+      
       if (_currentChainId != targetChainId) {
         logger.w(
             'Target chain ($targetChainId) differs from current chain ($_currentChainId)');
         _updateStatus(
             'Chain mismatch detected. Current: $_currentChainId, Target: $targetChainId');
       }
+      
       final rpcUrl = getChainDetails(targetChainId).first['rpcUrl'] as String?;
       final httpClient = http.Client();
       final ethClient = Web3Client(rpcUrl as String, httpClient);
+      
       final nonce = await ethClient.getTransactionCount(
         EthereumAddress.fromHex(_currentAddress!),
       );
+      
       BigInt estimatedGas = gasLimit ?? BigInt.from(100000);
       if (gasLimit == null) {
         try {
@@ -488,8 +490,10 @@ class WalletProvider extends ChangeNotifier {
           logger.w('Gas estimation failed, using default: $e');
         }
       }
+      
       final gasPrice = await ethClient.getGasPrice();
       httpClient.close();
+      
       final transaction = {
         'from': _currentAddress!,
         'to': contractAddress,

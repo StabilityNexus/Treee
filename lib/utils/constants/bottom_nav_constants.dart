@@ -30,13 +30,6 @@ class BottomNavConstants {
       route: RouteConstants.allTreesPath,
     ),
     BottomNavItem(
-      label: 'Counter',
-      icon: Icons.nature_people_outlined,
-      activeIcon: Icons.nature_people,
-      route: '/counter',
-    ),
-
-    BottomNavItem(
       label: 'Settings',
       icon: Icons.settings_outlined,
       activeIcon: Icons.settings,

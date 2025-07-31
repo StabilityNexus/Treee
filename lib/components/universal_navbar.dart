@@ -337,7 +337,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
           const PopupMenuItem<String>(
             value: 'Switch Chain',
             child: ListTile(
-              leading: Icon(Icons.logout, color: Colors.red, size: 20),
+              leading: Icon(Icons.switch_access_shortcut, color: Colors.green, size: 20),
               title: Text(
                 'Switch Chain',
                 style: TextStyle(color: Colors.green),

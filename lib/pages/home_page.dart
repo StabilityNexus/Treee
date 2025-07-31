@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/utils/constants/navbar_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
-import 'package:tree_planting_protocol/widgets/location.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -24,10 +23,6 @@ class HomePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 300, maxHeight: 300),
-              child: const LocationWidget(),
-            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
