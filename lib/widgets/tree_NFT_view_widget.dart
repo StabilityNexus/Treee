@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
-import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
 
 class NewNFTWidget extends StatefulWidget {
   const NewNFTWidget({super.key});

@@ -219,13 +219,11 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         ),
         child: Column(
           children: [
-            // Form Section
+
             _buildFormSection(screenWidth, screenHeight),
             
             const SizedBox(height: 32),
             
-            // Preview Section
-            _buildPreviewSection(),
           ],
         ),
       ),
@@ -257,7 +255,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Form Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(24),
@@ -319,17 +316,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                // Location Status
                 _buildLocationStatus(),
-                
                 const SizedBox(height: 24),
-                
-                // Map Section
                 _buildMapSection(screenHeight),
-                
                 const SizedBox(height: 24),
-                
-                // Instructions
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -362,8 +352,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 ),
                 
                 const SizedBox(height: 24),
-                
-                // Coordinate Fields
                 Row(
                   children: [
                     Expanded(
@@ -387,8 +375,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 ),
                 
                 const SizedBox(height: 32),
-                
-                // Submit Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,

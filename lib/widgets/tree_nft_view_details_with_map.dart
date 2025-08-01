@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
-import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
 import 'package:tree_planting_protocol/widgets/flutter_map_widget.dart';
 
 class NewNFTMapWidget extends StatefulWidget {
@@ -17,8 +16,6 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
     final screenSize = MediaQuery.of(context).size;
     final screenWidth = screenSize.width;
     final screenHeight = screenSize.height;
-    
-    // Responsive dimensions
     final mapHeight = screenHeight * 0.35; 
     final mapWidth = screenWidth * 0.9; 
     final containerMaxWidth = screenWidth * 0.95; 
@@ -51,15 +48,13 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
           ),
           
           const SizedBox(height: 20),
-          
-          // Information Card
           Container(
             width: double.infinity,
             constraints: BoxConstraints(
               maxWidth: containerMaxWidth,
               minHeight: 120,
             ),
-            padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
+            padding: EdgeInsets.all(screenWidth * 0.04),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.green, width: 2),
               borderRadius: BorderRadius.circular(12.0),

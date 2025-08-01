@@ -21,8 +21,6 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
-
-final contractAddress = "0xa122109493B90e322824c3444ed8D6236CAbAB7C";
 void main() async {
   try {
     await dotenv.load(fileName: ".env");

@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 
 class CoordinatesMap extends StatefulWidget {
   final Function(double lat, double lng)? onLocationSelected;
@@ -18,9 +19,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
   bool _mapLoaded = false;
   bool _hasError = false;
   String? _errorMessage;
-  
-  // Default location (you can change this to any default location)
-  static const double _defaultLat = 28.9845; // Example: Roorkee, India
+  static const double _defaultLat = 28.9845;
   static const double _defaultLng = 77.8956;
 
   @override
@@ -103,7 +102,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
           mapController: _mapController,
           options: MapOptions(
             initialCenter: LatLng(latitude, longitude),
-            initialZoom: 15.0,
+            initialZoom: 1.0,
             minZoom: 3.0,
             maxZoom: 18.0,
             interactionOptions: const InteractionOptions(
@@ -325,7 +324,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
   }
   double _sanitizeCoordinate(double value, double defaultValue) {
     if (value.isNaN || value.isInfinite || value == double.infinity || value == double.negativeInfinity) {
-      print('Invalid coordinate detected: $value, using default: $defaultValue');
+      logger.e('Invalid coordinate detected: $value, using default: $defaultValue');
       return defaultValue;
     }
     return value;
@@ -337,10 +336,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
     double longitude = _sanitizeCoordinate(widget.lng, _defaultLng);
     latitude = latitude.clamp(-90.0, 90.0);
     longitude = longitude.clamp(-180.0, 180.0);
-
-    // Debug print to see what values we're getting
-    print('StaticDisplayMap - lat: $latitude, lng: $longitude');
-    print('Widget.lat: ${widget.lat}, Widget.lng: ${widget.lng}');
 
     return Container(
       decoration: BoxDecoration(
@@ -401,9 +396,8 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
   }
 
   Widget _buildMapWidget(double latitude, double longitude) {
-    // Final safety check before creating LatLng
     if (latitude.isNaN || latitude.isInfinite || longitude.isNaN || longitude.isInfinite) {
-      print('ERROR: Invalid coordinates in _buildMapWidget - lat: $latitude, lng: $longitude');
+      logger.e('ERROR: Invalid coordinates in _buildMapWidget - lat: $latitude, lng: $longitude');
       latitude = _defaultLat;
       longitude = _defaultLng;
     }
