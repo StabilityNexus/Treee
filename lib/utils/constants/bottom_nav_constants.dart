@@ -29,5 +29,11 @@ class BottomNavConstants {
       activeIcon: Icons.forest,
       route: RouteConstants.allTreesPath,
     ),
+    BottomNavItem(
+      label: 'Settings',
+      icon: Icons.settings_outlined,
+      activeIcon: Icons.settings,
+      route: '/settings',
+    ),
   ];
 }

@@ -1,25 +1,33 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:tree_planting_protocol/pages/home_page.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
+import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
+
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
+import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
-
 void main() async {
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    print("No .env file found or error loading it: $e");
+    logger.d("No .env file found or error loading it: $e");
   }
-  
+
   runApp(const MyApp());
 }
 
@@ -28,7 +36,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize GoRouter inside MyApp
     final GoRouter router = GoRouter(
       initialLocation: RouteConstants.homePath,
       routes: [
@@ -40,13 +47,46 @@ class MyApp extends StatelessWidget {
           },
         ),
         GoRoute(
+          path: '/settings',
+          name: 'settings_page',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SettingsPage();
+          },
+        ),
+        GoRoute(
+            path: RouteConstants.mintNftPath,
+            name: RouteConstants.mintNft,
+            builder: (context, state) => const MintNftCoordinatesPage(),
+            routes: [
+              GoRoute(
+                path: 'details', // This will be /trees/details
+                name: '${RouteConstants.mintNft}_details',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const MintNftDetailsPage();
+                },
+              ),
+              GoRoute(
+                path: 'images', // This will be /trees/details
+                name: '${RouteConstants.mintNft}_images',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const MultipleImageUploadPage();
+                },
+              ),
+              GoRoute(
+                path: 'submit-nft', // This will be /trees/details
+                name: '${RouteConstants.mintNft}_submit',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const SubmitNFTPage();
+                },
+              ),
+            ]),
+        GoRoute(
           path: RouteConstants.allTreesPath,
           name: RouteConstants.allTrees,
           builder: (BuildContext context, GoRouterState state) {
             return const AllTreesPage();
           },
           routes: [
-            // Nested route for tree details
             GoRoute(
               path: 'details', // This will be /trees/details
               name: '${RouteConstants.allTrees}_details',
@@ -68,6 +108,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => WalletProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => MintNftProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

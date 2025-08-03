@@ -18,11 +18,12 @@ class HomePage extends StatelessWidget {
             Text(
               'Welcome to the Tree Planting Protocol!',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 context.push(RouteConstants.allTreesPath);

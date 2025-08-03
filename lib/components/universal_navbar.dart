@@ -5,6 +5,8 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
 import 'package:tree_planting_protocol/components/wallet_connect_dialog.dart';
 import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
+import 'package:tree_planting_protocol/utils/constants/tree_images.dart';
+import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
 
 class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -13,352 +15,412 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   const UniversalNavbar({super.key, this.title, this.actions});
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
+  Size get preferredSize => const Size.fromHeight(120.0);
   @override
   Widget build(BuildContext context) {
     final walletProvider = Provider.of<WalletProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return AppBar(
-      title: Text(title ?? ''),
-      actions: [
-        // Theme toggle button
-        IconButton(
-          icon: Icon(
-            themeProvider.isDarkMode 
-                ? Icons.light_mode 
-                : Icons.dark_mode,
+    return Container(
+      height: 140,
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode
+            ? const Color.fromARGB(255, 1, 135, 12)
+            : const Color.fromARGB(255, 28, 211, 129),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 40,
+              child: _buildPlantIllustrations(),
+            ),
           ),
-          onPressed: () {
-            themeProvider.toggleTheme();
-          },
-          tooltip: themeProvider.isDarkMode 
-              ? 'Switch to Light Mode' 
-              : 'Switch to Dark Mode',
-        ),
-        
-        // Chain selector (only show when connected)
-        if (walletProvider.isConnected)
-          _buildChainSelector(context, walletProvider),
-        
-        ...?actions,
-        
-        // Wallet connection/menu
-        if (walletProvider.isConnected && walletProvider.currentAddress != null)
-          _buildWalletMenu(context, walletProvider)
-        else
-          _buildConnectButton(context, walletProvider),
-      ],
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Image.asset(
+                            'assets/tree-navbar-images/logo.png', // Fixed path to match your folder structure
+                            width: 28,
+                            height: 28,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.eco,
+                                color: Colors.green[600],
+                                size: 28,
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (title != null)
+                          Flexible(
+                            child: Text(
+                              title!,
+                              style: const TextStyle(
+                                color: Color.fromARGB(251, 179, 249, 2),
+                                fontSize: 30,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    color: Colors.black26,
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              themeProvider.isDarkMode
+                                  ? Icons.light_mode
+                                  : Icons.dark_mode,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              themeProvider.toggleTheme();
+                            },
+                            tooltip: themeProvider.isDarkMode
+                                ? 'Switch to Light Mode'
+                                : 'Switch to Dark Mode',
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        if (actions != null) ...actions!,
+                        if (walletProvider.isConnected &&
+                            walletProvider.currentAddress != null)
+                          _buildWalletMenu(context, walletProvider)
+                        else
+                          _buildConnectButton(context, walletProvider),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildChainSelector(BuildContext context, WalletProvider walletProvider) {
-    return PopupMenuButton<String>(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.blue[800]
-              : Colors.blue[50],
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.blue[600]!
-                : Colors.blue[200]!,
-          ),
+  Widget _buildPlantIllustrations() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 251, 251, 99)
+            .withOpacity(0.9), // Beige background
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.language,
-              size: 16,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.blue[200]
-                  : Colors.blue[700],
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _getChainDisplayName(walletProvider.currentChainName),
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.blue[200]
-                    : Colors.blue[700],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 2),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 16,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.blue[200]
-                  : Colors.blue[700],
-            ),
-          ],
+        border: Border.all(
+          color: Colors.black.withOpacity(0.2),
+          width: 1,
         ),
       ),
-      tooltip: 'Switch Network',
-      onSelected: (chainId) async {
-        if (chainId != walletProvider.currentChainId) {
-          await _switchChain(context, walletProvider, chainId);
-        }
-      },
-      itemBuilder: (BuildContext context) {
-        final supportedChains = walletProvider.getSupportedChains();
-        return supportedChains.map((chain) {
-          final isCurrentChain = chain['isCurrentChain'] as bool;
-          return PopupMenuItem<String>(
-            value: chain['chainId'] as String,
-            child: Row(
-              children: [
-                Icon(
-                  _getChainIcon(chain['chainId'] as String),
-                  size: 20,
-                  color: isCurrentChain 
-                      ? Colors.green 
-                      : Theme.of(context).iconTheme.color,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        chain['name'] as String,
-                        style: TextStyle(
-                          fontWeight: isCurrentChain 
-                              ? FontWeight.bold 
-                              : FontWeight.normal,
-                          color: isCurrentChain 
-                              ? Colors.green 
-                              : null,
-                        ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final availableWidth = constraints.maxWidth;
+            final plantWidth = 35.0;
+            final plantSpacing = 0.0;
+            final totalPlantWidth = plantWidth + plantSpacing;
+            final visiblePlantCount =
+                (availableWidth / totalPlantWidth).floor();
+
+            if (visiblePlantCount >= treeImages.length) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: treeImages.map((imagePath) {
+                    return Container(
+                      width: plantWidth,
+                      height: plantWidth,
+                      child: Image.asset(
+                        'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                        width: 28,
+                        height: 28,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.eco,
+                            color: Colors.green[600],
+                            size: 28,
+                          );
+                        },
                       ),
-                      Text(
-                        '${chain['nativeCurrency']['symbol']} Network',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  }).toList(),
                 ),
-                if (isCurrentChain)
-                  const Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 20,
-                  ),
-              ],
-            ),
-          );
-        }).toList();
-      },
+              );
+            }
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: treeImages.map((imagePath) {
+                  return Container(
+                    width: plantWidth,
+                    height: plantWidth,
+                    margin: EdgeInsets.zero,
+                    child: Image.asset(
+                      'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                      width: 35,
+                      height: 35,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.eco,
+                          color: Colors.green[600],
+                          size: 28,
+                        );
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget _buildWalletMenu(BuildContext context, WalletProvider walletProvider) {
-    return PopupMenuButton<String>(
-      icon: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Chip(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.green[800]
-              : Colors.green[50],
-          label: Text(
-            formatAddress(walletProvider.currentAddress!),
-            style: TextStyle(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.green[200]
-                  : Colors.green[800],
-            ),
-          ),
-          avatar: Icon(
-            Icons.account_balance_wallet,
-            size: 20,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.green[200]
-                : Colors.green,
-          ),
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 100), // Limit max width
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.green.withOpacity(0.3),
+          width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      onSelected: (value) async {
-        if (value == 'disconnect') {
-          await walletProvider.disconnectWallet();
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Wallet disconnected'),
-                backgroundColor: Colors.green,
+      child: PopupMenuButton<String>(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                size: 14,
+                color: Colors.green[700],
               ),
-            );
-          }
-        } else if (value == 'copy') {
-          await Clipboard.setData(
-            ClipboardData(text: walletProvider.currentAddress!),
-          );
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Address copied to clipboard'),
-                backgroundColor: Colors.blue,
+              const SizedBox(width: 4),
+              Container(
+                width: 10,
+                child: Flexible(
+                  child: Text(
+                    formatAddress(walletProvider.currentAddress!),
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            );
-          }
-        }
-      },
-      itemBuilder: (BuildContext context) => [
-        const PopupMenuItem<String>(
-          value: 'copy',
-          child: ListTile(
-            leading: Icon(Icons.copy),
-            title: Text('Copy Address'),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 14,
+                color: Colors.green[700],
+              ),
+            ],
           ),
         ),
-        const PopupMenuItem<String>(
-          value: 'disconnect',
-          child: ListTile(
-            leading: Icon(Icons.logout, color: Colors.red),
-            title: Text(
-              'Disconnect',
-              style: TextStyle(color: Colors.red),
+        onSelected: (value) async {
+          if (value == 'disconnect') {
+            await walletProvider.disconnectWallet();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Wallet disconnected'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+            }
+          } else if (value == 'copy') {
+            await Clipboard.setData(
+              ClipboardData(text: walletProvider.currentAddress!),
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Address copied to clipboard'),
+                  backgroundColor: Colors.blue[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+            }
+          }
+
+          else if (value == 'Switch Chain') {
+            showChainSelector(context, walletProvider);
+          }
+        },
+        itemBuilder: (BuildContext context) => [
+          const PopupMenuItem<String>(
+            value: 'copy',
+            child: ListTile(
+              leading: Icon(Icons.copy, size: 20),
+              title: Text('Copy Address'),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
             ),
           ),
+          const PopupMenuItem<String>(
+            value: 'Switch Chain',
+            child: ListTile(
+              leading: Icon(Icons.switch_access_shortcut, color: Colors.green, size: 20),
+              title: Text(
+                'Switch Chain',
+                style: TextStyle(color: Colors.green),
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'disconnect',
+            child: ListTile(
+              leading: Icon(Icons.logout, color: Colors.red, size: 20),
+              title: Text(
+                'Disconnect',
+                style: TextStyle(color: Colors.red),
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConnectButton(
+      BuildContext context, WalletProvider walletProvider) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 80), // Limit max width
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.green.withOpacity(0.3),
+          width: 1,
         ),
-      ],
-    );
-  }
-
-  Widget _buildConnectButton(BuildContext context, WalletProvider walletProvider) {
-    return IconButton(
-      icon: const Icon(Icons.account_balance_wallet),
-      onPressed: () async {
-        final uri = await walletProvider.connectWallet();
-        if (uri != null && context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) => WalletConnectDialog(uri: uri),
-          );
-        }
-      },
-      tooltip: 'Connect Wallet',
-    );
-  }
-
-  Future<void> _switchChain(BuildContext context, WalletProvider walletProvider, String chainId) async {
-    try {
-      // Show loading indicator
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () async {
+            final uri = await walletProvider.connectWallet();
+            if (uri != null && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => WalletConnectDialog(uri: uri),
+              );
+            }
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                Icon(
+                  Icons.account_balance_wallet,
+                  size: 16,
+                  color: Colors.green[700],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text('Switching to ${walletProvider.chainInfo[chainId]?['name'] ?? 'Unknown Chain'}...'),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    'Connect',
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
-            duration: const Duration(seconds: 5),
           ),
-        );
-      }
-
-      // Perform chain switch
-      final success = await walletProvider.switchChain(chainId);
-      
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        
-        if (success) {
-          // Refresh chain info to make sure we have the latest
-          await walletProvider.refreshChainInfo();
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Switched to ${walletProvider.currentChainName}'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Chain switch was cancelled'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      print('Chain switch error: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        
-        String errorMessage = 'Failed to switch chain';
-        if (e.toString().contains('not supported')) {
-          errorMessage = 'Chain switching not supported by this wallet';
-        } else if (e.toString().contains('User rejected')) {
-          errorMessage = 'Chain switch cancelled by user';
-        } else if (e.toString().contains('4902')) {
-          errorMessage = 'Chain not found in wallet. Try adding it manually.';
-        }
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Retry',
-              onPressed: () => _switchChain(context, walletProvider, chainId),
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  String _getChainDisplayName(String chainName) {
-    // Shorten chain names for display
-    switch (chainName) {
-      case 'Ethereum Mainnet':
-        return 'ETH';
-      case 'Sepolia Testnet':
-        return 'SEP';
-      case 'BNB Smart Chain':
-        return 'BSC';
-      case 'Polygon':
-        return 'MATIC';
-      case 'Avalanche C-Chain':
-        return 'AVAX';
-      default:
-        return chainName.length > 6 ? chainName.substring(0, 6) : chainName;
-    }
-  }
-
-  IconData _getChainIcon(String chainId) {
-    switch (chainId) {
-      case '1':
-        return Icons.diamond; // Ethereum
-      case '11155111':
-        return Icons.science; // Sepolia (testnet)
-      case '56':
-        return Icons.speed; // BSC
-      case '137':
-        return Icons.polyline; // Polygon
-      case '43114':
-        return Icons.ac_unit; // Avalanche
-      default:
-        return Icons.link;
-    }
+        ),
+      ),
+    );
   }
 }
