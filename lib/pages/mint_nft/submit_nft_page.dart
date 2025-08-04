@@ -104,8 +104,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         lat,
         lng,
         mintNftProvider.getSpecies(),
-        "sampleHash",
-        "sameQRIPFSHash",
+        mintNftProvider.getInitialPhotos().isNotEmpty ? mintNftProvider.getInitialPhotos()[0] : "",
+        "",
         mintNftProvider.getGeoHash(),
         mintNftProvider.getInitialPhotos(),
       ];

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/tree_nft_view_details_with_map.dart';
@@ -43,6 +44,8 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
           _selectedImages = images.map((image) => File(image.path)).toList();
         });
       }
+      logger.d('selected images $_selectedImages');
+      _uploadAllImages();
     } catch (e) {
       _showSnackBar('Error selecting images: $e');
     }
@@ -190,15 +193,6 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: (_selectedImages.isEmpty || _isUploading)
-                                ? null
-                                : _uploadAllImages,
-                            icon: const Icon(Icons.cloud_upload),
-                            label: const Text('Upload All'),
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -231,7 +225,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         height: 120,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _selectedImages.length,
+                          itemCount: _uploadedHashes.length,
                           itemBuilder: (context, index) {
                             return Container(
                               width: 120,
@@ -312,14 +306,13 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                       ),
                     const SizedBox(height: 8),
                     ElevatedButton(
-                      onPressed: () {
-                        context.push('/mint-nft/submit-nft');
-                      }, 
-                      child: Text(
-                        "Submit NFT",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      )
-                    ),
+                        onPressed: () {
+                          context.push('/mint-nft/submit-nft');
+                        },
+                        child: Text(
+                          "Submit NFT",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        )),
                     NewNFTMapWidget(),
                   ],
                 ),
@@ -375,7 +368,6 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                               IconButton(
                                 icon: const Icon(Icons.open_in_new),
                                 onPressed: () {
-                                  // You can implement opening the IPFS link here
                                   _showSnackBar(
                                       'IPFS Hash: ${_uploadedHashes[index]}');
                                 },
