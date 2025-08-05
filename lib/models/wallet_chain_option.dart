@@ -31,8 +31,8 @@ final List<WalletOption> walletOptionsList = [
 
 final Map<String, String> rpcUrls = {
   '11155111':
-      'https://eth-sepolia.g.alchemy.com/v2/ghiIjYuaumHfkffONpzBEItpKXWt9952',
-  '1': 'https://eth-mainnet.g.alchemy.com/v2/ghiIjYuaumHfkffONpzBEItpKXWt9952',
+      'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+  '1': 'https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY',
 };
 
 final Map<String, Map<String, dynamic>> chainInfoList = {

@@ -59,21 +59,21 @@ class MyApp extends StatelessWidget {
             builder: (context, state) => const MintNftCoordinatesPage(),
             routes: [
               GoRoute(
-                path: 'details', // This will be /trees/details
+                path: 'details', 
                 name: '${RouteConstants.mintNft}_details',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MintNftDetailsPage();
                 },
               ),
               GoRoute(
-                path: 'images', // This will be /trees/details
+                path: 'images', 
                 name: '${RouteConstants.mintNft}_images',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MultipleImageUploadPage();
                 },
               ),
               GoRoute(
-                path: 'submit-nft', // This will be /trees/details
+                path: 'submit-nft',
                 name: '${RouteConstants.mintNft}_submit',
                 builder: (BuildContext context, GoRouterState state) {
                   return const SubmitNFTPage();
@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
           },
           routes: [
             GoRoute(
-              path: 'details', // This will be /trees/details
+              path: 'details',
               name: '${RouteConstants.allTrees}_details',
               builder: (BuildContext context, GoRouterState state) {
                 return const AllTreesPage();

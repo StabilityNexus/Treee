@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/tree_nft_view_details_with_map.dart';
@@ -19,10 +20,10 @@ class MultipleImageUploadPage extends StatefulWidget {
 
 class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
   final ImagePicker _picker = ImagePicker();
-  List<File> _selectedImages = [];
   bool _isUploading = false;
   int _uploadingIndex = -1;
   List<String> _uploadedHashes = [];
+  List<File> _processingImages = [];
 
   @override
   void initState() {
@@ -35,105 +36,63 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
     });
   }
 
-  Future<void> _pickImages() async {
+  Future<void> _pickAndUploadImages() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage();
-      if (images.isNotEmpty) {
+      if (images.isEmpty) return;
+
+      logger.d('Selected ${images.length} images for upload');
+      setState(() {
+        _processingImages = images.map((image) => File(image.path)).toList();
+        _isUploading = true;
+      });
+
+      final provider = Provider.of<MintNftProvider>(context, listen: false);
+      List<String> newHashes = [];
+
+      for (int i = 0; i < images.length; i++) {
         setState(() {
-          _selectedImages = images.map((image) => File(image.path)).toList();
+          _uploadingIndex = i;
         });
+
+        try {
+          File imageFile = File(images[i].path);
+          String? hash = await uploadToIPFS(imageFile, (isUploading) {
+          });
+
+          if (hash != null) {
+            newHashes.add(hash);
+            setState(() {
+              _uploadedHashes.add(hash);
+            });
+            logger.d('Successfully uploaded image ${i + 1}: $hash');
+          } else {
+            _showSnackBar('Failed to upload image ${i + 1}');
+          }
+        } catch (e) {
+          logger.e('Error uploading image ${i + 1}: $e');
+          _showSnackBar('Error uploading image ${i + 1}: $e');
+        }
+      }
+
+      setState(() {
+        _isUploading = false;
+        _uploadingIndex = -1;
+        _processingImages.clear(); 
+      });
+      provider.setInitialPhotos(_uploadedHashes);
+
+      if (newHashes.isNotEmpty) {
+        _showSnackBar('Successfully uploaded ${newHashes.length} images');
       }
     } catch (e) {
+      setState(() {
+        _isUploading = false;
+        _uploadingIndex = -1;
+        _processingImages.clear();
+      });
       _showSnackBar('Error selecting images: $e');
     }
-  }
-
-  Future<void> _uploadAllImages() async {
-    if (_selectedImages.isEmpty) {
-      _showSnackBar('Please select images first');
-      return;
-    }
-
-    final provider = Provider.of<MintNftProvider>(context, listen: false);
-    List<String> newHashes = [];
-
-    for (int i = 0; i < _selectedImages.length; i++) {
-      setState(() {
-        _uploadingIndex = i;
-      });
-
-      try {
-        String? hash = await uploadToIPFS(_selectedImages[i], (isUploading) {
-          setState(() {
-            _isUploading = isUploading;
-          });
-        });
-
-        if (hash != null) {
-          newHashes.add(hash);
-          setState(() {
-            _uploadedHashes.add(hash);
-          });
-        } else {
-          _showSnackBar('Failed to upload image ${i + 1}');
-        }
-      } catch (e) {
-        _showSnackBar('Error uploading image ${i + 1}: $e');
-      }
-    }
-
-    setState(() {
-      _uploadingIndex = -1;
-    });
-    provider.setInitialPhotos(_uploadedHashes);
-
-    if (newHashes.isNotEmpty) {
-      _showSnackBar('Successfully uploaded ${newHashes.length} images');
-    }
-  }
-
-  Future<void> _uploadSingleImage(int index) async {
-    if (index >= _selectedImages.length) return;
-
-    setState(() {
-      _uploadingIndex = index;
-    });
-
-    try {
-      String? hash = await uploadToIPFS(_selectedImages[index], (isUploading) {
-        setState(() {
-          _isUploading = isUploading;
-        });
-      });
-
-      if (hash != null) {
-        setState(() {
-          _uploadedHashes.add(hash);
-          _uploadingIndex = -1;
-        });
-
-        final provider = Provider.of<MintNftProvider>(context, listen: false);
-        provider.setInitialPhotos(_uploadedHashes);
-
-        _showSnackBar('Image ${index + 1} uploaded successfully');
-      } else {
-        _showSnackBar('Failed to upload image ${index + 1}');
-        setState(() {
-          _uploadingIndex = -1;
-        });
-      }
-    } catch (e) {
-      _showSnackBar('Error uploading image ${index + 1}: $e');
-      setState(() {
-        _uploadingIndex = -1;
-      });
-    }
-  }
-
-  void _removeImage(int index) {
-    setState(() {
-      _selectedImages.removeAt(index);
-    });
   }
 
   void _removeUploadedHash(int index) {
@@ -142,15 +101,38 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
     });
     final provider = Provider.of<MintNftProvider>(context, listen: false);
     provider.setInitialPhotos(_uploadedHashes);
+    _showSnackBar('Image removed');
   }
 
-  void _clearAll() {
-    setState(() {
-      _selectedImages.clear();
-      _uploadedHashes.clear();
-    });
-    final provider = Provider.of<MintNftProvider>(context, listen: false);
-    provider.setInitialPhotos([]);
+  void _removeAllImages() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove All Images'),
+          content: const Text('Are you sure you want to remove all uploaded images? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _uploadedHashes.clear();
+                });
+                final provider = Provider.of<MintNftProvider>(context, listen: false);
+                provider.setInitialPhotos([]);
+                Navigator.of(context).pop();
+                _showSnackBar('All images removed');
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Remove All'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showSnackBar(String message) {
@@ -167,7 +149,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
         children: [
           Container(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
+              maxHeight: MediaQuery.of(context).size.height * 0.4,
             ),
             child: SingleChildScrollView(
               child: Padding(
@@ -184,46 +166,27 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: _isUploading ? null : _pickImages,
-                            icon: const Icon(Icons.photo_library),
-                            label: const Text('Select Images'),
+                            onPressed: _isUploading ? null : _pickAndUploadImages,
+                            icon: const Icon(Icons.add_photo_alternate),
+                            label: const Text('Add Photos'),
                           ),
                         ),
                         const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: (_selectedImages.isEmpty || _isUploading)
-                                ? null
-                                : _uploadAllImages,
-                            icon: const Icon(Icons.cloud_upload),
-                            label: const Text('Upload All'),
+                        if (_uploadedHashes.isNotEmpty)
+                          ElevatedButton.icon(
+                            onPressed: _isUploading ? null : _removeAllImages,
+                            icon: const Icon(Icons.delete_sweep),
+                            label: const Text('Remove All'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    if (_isUploading)
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              const CircularProgressIndicator(),
-                              const SizedBox(height: 8),
-                              Text(
-                                _uploadingIndex >= 0
-                                    ? 'Uploading image ${_uploadingIndex + 1} of ${_selectedImages.length}...'
-                                    : 'Uploading...',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 16),
-                    if (_selectedImages.isNotEmpty) ...[
+                    if (_processingImages.isNotEmpty) ...[
                       Text(
-                        'Selected Images (${_selectedImages.length})',
+                        'Processing Images (${_processingImages.length})',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
@@ -231,8 +194,9 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         height: 120,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _selectedImages.length,
+                          itemCount: _processingImages.length,
                           itemBuilder: (context, index) {
+                            final isCurrentlyUploading = _isUploading && _uploadingIndex == index;
                             return Container(
                               width: 120,
                               margin: const EdgeInsets.only(right: 8),
@@ -242,57 +206,74 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.file(
-                                        _selectedImages[index],
+                                        _processingImages[index],
                                         width: 120,
-                                        height: 80,
+                                        height: 120,
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: GestureDetector(
-                                        onTap: () => _removeImage(index),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.close,
+                                    if (isCurrentlyUploading)
+                                      Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
                                             color: Colors.white,
-                                            size: 16,
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    if (_uploadingIndex < index && _isUploading)
+                                      Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.pending,
+                                            color: Colors.white,
+                                            size: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    if (_uploadingIndex > index && _isUploading)
+                                      Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.8),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                            size: 32,
+                                          ),
+                                        ),
+                                      ),
                                     Positioned(
                                       bottom: 4,
-                                      left: 4,
-                                      right: 4,
-                                      child: SizedBox(
-                                        height: 28,
-                                        child: ElevatedButton(
-                                          onPressed: (_isUploading &&
-                                                  _uploadingIndex == index)
-                                              ? null
-                                              : () => _uploadSingleImage(index),
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8),
+                                      left: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          child: (_isUploading &&
-                                                  _uploadingIndex == index)
-                                              ? const SizedBox(
-                                                  width: 16,
-                                                  height: 16,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                          strokeWidth: 2),
-                                                )
-                                              : const Icon(Icons.upload,
-                                                  size: 16),
                                         ),
                                       ),
                                     ),
@@ -305,21 +286,41 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                       ),
                       const SizedBox(height: 16),
                     ],
+                    if (_isUploading)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              const CircularProgressIndicator(),
+                              const SizedBox(height: 8),
+                              Text(
+                                _uploadingIndex >= 0
+                                    ? 'Uploading image ${_uploadingIndex + 1}...'
+                                    : 'Processing images...',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
                     if (_uploadedHashes.isNotEmpty)
                       Text(
                         'Uploaded Images (${_uploadedHashes.length})',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: _uploadedHashes.isEmpty ? null : () {
                         context.push('/mint-nft/submit-nft');
-                      }, 
+                      },
                       child: Text(
                         "Submit NFT",
                         style: Theme.of(context).textTheme.titleMedium,
-                      )
+                      ),
                     ),
+                    const SizedBox(height: 16),
                     NewNFTMapWidget(),
                   ],
                 ),
@@ -343,6 +344,14 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap "Add Photos" to get started',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -375,15 +384,13 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                               IconButton(
                                 icon: const Icon(Icons.open_in_new),
                                 onPressed: () {
-                                  // You can implement opening the IPFS link here
                                   _showSnackBar(
                                       'IPFS Hash: ${_uploadedHashes[index]}');
                                 },
-                                tooltip: 'View on IPFS',
+                                tooltip: 'View IPFS Hash',
                               ),
                               IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
+                                icon: const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () => _removeUploadedHash(index),
                                 tooltip: 'Remove',
                               ),
