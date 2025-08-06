@@ -392,7 +392,7 @@ class WalletProvider extends ChangeNotifier {
     required String contractAddress,
     required String functionName,
     required dynamic abi,
-    List<dynamic> params = const [],
+    List<dynamic> params = const [], String? chainId,
   }) async {
     try {
       if (!_isConnected || _web3App == null || _currentChainId == null) {
