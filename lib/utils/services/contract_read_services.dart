@@ -1,4 +1,3 @@
-
 import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -47,7 +46,7 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet before reading NFTs.',
         );
       }
-      
+
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
@@ -58,7 +57,8 @@ class ContractReadFunctions {
       final EthereumAddress userAddress = EthereumAddress.fromHex(address);
       if (offset < 0 || limit <= 0 || limit > 100) {
         return ContractReadResult.error(
-          errorMessage: 'Invalid pagination parameters. Offset must be >= 0 and limit must be between 1-100',
+          errorMessage:
+              'Invalid pagination parameters. Offset must be >= 0 and limit must be between 1-100',
         );
       }
 
@@ -67,8 +67,6 @@ class ContractReadFunctions {
         BigInt.from(offset),
         BigInt.from(limit),
       ];
-
-      logger.i("Reading NFTs with params: offset=$offset, limit=$limit, address=$address");
 
       final result = await walletProvider.readContract(
         contractAddress: TreeNFtContractAddress,
@@ -84,7 +82,8 @@ class ContractReadFunctions {
       }
 
       final trees = result.length > 0 ? result[0] ?? [] : [];
-      final totalCount = result.length > 1 ? int.parse(result[1].toString()) : 0;
+      final totalCount =
+          result.length > 1 ? int.parse(result[1].toString()) : 0;
 
       return ContractReadResult.success(
         data: {
@@ -99,6 +98,7 @@ class ContractReadFunctions {
       );
     }
   }
+
   static Future<ContractReadResult> ping({
     required WalletProvider walletProvider,
   }) async {
@@ -109,7 +109,7 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet before pinging.',
         );
       }
-      
+
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
@@ -120,12 +120,13 @@ class ContractReadFunctions {
         contractAddress: TreeNFtContractAddress,
         functionName: 'ping',
         abi: TreeNftContractABI,
-        params: [], 
+        params: [],
       );
       String pingResponse;
       if (result != null) {
         if (result is List && result.isNotEmpty) {
-          pingResponse = result[0]?.toString() ?? 'Ping successful - no return value';
+          pingResponse =
+              result[0]?.toString() ?? 'Ping successful - no return value';
         } else {
           pingResponse = result.toString();
         }
@@ -139,7 +140,7 @@ class ContractReadFunctions {
       );
     } catch (e) {
       logger.e("Error pinging contract", error: e);
-      
+
       String detailedError = 'Ping failed: ${e.toString()}';
       return ContractReadResult.error(
         errorMessage: detailedError,
@@ -147,4 +148,41 @@ class ContractReadFunctions {
     }
   }
 
+  static Future<ContractReadResult> getProfileDetails({
+    required WalletProvider walletProvider,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for reading user data");
+        return ContractReadResult.error(
+          errorMessage:
+              'Please connect your wallet before fetching user details from blockchain',
+        );
+      }
+
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      final String currentAddress = walletProvider.currentAddress!.toString();
+      final EthereumAddress userAddress = EthereumAddress.fromHex(currentAddress);
+      final List<dynamic> args = [userAddress];
+      final result = await walletProvider.readContract(
+        contractAddress: TreeNFtContractAddress,
+        functionName: 'getUserProfile',
+        abi: TreeNftContractABI,
+        params: args,
+      );
+      final profile = result.length() > 0 ? result[0] ?? [] : [];
+      return ContractReadResult.success(data: {'profile': profile});
+    } catch (e) {
+      logger.e("Error reading User profile", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read User Profile: ${e.toString()}',
+      );
+    }
+  }
 }

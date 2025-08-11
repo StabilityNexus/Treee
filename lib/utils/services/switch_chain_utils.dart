@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
   
   void showChainSelector(BuildContext context, WalletProvider walletProvider) {

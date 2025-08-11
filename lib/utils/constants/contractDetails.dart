@@ -39,3 +39,11 @@
 //   LegacyToken Address:        0xBD94cB550dF4E2b23e8960829886418DfbA07577
 //   TreeNft Address:            0xa1bad5b4822a343fa4a7c6c72eBE40891feC1072
 //   OrganisationFactory:        0x53c88Da0c6dCe61280b729139bc6ceA0d8039E22
+
+// After adding the getUserDetails function
+//   CareToken Address:          0x4aF31efadd7Dc48Ef199947104a994Ac154221b3
+//   PlanterToken Address:       0x646449F06F6Be00f0A1e912A8fAbee844a0a52f7
+//   VerifierToken Address:      0xcD3429fCE32097d8Ee3BF582A211d0A74d653144
+//   LegacyToken Address:        0x8eA3D850ddB152660a7FD564244FFFf15BdfC2A9
+//   TreeNft Address:            0x8aCF95C92253b7A1A5E9CBBC6aa8e808C6A69e79
+//   OrganisationFactory:        0xA593fC45536A40b69638A7cd19C0A329224e0e37

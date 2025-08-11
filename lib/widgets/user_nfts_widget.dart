@@ -12,7 +12,7 @@ class Tree {
   final String species;
   final String imageUri;
   final String qrIpfsHash;
-  final String metadata; // Added this field
+  final String metadata; 
   final List<String> photos;
   final String geoHash;
   final List<String> ancestors;
@@ -27,7 +27,7 @@ class Tree {
     required this.species,
     required this.imageUri,
     required this.qrIpfsHash,
-    required this.metadata, // Added this parameter
+    required this.metadata,
     required this.photos,
     required this.geoHash,
     required this.ancestors,
@@ -65,8 +65,6 @@ class Tree {
           careCount: _toInt(actualData[12]),
         );
       }
-
-      // Fallback: return default tree
       throw Exception("Unexpected data structure: ${actualData.runtimeType}");
     } catch (e) {
       debugPrint("Error parsing Tree data: $e");
@@ -235,8 +233,6 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
               ],
             ),
             const SizedBox(height: 4),
-
-            // Planting date
             Row(
               children: [
                 const Icon(Icons.calendar_today, color: Colors.green, size: 16),
@@ -248,8 +244,6 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
               ],
             ),
             const SizedBox(height: 4),
-
-            // Care info
             Row(
               children: [
                 const Icon(Icons.favorite, color: Colors.red, size: 16),
@@ -260,8 +254,6 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
                 ),
               ],
             ),
-
-            // Status
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
