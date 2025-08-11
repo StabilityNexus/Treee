@@ -6,7 +6,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 
 class UserProfileData {
-  final String name;
+  String name;
   final String userAddress;
   final String profilePhotoIpfs;
   final int dateJoined;
@@ -33,25 +33,18 @@ class UserProfileData {
     logger.d(data);
     try {
       dynamic actualData = data;
-      if (data is List && data.length == 1) {
-        actualData = data[0];
-      }
-
-      if (actualData is List) {
-        return UserProfileData(
-          name: actualData[2].toString() ?? '',
-          userAddress: actualData[0].toString() ?? '',
-          profilePhotoIpfs: actualData[1].toString() ?? '',
-          dateJoined: _toInt(actualData[3]),
-          verificationsRevoked: _toInt(actualData[4]),
-          reportedSpam: _toInt(actualData[5]),
-          verifierTokens: _toInt(actualData[6]),
-          careTokens: _toInt(actualData[9]),
-          planterTokens: _toInt(actualData[7]),
-          legacyTokens: _toInt(actualData[8]),
-        );
-      }
-      throw Exception("Unexpected data structure: ${actualData.runtimeType}");
+      return UserProfileData(
+        name: actualData[2].toString() ?? '',
+        userAddress: actualData[0].toString() ?? '',
+        profilePhotoIpfs: actualData[1].toString() ?? '',
+        dateJoined: _toInt(actualData[3]),
+        verificationsRevoked: _toInt(actualData[4]),
+        reportedSpam: _toInt(actualData[5]),
+        verifierTokens: _toInt(actualData[6]),
+        careTokens: _toInt(actualData[9]),
+        planterTokens: _toInt(actualData[7]),
+        legacyTokens: _toInt(actualData[8]),
+      );
     } catch (e) {
       debugPrint("Error parsing Tree data: $e");
       debugPrint("Data received: $data");
@@ -118,15 +111,15 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
       );
 
       if (result.success && result.data != null) {
-        final UserProfileData data = result.data['profile'] ?? [];
+        final List data = result.data['profile'] ?? [];
 
         setState(() {
-          _userProfileData = data;
+          _userProfileData = UserProfileData.fromContractData(data);
         });
       } else {
         final errorMsg = result.errorMessage?.toLowerCase() ?? '';
-        if (errorMsg.contains('revert') || 
-            errorMsg.contains('not registered') || 
+        if (errorMsg.contains('revert') ||
+            errorMsg.contains('not registered') ||
             errorMsg.contains('user not found') ||
             errorMsg.contains('execution reverted')) {
           setState(() {
@@ -135,14 +128,15 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
           });
         } else {
           setState(() {
-            _errorMessage = result.errorMessage ?? 'Failed to load profile data';
+            _errorMessage =
+                result.errorMessage ?? 'Failed to load profile data';
           });
         }
       }
     } catch (e) {
       final errorMsg = e.toString().toLowerCase();
-      if (errorMsg.contains('revert') || 
-          errorMsg.contains('not registered') || 
+      if (errorMsg.contains('revert') ||
+          errorMsg.contains('not registered') ||
           errorMsg.contains('user not found') ||
           errorMsg.contains('execution reverted')) {
         setState(() {
@@ -151,7 +145,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
         });
       } else {
         setState(() {
-          _errorMessage = 'Error loading User profile details: $e';
+          _errorMessage = 'Errorloading User profile details: $e';
         });
       }
     } finally {
@@ -174,7 +168,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
       ),
       child: Row(
         children: [
-          // Profile Photo
           Container(
             width: 80,
             height: 80,
@@ -185,7 +178,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             child: ClipOval(
               child: _userProfileData!.profilePhotoIpfs.isNotEmpty
                   ? Image.network(
-                      'https://ipfs.io/ipfs/${_userProfileData!.profilePhotoIpfs}',
+                      _userProfileData!.profilePhotoIpfs,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(
@@ -403,7 +396,9 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             'Verifications Revoked',
             _userProfileData!.verificationsRevoked,
             Icons.remove_circle_outline,
-            _userProfileData!.verificationsRevoked > 0 ? Colors.orange : Colors.grey,
+            _userProfileData!.verificationsRevoked > 0
+                ? Colors.orange
+                : Colors.grey,
           ),
           const Divider(height: 20),
           _buildStatRow(
@@ -535,7 +530,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-
   Widget _buildErrorState() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -629,7 +623,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                               ],
                             ),
                           ),
-      ),
+                        ),
     );
   }
 }

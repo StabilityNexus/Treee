@@ -168,7 +168,8 @@ class ContractReadFunctions {
       }
 
       final String currentAddress = walletProvider.currentAddress!.toString();
-      final EthereumAddress userAddress = EthereumAddress.fromHex(currentAddress);
+      final EthereumAddress userAddress =
+          EthereumAddress.fromHex(currentAddress);
       final List<dynamic> args = [userAddress];
       final result = await walletProvider.readContract(
         contractAddress: TreeNFtContractAddress,
@@ -176,7 +177,7 @@ class ContractReadFunctions {
         abi: TreeNftContractABI,
         params: args,
       );
-      final profile = result.length() > 0 ? result[0] ?? [] : [];
+      final profile = result.length > 0 ? result[0] ?? [] : [];
       return ContractReadResult.success(data: {'profile': profile});
     } catch (e) {
       logger.e("Error reading User profile", error: e);
