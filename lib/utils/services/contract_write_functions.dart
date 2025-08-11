@@ -37,19 +37,6 @@ class ContractWriteResult {
 class ContractWriteFunctions {
   static final String _contractAddress = dotenv.env['CONTRACT_ADDRESS'] ??
       '';
-
-  /// Mint a new Tree NFT
-  /// 
-  /// Parameters:
-  /// - [walletProvider]: The wallet provider instance
-  /// - [latitude]: Latitude coordinate (-90.0 to 90.0)
-  /// - [longitude]: Longitude coordinate (-180.0 to 180.0)  
-  /// - [species]: Tree species name
-  /// - [photos]: List of photo URLs/paths
-  /// - [geoHash]: Geographic hash for the location
-  /// - [additionalData]: Optional additional metadata
-  /// 
-  /// Returns [ContractWriteResult] with transaction details
   static Future<ContractWriteResult> mintNft({
     required WalletProvider walletProvider,
     required double latitude,
@@ -57,6 +44,7 @@ class ContractWriteFunctions {
     required String species,
     required List<String> photos,
     required String geoHash,
+    required String metadata,
     String additionalData = "",
   }) async {
     try {
@@ -82,7 +70,8 @@ class ContractWriteFunctions {
         lng,
         species,
         photos.isNotEmpty ? photos[0] : "",
-        additionalData,
+        "",
+        metadata,
         geoHash,
         photos,
       ];
@@ -114,6 +103,5 @@ class ContractWriteFunctions {
       );
     }
   }
-  /// Get the contract address being used
   static String get contractAddress => _contractAddress;
 }

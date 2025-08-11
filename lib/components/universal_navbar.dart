@@ -51,7 +51,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: Colors.white.withOpacity(0.3),

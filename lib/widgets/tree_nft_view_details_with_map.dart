@@ -98,7 +98,7 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       'Description:',
-                      _formatDescription(provider.getDescription(), screenWidth),
+                      _formatDescription(provider.getDetails(), screenWidth),
                       screenWidth,
                       isDescription: true,
                     ),

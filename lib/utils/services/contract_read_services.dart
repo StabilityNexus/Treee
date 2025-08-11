@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
@@ -18,7 +18,7 @@ class ContractReadResult {
   });
 
   ContractReadResult.success({
-    required String transactionHash,
+    String? transactionHash,
     dynamic data,
   }) : this(
           success: true,
@@ -35,47 +35,116 @@ class ContractReadResult {
 }
 
 class ContractReadFunctions {
-  static final String _contractAddress = dotenv.env['CONTRACT_ADDRESS'] ??
-      '';
-
-  static Future<ContractReadResult> mintNft({
+  static Future<ContractReadResult> getNFTsByUserPaginated({
     required WalletProvider walletProvider,
+    int offset = 0,
+    int limit = 10,
   }) async {
     try {
       if (!walletProvider.isConnected) {
-        logger.e("Wallet not connected for minting NFT");
+        logger.e("Wallet not connected for reading NFTs");
         return ContractReadResult.error(
-          errorMessage: 'Please connect your wallet before minting.',
+          errorMessage: 'Please connect your wallet before reading NFTs.',
+        );
+      }
+      
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      final EthereumAddress userAddress = EthereumAddress.fromHex(address);
+      if (offset < 0 || limit <= 0 || limit > 100) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid pagination parameters. Offset must be >= 0 and limit must be between 1-100',
         );
       }
 
       final List<dynamic> args = [
-        walletProvider.currentAddress.toString()
+        userAddress,
+        BigInt.from(offset),
+        BigInt.from(limit),
       ];
 
-      final txHash = await walletProvider.readContract(
+      logger.i("Reading NFTs with params: offset=$offset, limit=$limit, address=$address");
+
+      final result = await walletProvider.readContract(
         contractAddress: TreeNFtContractAddress,
-        functionName: 'getNFTsByUsert',
+        functionName: 'getNFTsByUserPaginated',
         params: args,
         abi: TreeNftContractABI,
-        chainId: walletProvider.currentChainId,
       );
+      logger.i("NFTs read successfully: $result");
+      if (result == null || result.isEmpty) {
+        return ContractReadResult.error(
+          errorMessage: 'No data returned from contract',
+        );
+      }
 
-      logger.i("NFT minting transaction sent: $txHash");
+      final trees = result.length > 0 ? result[0] ?? [] : [];
+      final totalCount = result.length > 1 ? int.parse(result[1].toString()) : 0;
 
       return ContractReadResult.success(
-        transactionHash: txHash,
         data: {
+          'trees': trees,
+          'totalCount': totalCount,
         },
       );
-
     } catch (e) {
-      logger.e("Error minting NFT", error: e);
+      logger.e("Error reading NFTs", error: e);
       return ContractReadResult.error(
-        errorMessage: e.toString(),
+        errorMessage: 'Failed to read NFTs: ${e.toString()}',
       );
     }
   }
-  
-  static String get contractAddress => _contractAddress;
+  static Future<ContractReadResult> ping({
+    required WalletProvider walletProvider,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for ping");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet before pinging.',
+        );
+      }
+      
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+      final result = await walletProvider.readContract(
+        contractAddress: TreeNFtContractAddress,
+        functionName: 'ping',
+        abi: TreeNftContractABI,
+        params: [], 
+      );
+      String pingResponse;
+      if (result != null) {
+        if (result is List && result.isNotEmpty) {
+          pingResponse = result[0]?.toString() ?? 'Ping successful - no return value';
+        } else {
+          pingResponse = result.toString();
+        }
+      } else {
+        pingResponse = 'Ping successful - no return value';
+      }
+      return ContractReadResult.success(
+        data: {
+          'result': pingResponse,
+        },
+      );
+    } catch (e) {
+      logger.e("Error pinging contract", error: e);
+      
+      String detailedError = 'Ping failed: ${e.toString()}';
+      return ContractReadResult.error(
+        errorMessage: detailedError,
+      );
+    }
+  }
+
 }

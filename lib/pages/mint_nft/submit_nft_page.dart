@@ -86,6 +86,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         species: mintNftProvider.getSpecies(),
         photos: mintNftProvider.getInitialPhotos(),
         geoHash: mintNftProvider.getGeoHash(),
+        metadata: mintNftProvider.getDetails(),
       );
 
       setState(() {
@@ -227,11 +228,9 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           children: [
             const NewNFTMapWidget(),
             const SizedBox(height: 30),
-            
-            // Error display
+          
             _buildErrorInfo(),
             
-            // Mint button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(

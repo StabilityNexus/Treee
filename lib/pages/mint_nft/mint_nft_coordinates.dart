@@ -239,14 +239,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF1CD381).withOpacity(0.05),
-            const Color(0xFFFAEB96).withOpacity(0.1),
+            const Color(0xFF1CD381),
+            const Color(0xFFFAEB96),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1CD381).withOpacity(0.15),
+            color: const Color(0xFF1CD381),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -262,7 +262,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
               gradient: LinearGradient(
                 colors: [
                   const Color(0xFF1CD381),
-                  const Color(0xFF1CD381).withOpacity(0.8),
+                  const Color(0xFF1CD381),
                 ],
               ),
               borderRadius: const BorderRadius.only(
@@ -275,7 +275,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
@@ -323,10 +323,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFAEB96).withOpacity(0.2),
+                    color: const Color(0xFFFAEB96),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFFFAEB96).withOpacity(0.5),
+                      color: const Color(0xFFFAEB96),
                     ),
                   ),
                   child: Row(
@@ -387,7 +387,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      shadowColor: const Color(0xFF1CD381).withOpacity(0.3),
+                      shadowColor: const Color(0xFF1CD381),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -403,7 +403,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Icon(
@@ -434,8 +434,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isLoading 
-              ? Colors.orange.withOpacity(0.3)
-              : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381).withOpacity(0.3)),
+              ? Colors.orange
+              : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381)),
           width: 2,
         ),
       ),
@@ -445,8 +445,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isLoading 
-                  ? Colors.orange.withOpacity(0.1)
-                  : (isManual ? const Color(0xFFFAEB96).withOpacity(0.3) : const Color(0xFF1CD381).withOpacity(0.1)),
+                  ? Colors.orange
+                  : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: isLoading
@@ -494,7 +494,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 onPressed: _refreshLocation,
                 icon: const Icon(Icons.refresh, size: 20),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF1CD381).withOpacity(0.1),
+                  backgroundColor: const Color(0xFF1CD381),
                   foregroundColor: const Color(0xFF1CD381),
                 ),
               ),
@@ -506,7 +506,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                   label: const Text("Auto"),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF1CD381),
-                    backgroundColor: const Color(0xFF1CD381).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF1CD381),
                   ),
                 ),
               ],
@@ -527,7 +527,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -556,7 +556,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFF1CD381).withOpacity(0.1),
+                color: const Color(0xFF1CD381),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
@@ -582,7 +582,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFFAEB96).withOpacity(0.5),
+              color: const Color(0xFFFAEB96),
               width: 2,
             ),
           ),
@@ -627,7 +627,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFAEB96).withOpacity(0.3),
+                  color: const Color(0xFFFAEB96),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(

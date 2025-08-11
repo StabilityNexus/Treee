@@ -21,6 +21,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
+
 void main() async {
   try {
     await dotenv.load(fileName: ".env");
@@ -53,20 +54,21 @@ class MyApp extends StatelessWidget {
             return const SettingsPage();
           },
         ),
+      
         GoRoute(
             path: RouteConstants.mintNftPath,
             name: RouteConstants.mintNft,
             builder: (context, state) => const MintNftCoordinatesPage(),
             routes: [
               GoRoute(
-                path: 'details', 
+                path: 'details',
                 name: '${RouteConstants.mintNft}_details',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MintNftDetailsPage();
                 },
               ),
               GoRoute(
-                path: 'images', 
+                path: 'images',
                 name: '${RouteConstants.mintNft}_images',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MultipleImageUploadPage();

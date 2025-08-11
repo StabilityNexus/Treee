@@ -16,7 +16,7 @@ class BottomNavigationWidget extends StatelessWidget {
         return i;
       }
     }
-    return 0; // Default to first item if route not found
+    return 0; 
   }
 
   @override
@@ -26,7 +26,7 @@ class BottomNavigationWidget extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Theme.of(context).colorScheme.primary,
       unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: const Color.fromARGB(255, 37, 236, 147),
       elevation: 8,
       onTap: (index) {
         final route = BottomNavConstants.items[index].route;

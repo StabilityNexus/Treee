@@ -4,7 +4,8 @@ class MintNftProvider extends ChangeNotifier {
   double _latitude = 0;
   double _longitude = 0;
   String _species = "";
-  String _description = "";
+  String _details = "";
+  String _detailsHash = "";
   String _imageUri = "";
   String _qrIpfsHash = "";
   String _geoHash = "";
@@ -16,13 +17,14 @@ class MintNftProvider extends ChangeNotifier {
   String getImageUri() => _imageUri;
   String getQrIpfsHash() => _qrIpfsHash;
   String getGeoHash() => _geoHash;
-  String getDescription() => _description;
+  String getDetails() => _details;
   List<String> getInitialPhotos() => _initialPhotos;
 
   void setLatitude(double latitude) {
     _latitude = latitude;
     notifyListeners();
   }
+
   void setLongitude(double longitude) {
     _longitude = longitude;
     notifyListeners();
@@ -33,8 +35,8 @@ class MintNftProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDescription(String description) {
-    _description = description;
+  void setDescription(String details) {
+    _details = details;
     notifyListeners();
   }
 
@@ -42,18 +44,22 @@ class MintNftProvider extends ChangeNotifier {
     _imageUri = imageUri;
     notifyListeners();
   }
+
   void setQrIpfsHash(String qrIpfsHash) {
     _qrIpfsHash = qrIpfsHash;
     notifyListeners();
   }
+
   void setGeoHash(String geoHash) {
     _geoHash = geoHash;
     notifyListeners();
   }
+
   void setInitialPhotos(List<String> initialPhotos) {
     _initialPhotos = initialPhotos;
     notifyListeners();
   }
+
   void clearData() {
     _latitude = 0;
     _longitude = 0;
