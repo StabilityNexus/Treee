@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -123,7 +124,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
           _userProfileData = data;
         });
       } else {
-        // Check if the error is a revert error indicating user is not registered
         final errorMsg = result.errorMessage?.toLowerCase() ?? '';
         if (errorMsg.contains('revert') || 
             errorMsg.contains('not registered') || 
@@ -140,7 +140,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
         }
       }
     } catch (e) {
-      // Check if the exception indicates a revert/not registered error
       final errorMsg = e.toString().toLowerCase();
       if (errorMsg.contains('revert') || 
           errorMsg.contains('not registered') || 
@@ -495,7 +494,9 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: _handleRegistration,
+              onPressed: () {
+                context.push('/register-user');
+              },
               icon: const Icon(Icons.app_registration, size: 20),
               label: const Text(
                 'Register Now',
@@ -534,41 +535,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _handleRegistration() {
-    // Navigate to registration screen or show registration dialog
-    // You can replace this with your actual registration logic
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Registration'),
-          content: const Text(
-            'This will navigate to the registration screen or trigger the registration process.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Add your registration logic here
-                // For example:
-                // Navigator.pushNamed(context, '/register');
-                // or call a registration function
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Proceed'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Widget _buildErrorState() {
     return Container(

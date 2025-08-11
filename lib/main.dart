@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
+import 'package:tree_planting_protocol/pages/register_user_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
@@ -45,6 +46,13 @@ class MyApp extends StatelessWidget {
           name: RouteConstants.home,
           builder: (BuildContext context, GoRouterState state) {
             return const HomePage();
+          },
+        ),
+         GoRoute(
+          path: '/register-user',
+          name: 'Register_user',
+          builder: (BuildContext context, GoRouterState state) {
+            return const RegisterUserPage();
           },
         ),
         GoRoute(

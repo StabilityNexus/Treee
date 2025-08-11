@@ -178,7 +178,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
           ),
           
-          // Form Fields
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -204,8 +203,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                 ),
                 
                 const SizedBox(height: 32),
-                
-                // Submit Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,

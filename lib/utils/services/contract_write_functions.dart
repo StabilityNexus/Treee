@@ -35,8 +35,6 @@ class ContractWriteResult {
 }
 
 class ContractWriteFunctions {
-  static final String _contractAddress = dotenv.env['CONTRACT_ADDRESS'] ??
-      '';
   static Future<ContractWriteResult> mintNft({
     required WalletProvider walletProvider,
     required double latitude,
@@ -103,5 +101,46 @@ class ContractWriteFunctions {
       );
     }
   }
-  static String get contractAddress => _contractAddress;
+  
+  static Future<ContractWriteResult> registerUser({
+    required WalletProvider walletProvider,
+    required String name,
+    required String profilePhotoHash,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected ");
+        return ContractWriteResult.error(
+          errorMessage: 'Please connect your wallet.',
+        );
+      }
+      final List<dynamic> args = [
+        name,
+        profilePhotoHash
+      ];
+      final txHash = await walletProvider.writeContract(
+        contractAddress: TreeNFtContractAddress,
+        functionName: 'registerUserProfile',
+        params: args,
+        abi: TreeNftContractABI,
+        chainId: walletProvider.currentChainId,
+      );
+
+      logger.i("User registeration transaction sent: $txHash");
+
+      return ContractWriteResult.success(
+        transactionHash: txHash,
+        data: {
+          'name': name,
+          'profilePhotoHash': profilePhotoHash
+        },
+      );
+
+    } catch (e) {
+      logger.e("Error registering User", error: e);
+      return ContractWriteResult.error(
+        errorMessage: e.toString(),
+      );
+    }
+  }
 }
