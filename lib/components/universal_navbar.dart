@@ -101,34 +101,34 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(
-                              themeProvider.isDarkMode
-                                  ? Icons.light_mode
-                                  : Icons.dark_mode,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            onPressed: () {
-                              themeProvider.toggleTheme();
-                            },
-                            tooltip: themeProvider.isDarkMode
-                                ? 'Switch to Light Mode'
-                                : 'Switch to Dark Mode',
-                          ),
-                        ),
+                        // Container(
+                        //   width: 36,
+                        //   height: 36,
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.white.withOpacity(0.2),
+                        //     borderRadius: BorderRadius.circular(8),
+                        //     border: Border.all(
+                        //       color: Colors.white.withOpacity(0.3),
+                        //       width: 1,
+                        //     ),
+                        //   ),
+                        //   child: IconButton(
+                        //     padding: EdgeInsets.zero,
+                        //     icon: Icon(
+                        //       themeProvider.isDarkMode
+                        //           ? Icons.light_mode
+                        //           : Icons.dark_mode,
+                        //       color: Colors.white,
+                        //       size: 18,
+                        //     ),
+                        //     onPressed: () {
+                        //       themeProvider.toggleTheme();
+                        //     },
+                        //     tooltip: themeProvider.isDarkMode
+                        //         ? 'Switch to Light Mode'
+                        //         : 'Switch to Dark Mode',
+                        //   ),
+                        // ),
                         const SizedBox(width: 6),
                         if (actions != null) ...actions!,
                         if (walletProvider.isConnected &&
@@ -238,7 +238,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildWalletMenu(BuildContext context, WalletProvider walletProvider) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 100), // Limit max width
+      constraints: const BoxConstraints(maxWidth: 100, minHeight: 20),
+      // Limit max width
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(16),

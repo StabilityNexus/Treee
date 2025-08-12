@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/components/universal_navbar.dart';
 import 'package:tree_planting_protocol/components/bottom_navigation_widget.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/widgets/wrong_chain_widget.dart'
+    show buildWrongChainWidget;
 
 class BaseScaffold extends StatelessWidget {
   final Widget body;
@@ -35,7 +37,7 @@ class BaseScaffold extends StatelessWidget {
           ? SafeArea(
               child: body,
             )
-          : Text("Wrong chain man"),
+          : Container(child: buildWrongChainWidget(context)),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: showBottomNavigation
           ? BottomNavigationWidget(currentRoute: currentRoute)

@@ -36,9 +36,11 @@ class WalletProvider extends ChangeNotifier {
   String? get currentAddress => _currentAddress;
   String get statusMessage => _statusMessage;
   String? get currentChainId => _currentChainId;
+  String? get correctChainId => _correctChainId;
 
   bool get isConnected => _isConnected;
   bool get isConnecting => _isConnecting;
+  bool get g => _isConnecting;
   bool get isValidCurrentChain =>
       _currentChainId?.toString() == _correctChainId;
 
