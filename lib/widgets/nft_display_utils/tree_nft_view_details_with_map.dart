@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
-import 'package:tree_planting_protocol/widgets/flutter_map_widget.dart';
+import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
 
 class NewNFTMapWidget extends StatefulWidget {
   const NewNFTMapWidget({super.key});

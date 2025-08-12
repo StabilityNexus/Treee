@@ -8,8 +8,8 @@ import 'package:tree_planting_protocol/utils/constants/navbar_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/profile_section_widget.dart';
-import 'package:tree_planting_protocol/widgets/user_nfts_widget.dart';
+import 'package:tree_planting_protocol/widgets/profile_widgets/profile_section_widget.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/user_nfts_widget.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

@@ -8,6 +8,7 @@ import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
 import 'package:tree_planting_protocol/pages/register_user_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
+import 'package:tree_planting_protocol/pages/tree_details_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
 
@@ -97,10 +98,11 @@ class MyApp extends StatelessWidget {
           },
           routes: [
             GoRoute(
-              path: 'details',
+              path: ':id', 
               name: '${RouteConstants.allTrees}_details',
               builder: (BuildContext context, GoRouterState state) {
-                return const AllTreesPage();
+                final id = state.pathParameters['id']; // read the dynamic ID
+                return TreeDetailsPage(treeId: id!);
               },
             ),
           ],

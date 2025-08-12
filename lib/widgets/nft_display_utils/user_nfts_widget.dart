@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -303,7 +304,9 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
                         elevation: 4,
                         side: const BorderSide(color: Colors.black, width: 2),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/trees/${tree.id}');
+                      },
                       child: const Text(
                         "View details",
                         style: TextStyle(color: Colors.black),

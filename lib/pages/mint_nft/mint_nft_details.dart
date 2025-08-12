@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/flutter_map_widget.dart';
-import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';
-import 'package:tree_planting_protocol/widgets/tree_nft_view_details_with_map.dart';
+import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_NFT_view_widget.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 
 class MintNftDetailsPage extends StatefulWidget {
   const MintNftDetailsPage({super.key});
