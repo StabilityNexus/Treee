@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
             return const HomePage();
           },
         ),
-         GoRoute(
+        GoRoute(
           path: '/register-user',
           name: 'Register_user',
           builder: (BuildContext context, GoRouterState state) {
@@ -62,7 +62,6 @@ class MyApp extends StatelessWidget {
             return const SettingsPage();
           },
         ),
-      
         GoRoute(
             path: RouteConstants.mintNftPath,
             name: RouteConstants.mintNft,

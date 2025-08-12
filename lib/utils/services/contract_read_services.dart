@@ -84,7 +84,7 @@ class ContractReadFunctions {
       final trees = result.length > 0 ? result[0] ?? [] : [];
       final totalCount =
           result.length > 1 ? int.parse(result[1].toString()) : 0;
-
+      logger.d(trees);
       return ContractReadResult.success(
         data: {
           'trees': trees,

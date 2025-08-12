@@ -1,13 +1,12 @@
 import 'package:location/location.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 
-
 class LocationException implements Exception {
   final String message;
   final LocationErrorType type;
-  
+
   const LocationException(this.message, this.type);
-  
+
   @override
   String toString() => 'LocationException: $message';
 }
@@ -18,6 +17,7 @@ enum LocationErrorType {
   locationUnavailable,
   unknown,
 }
+
 class LocationInfo {
   final double? latitude;
   final double? longitude;
@@ -53,9 +53,10 @@ class LocationInfo {
   }
   String get formattedLocation {
     return "Latitude: ${latitude?.toStringAsFixed(6) ?? 'N/A'}\n"
-           "Longitude: ${longitude?.toStringAsFixed(6) ?? 'N/A'}\n"
-           "Accuracy: ${accuracy?.toStringAsFixed(2) ?? 'N/A'}m";
+        "Longitude: ${longitude?.toStringAsFixed(6) ?? 'N/A'}\n"
+        "Accuracy: ${accuracy?.toStringAsFixed(2) ?? 'N/A'}m";
   }
+
   bool get isValid => latitude != null && longitude != null;
 
   @override
@@ -76,9 +77,11 @@ class LocationService {
       if (!serviceEnabled) {
         serviceEnabled = await _location.requestService();
         if (!serviceEnabled) {
-          const error = "Location services are disabled. Please enable them in settings.";
+          const error =
+              "Location services are disabled. Please enable them in settings.";
           logger.e(error);
-          throw const LocationException(error, LocationErrorType.serviceDisabled);
+          throw const LocationException(
+              error, LocationErrorType.serviceDisabled);
         }
       }
 
@@ -86,27 +89,30 @@ class LocationService {
       if (permissionGranted == PermissionStatus.denied) {
         permissionGranted = await _location.requestPermission();
         if (permissionGranted != PermissionStatus.granted) {
-          const error = "Location permissions are denied. Please grant location access.";
+          const error =
+              "Location permissions are denied. Please grant location access.";
           logger.e(error);
-          throw const LocationException(error, LocationErrorType.permissionDenied);
+          throw const LocationException(
+              error, LocationErrorType.permissionDenied);
         }
       }
       LocationData locationData = await _location.getLocation();
-      
+
       if (locationData.latitude == null || locationData.longitude == null) {
         const error = "Unable to retrieve valid location coordinates.";
         logger.e(error);
-        throw const LocationException(error, LocationErrorType.locationUnavailable);
+        throw const LocationException(
+            error, LocationErrorType.locationUnavailable);
       }
 
-      logger.i("Location retrieved successfully: ${locationData.latitude}, ${locationData.longitude}");
+      logger.i(
+          "Location retrieved successfully: ${locationData.latitude}, ${locationData.longitude}");
       return LocationInfo.fromLocationData(locationData);
-
     } catch (e) {
       if (e is LocationException) {
         rethrow;
       }
-      
+
       final error = "Error getting location: $e";
       logger.e(error);
       throw LocationException(error, LocationErrorType.unknown);
@@ -126,11 +132,13 @@ class LocationService {
       }),
     ]);
   }
+
   Stream<LocationInfo> getLocationStream() {
     return _location.onLocationChanged.map((locationData) {
       return LocationInfo.fromLocationData(locationData);
     });
   }
+
   Future<bool> isLocationServiceAvailable() async {
     try {
       bool serviceEnabled = await _location.serviceEnabled();

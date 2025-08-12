@@ -87,6 +87,11 @@ const String TreeNftContractABI = '''[
           "internalType": "struct Tree[]",
           "components": [
             {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "latitude",
               "type": "uint256",
               "internalType": "uint256"
@@ -192,6 +197,11 @@ const String TreeNftContractABI = '''[
           "internalType": "struct Tree[]",
           "components": [
             {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "latitude",
               "type": "uint256",
               "internalType": "uint256"
@@ -287,6 +297,11 @@ const String TreeNftContractABI = '''[
           "type": "tuple[]",
           "internalType": "struct Tree[]",
           "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
             {
               "name": "latitude",
               "type": "uint256",
@@ -384,6 +399,11 @@ const String TreeNftContractABI = '''[
           "internalType": "struct Tree[]",
           "components": [
             {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "latitude",
               "type": "uint256",
               "internalType": "uint256"
@@ -479,6 +499,11 @@ const String TreeNftContractABI = '''[
           "type": "tuple",
           "internalType": "struct Tree",
           "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
             {
               "name": "latitude",
               "type": "uint256",
@@ -759,6 +784,11 @@ const String TreeNftContractABI = '''[
           "internalType": "struct Tree[]",
           "components": [
             {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "latitude",
               "type": "uint256",
               "internalType": "uint256"
@@ -854,6 +884,11 @@ const String TreeNftContractABI = '''[
           "type": "tuple[]",
           "internalType": "struct Tree[]",
           "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
             {
               "name": "latitude",
               "type": "uint256",
@@ -1674,5 +1709,5 @@ const String TreeNftContractABI = '''[
     }
   ]''';
 
-const String TreeNFtContractAddress=
-    "0x8aCF95C92253b7A1A5E9CBBC6aa8e808C6A69e79";
+const String TreeNFtContractAddress =
+    "0xD0B9957663a7d6bA29638Ef3067d54f832E0f0ED";

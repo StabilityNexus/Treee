@@ -5,6 +5,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 
 class Tree {
+  final int id;
   final int latitude;
   final int longitude;
   final int planting;
@@ -12,7 +13,7 @@ class Tree {
   final String species;
   final String imageUri;
   final String qrIpfsHash;
-  final String metadata; 
+  final String metadata;
   final List<String> photos;
   final String geoHash;
   final List<String> ancestors;
@@ -20,6 +21,7 @@ class Tree {
   final int careCount;
 
   Tree({
+    required this.id,
     required this.latitude,
     required this.longitude,
     required this.planting,
@@ -43,26 +45,26 @@ class Tree {
         actualData = data[0];
       }
 
-
       if (actualData is List) {
         return Tree(
-          latitude: _toInt(actualData[0]),
-          longitude: _toInt(actualData[1]),
-          planting: _toInt(actualData[2]),
-          death: _toInt(actualData[3]),
-          species: actualData[4]?.toString() ?? '',
-          imageUri: actualData[5]?.toString() ?? '',
-          qrIpfsHash: actualData[6]?.toString() ?? '',
-          metadata: actualData[7]?.toString() ?? '',
-          photos: actualData[8] is List
-              ? List<String>.from(actualData[8].map((p) => p.toString()))
+          id: _toInt(actualData[0]),
+          latitude: _toInt(actualData[1]),
+          longitude: _toInt(actualData[2]),
+          planting: _toInt(actualData[3]),
+          death: _toInt(actualData[4]),
+          species: actualData[5]?.toString() ?? '',
+          imageUri: actualData[6]?.toString() ?? '',
+          qrIpfsHash: actualData[7]?.toString() ?? '',
+          metadata: actualData[8]?.toString() ?? '',
+          photos: actualData[9] is List
+              ? List<String>.from(actualData[9].map((p) => p.toString()))
               : [],
-          geoHash: actualData[9]?.toString() ?? '',
-          ancestors: actualData[10] is List
-              ? List<String>.from(actualData[10].map((a) => a.toString()))
+          geoHash: actualData[10]?.toString() ?? '',
+          ancestors: actualData[11] is List
+              ? List<String>.from(actualData[11].map((a) => a.toString()))
               : [],
-          lastCareTimestamp: _toInt(actualData[11]),
-          careCount: _toInt(actualData[12]),
+          lastCareTimestamp: _toInt(actualData[12]),
+          careCount: _toInt(actualData[13]),
         );
       }
       throw Exception("Unexpected data structure: ${actualData.runtimeType}");
@@ -72,6 +74,7 @@ class Tree {
       debugPrint("Data type: ${data.runtimeType}");
 
       return Tree(
+        id: 0,
         latitude: 0,
         longitude: 0,
         planting: 0,
@@ -118,8 +121,6 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
   final int _itemsPerPage = 10;
   int _totalCount = 0;
   bool _hasMore = true;
-
-   
 
   @override
   void initState() {
@@ -190,20 +191,38 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
   Widget _buildNFTCard(Tree tree) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(
+          color: Colors.black,
+          width: 2,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // NFT Image
             if (tree.imageUri.isNotEmpty)
               Container(
                 height: 200,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black,
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                   image: DecorationImage(
                     image: NetworkImage(tree.imageUri),
                     fit: BoxFit.cover,
@@ -256,22 +275,58 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             ),
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: tree.death == 0 ? Colors.green : Colors.red,
-                borderRadius: BorderRadius.circular(12),
-              ),
-             child: Text(
-                tree.death < DateTime.now().millisecondsSinceEpoch ~/ 1000
-                    ? 'Deceased'
-                    : 'Alive',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: tree.death == 0 ? Colors.green : Colors.red,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              )
-            ),
+                child: Text(
+                  tree.death < DateTime.now().millisecondsSinceEpoch ~/ 1000
+                      ? 'Deceased'
+                      : 'Alive',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.only(right: 6.0, top: 8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 28, 211, 129),
+                        shadowColor: Colors.black,
+                        elevation: 4,
+                        side: const BorderSide(color: Colors.black, width: 2),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        "View details",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    )),
+                Padding(
+                    padding: const EdgeInsets.only(right: 16.0, top: 8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 251, 251, 99),
+                        shadowColor: Colors.black,
+                        elevation: 4,
+                        side: const BorderSide(color: Colors.black, width: 2),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        "View on the map",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ))
+              ],
+            )
           ],
         ),
       ),

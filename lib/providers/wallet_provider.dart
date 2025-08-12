@@ -391,7 +391,7 @@ class WalletProvider extends ChangeNotifier {
   Future<dynamic> readContract({
     required String contractAddress,
     required String functionName,
-    required dynamic abi, 
+    required dynamic abi,
     List<dynamic> params = const [],
   }) async {
     try {
@@ -436,7 +436,7 @@ class WalletProvider extends ChangeNotifier {
   Future<String> writeContract({
     required String contractAddress,
     required String functionName,
-    required dynamic abi, 
+    required dynamic abi,
     String? chainId,
     List<dynamic> params = const [],
     BigInt? value,

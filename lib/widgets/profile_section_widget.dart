@@ -155,98 +155,201 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     }
   }
 
-  Widget _buildProfileHeader() {
+  Widget _profileOverview() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade400, Colors.green.shade600],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-            ),
-            child: ClipOval(
-              child: _userProfileData!.profilePhotoIpfs.isNotEmpty
-                  ? Image.network(
-                      _userProfileData!.profilePhotoIpfs,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 4),
+              ),
+              child: ClipOval(
+                child: _userProfileData!.profilePhotoIpfs.isNotEmpty
+                    ? Image.network(
+                        _userProfileData!.profilePhotoIpfs,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Colors.black,
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const CircularProgressIndicator(
+                            color: Colors.black,
+                          );
+                        },
+                      )
+                    : Container(
+                        color: Colors.green.shade300,
+                        child: const Icon(
                           Icons.person,
                           size: 40,
                           color: Colors.white,
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const CircularProgressIndicator(
-                          color: Colors.white,
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.green.shade300,
-                      child: const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.white,
+                        ),
                       ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              _userProfileData!.name.isNotEmpty
+                  ? _userProfileData!.name
+                  : 'Anonymous User',
+              style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              '${_userProfileData!.userAddress.substring(0, 6)}...${_userProfileData!.userAddress.substring(_userProfileData!.userAddress.length - 4)}',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SizedBox(
+                height: 40,
+                width: 135,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF4E63),
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12, // shadow color
+                          blurRadius: 6, // shadow softness
+                          offset: Offset(0, 3), // shadow position
+                        ),
+                      ],
                     ),
+                    child: Center(child: Text('Organisations'))),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _tokenWidget() {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 251, 251, 99),
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12, // shadow color
+                        blurRadius: 6, // shadow softness
+                        offset: Offset(0, 3), // shadow position
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                      child: Text(
+                          'Planter Tokens : ${_userProfileData!.planterTokens}'))),
             ),
           ),
-          const SizedBox(width: 16),
-          // Name and Address
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _userProfileData!.name.isNotEmpty
-                      ? _userProfileData!.name
-                      : 'Anonymous User',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_userProfileData!.userAddress.substring(0, 6)}...${_userProfileData!.userAddress.substring(_userProfileData!.userAddress.length - 4)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 16,
-                      color: Colors.white.withOpacity(0.9),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 28, 211, 129),
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 2,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Joined ${_formatDate(_userProfileData!.dateJoined)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
                       ),
+                    ],
+                  ),
+                  child: Center(
+                      child: Text(
+                          'Care Tokens : ${_userProfileData!.careTokens}'))),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 251, 251, 99),
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 2,
                     ),
-                  ],
-                ),
-              ],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                      child: Text(
+                          'Verifier Tokens : ${_userProfileData!.verifierTokens}'))),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 28, 211, 129),
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                      child: Text(
+                          'Legacy Tokens : ${_userProfileData!.legacyTokens}'))),
             ),
           ),
         ],
@@ -254,194 +357,47 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     );
   }
 
-  Widget _buildTokensSection() {
+  Widget _buildErrorState() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Token Balance',
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load profile',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Colors.red.shade700,
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTokenCard(
-                  'Verifier',
-                  _userProfileData!.verifierTokens,
-                  Icons.verified_user,
-                  Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildTokenCard(
-                  'Care',
-                  _userProfileData!.careTokens,
-                  Icons.favorite,
-                  Colors.red,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTokenCard(
-                  'Planter',
-                  _userProfileData!.planterTokens,
-                  Icons.eco,
-                  Colors.green,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildTokenCard(
-                  'Legacy',
-                  _userProfileData!.legacyTokens,
-                  Icons.star,
-                  Colors.amber,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTokenCard(String title, int count, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 24,
-            color: color,
           ),
           const SizedBox(height: 8),
           Text(
-            count.toString(),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: color.withOpacity(0.8),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Account Statistics',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildStatRow(
-            'Verifications Revoked',
-            _userProfileData!.verificationsRevoked,
-            Icons.remove_circle_outline,
-            _userProfileData!.verificationsRevoked > 0
-                ? Colors.orange
-                : Colors.grey,
-          ),
-          const Divider(height: 20),
-          _buildStatRow(
-            'Reported as Spam',
-            _userProfileData!.reportedSpam,
-            Icons.report_problem_outlined,
-            _userProfileData!.reportedSpam > 0 ? Colors.red : Colors.grey,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatRow(String title, int value, IconData icon, Color color) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            value.toString(),
+            _errorMessage ?? 'Unknown error occurred',
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
+              color: Colors.red.shade600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () => _loadUserProfileData(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -524,56 +480,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     );
   }
 
-  String _formatDate(int timestamp) {
-    if (timestamp == 0) return 'Unknown';
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  Widget _buildErrorState() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red.shade400,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Failed to load profile',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.red.shade700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _errorMessage ?? 'Unknown error occurred',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.red.shade600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () => _loadUserProfileData(),
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLoadingState() {
     return Container(
       padding: const EdgeInsets.all(40),
@@ -599,31 +505,20 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      child: _isLoading
-          ? _buildLoadingState()
-          : _isNotRegistered
-              ? _buildNotRegisteredState()
-              : _errorMessage != null && _errorMessage!.isNotEmpty
-                  ? _buildErrorState()
-                  : _userProfileData == null
-                      ? _buildErrorState()
-                      : RefreshIndicator(
-                          onRefresh: () => _loadUserProfileData(),
-                          child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                _buildProfileHeader(),
-                                const SizedBox(height: 20),
-                                _buildTokensSection(),
-                                const SizedBox(height: 20),
-                                _buildStatsSection(),
-                              ],
-                            ),
-                          ),
-                        ),
-    );
+        padding: const EdgeInsets.all(16),
+        child: _isLoading
+            ? _buildLoadingState()
+            : _isNotRegistered
+                ? _buildNotRegisteredState()
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _profileOverview(),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      _tokenWidget()
+                    ],
+                  ));
   }
 }

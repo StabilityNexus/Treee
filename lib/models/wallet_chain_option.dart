@@ -30,8 +30,7 @@ final List<WalletOption> walletOptionsList = [
 ];
 
 final Map<String, String> rpcUrls = {
-  '11155111':
-      'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+  '11155111': 'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
   '1': 'https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY',
 };
 
@@ -48,8 +47,7 @@ final Map<String, Map<String, dynamic>> chainInfoList = {
   },
   '11155111': {
     'name': 'Sepolia Testnet',
-    'rpcUrl':
-        'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+    'rpcUrl': 'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
     'nativeCurrency': {
       'name': 'Sepolia Ether',
       'symbol': 'SEP',

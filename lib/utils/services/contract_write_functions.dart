@@ -52,17 +52,22 @@ class ContractWriteFunctions {
           errorMessage: 'Please connect your wallet before minting.',
         );
       }
-      if (latitude < -90.0 || latitude > 90.0 || longitude < -180.0 || longitude > 180.0) {
+      if (latitude < -90.0 ||
+          latitude > 90.0 ||
+          longitude < -180.0 ||
+          longitude > 180.0) {
         logger.e("Invalid coordinates: Lat: $latitude, Lng: $longitude");
         return ContractWriteResult.error(
-          errorMessage: 'Invalid coordinates. Lat: [-90, 90], Lng: [-180, 180].',
+          errorMessage:
+              'Invalid coordinates. Lat: [-90, 90], Lng: [-180, 180].',
         );
       }
       final lat = BigInt.from((latitude + 90.0) * 1e6);
       final lng = BigInt.from((longitude + 180.0) * 1e6);
-      
+
       logger.i("Minting NFT with coordinates: Lat: $lat, Lng: $lng");
-      logger.i("Species: $species, Photos: ${photos.length}, GeoHash: $geoHash");
+      logger
+          .i("Species: $species, Photos: ${photos.length}, GeoHash: $geoHash");
       final List<dynamic> args = [
         lat,
         lng,
@@ -93,7 +98,6 @@ class ContractWriteFunctions {
           'geoHash': geoHash,
         },
       );
-
     } catch (e) {
       logger.e("Error minting NFT", error: e);
       return ContractWriteResult.error(
@@ -101,7 +105,7 @@ class ContractWriteFunctions {
       );
     }
   }
-  
+
   static Future<ContractWriteResult> registerUser({
     required WalletProvider walletProvider,
     required String name,
@@ -114,10 +118,7 @@ class ContractWriteFunctions {
           errorMessage: 'Please connect your wallet.',
         );
       }
-      final List<dynamic> args = [
-        name,
-        profilePhotoHash
-      ];
+      final List<dynamic> args = [name, profilePhotoHash];
       final txHash = await walletProvider.writeContract(
         contractAddress: TreeNFtContractAddress,
         functionName: 'registerUserProfile',
@@ -130,12 +131,8 @@ class ContractWriteFunctions {
 
       return ContractWriteResult.success(
         transactionHash: txHash,
-        data: {
-          'name': name,
-          'profilePhotoHash': profilePhotoHash
-        },
+        data: {'name': name, 'profilePhotoHash': profilePhotoHash},
       );
-
     } catch (e) {
       logger.e("Error registering User", error: e);
       return ContractWriteResult.error(

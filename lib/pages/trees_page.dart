@@ -17,8 +17,8 @@ class AllTreesPage extends StatelessWidget {
             Text(
               'This page will display all the recent and nearby trees.',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),

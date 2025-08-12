@@ -21,7 +21,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
   var geoHasher = GeoHasher();
-  
+
   final LocationService _locationService = LocationService();
   Timer? _locationTimer;
   bool _isLoadingLocation = true;
@@ -43,7 +43,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         _userHasManuallySetCoordinates = true;
       }
     });
-    
+
     longitudeController.addListener(() {
       if (_isInitialLocationSet && !_isLoadingLocation) {
         _userHasManuallySetCoordinates = true;
@@ -65,13 +65,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
 
   Future<void> _getCurrentLocation() async {
     try {
-      LocationInfo locationInfo = await _locationService.getCurrentLocationWithTimeout(
+      LocationInfo locationInfo =
+          await _locationService.getCurrentLocationWithTimeout(
         timeout: const Duration(seconds: 10),
       );
 
       if (mounted && locationInfo.isValid) {
         final provider = Provider.of<MintNftProvider>(context, listen: false);
-        
+
         setState(() {
           _isLoadingLocation = false;
           _locationStatus = "Location updated";
@@ -133,7 +134,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         );
         return;
       }
-      
+
       final geohash = geoHasher.encode(lat, lng, precision: 12);
 
       Provider.of<MintNftProvider>(context, listen: false).setLatitude(lat);
@@ -157,7 +158,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
     setState(() {
       _isLoadingLocation = true;
       _locationStatus = "Refreshing location...";
-      _userHasManuallySetCoordinates = false; 
+      _userHasManuallySetCoordinates = false;
     });
     await _getCurrentLocation();
   }
@@ -193,9 +194,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             ),
           ],
         ),
-        backgroundColor: isError 
-            ? Colors.red.shade400 
-            : const Color(0xFF1CD381),
+        backgroundColor:
+            isError ? Colors.red.shade400 : const Color(0xFF1CD381),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -209,7 +209,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return BaseScaffold(
       title: "Mint NFT Coordinates",
       body: SingleChildScrollView(
@@ -219,11 +219,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         ),
         child: Column(
           children: [
-
             _buildFormSection(screenWidth, screenHeight),
-            
             const SizedBox(height: 32),
-            
           ],
         ),
       ),
@@ -310,7 +307,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
               ],
             ),
           ),
-          
+
           // Content
           Padding(
             padding: const EdgeInsets.all(24),
@@ -350,7 +347,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                     ],
                   ),
                 ),
-                
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -373,7 +369,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                     ),
                   ],
                 ),
-                
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -426,14 +421,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
   Widget _buildLocationStatus() {
     final isManual = _userHasManuallySetCoordinates;
     final isLoading = _isLoadingLocation;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isLoading 
+          color: isLoading
               ? Colors.orange
               : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381)),
           width: 2,
@@ -444,9 +439,11 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isLoading 
+              color: isLoading
                   ? Colors.orange
-                  : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381)),
+                  : (isManual
+                      ? const Color(0xFFFAEB96)
+                      : const Color(0xFF1CD381)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: isLoading
@@ -458,7 +455,9 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 : Icon(
                     isManual ? Icons.edit_location : Icons.my_location,
                     size: 20,
-                    color: isManual ? Colors.orange.shade700 : const Color(0xFF1CD381),
+                    color: isManual
+                        ? Colors.orange.shade700
+                        : const Color(0xFF1CD381),
                   ),
           ),
           const SizedBox(width: 12),
@@ -471,9 +470,11 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isLoading 
+                    color: isLoading
                         ? Colors.orange.shade700
-                        : (isManual ? Colors.orange.shade700 : const Color(0xFF1CD381)),
+                        : (isManual
+                            ? Colors.orange.shade700
+                            : const Color(0xFF1CD381)),
                   ),
                 ),
                 if (isManual)
@@ -519,7 +520,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
 
   Widget _buildMapSection(double screenHeight) {
     final mapHeight = (screenHeight * 0.35).clamp(250.0, 350.0);
-    
+
     return Container(
       height: mapHeight,
       width: double.infinity,
@@ -603,7 +604,8 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               filled: true,
               fillColor: Colors.transparent,
             ),

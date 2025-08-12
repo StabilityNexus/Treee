@@ -24,16 +24,15 @@ class BaseScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = GoRouterState.of(context).uri.toString();
-    
+
     return Scaffold(
-      
       appBar: UniversalNavbar(title: title, actions: actions),
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       body: SafeArea(
         child: body,
       ),
       floatingActionButton: floatingActionButton,
-      bottomNavigationBar: showBottomNavigation 
+      bottomNavigationBar: showBottomNavigation
           ? BottomNavigationWidget(currentRoute: currentRoute)
           : null,
     );

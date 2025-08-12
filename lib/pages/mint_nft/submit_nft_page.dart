@@ -71,7 +71,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
 
   Future<void> _mintTreeNft() async {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final mintNftProvider = Provider.of<MintNftProvider>(context, listen: false);
+    final mintNftProvider =
+        Provider.of<MintNftProvider>(context, listen: false);
 
     setState(() {
       isMinting = true;
@@ -106,9 +107,9 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         _showSuccessDialog(
           'Transaction Sent!',
           'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-          'The NFT will be minted once the transaction is confirmed.\n\n'
-          'Species: ${result.data['species']}\n'
-          'Photos: ${result.data['photos'].length} uploaded',
+              'The NFT will be minted once the transaction is confirmed.\n\n'
+              'Species: ${result.data['species']}\n'
+              'Photos: ${result.data['photos'].length} uploaded',
         );
       } else {
         _showErrorDialog('Transaction Failed', result.errorMessage!);
@@ -228,9 +229,9 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           children: [
             const NewNFTMapWidget(),
             const SizedBox(height: 30),
-          
+
             _buildErrorInfo(),
-            
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -253,7 +254,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             ),
                             SizedBox(width: 8),
@@ -267,12 +269,12 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Transaction info display
             _buildTransactionInfo(),
-            
+
             const SizedBox(height: 16),
           ],
         ),

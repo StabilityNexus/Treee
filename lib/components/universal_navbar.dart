@@ -319,9 +319,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               );
             }
-          }
-
-          else if (value == 'Switch Chain') {
+          } else if (value == 'Switch Chain') {
             showChainSelector(context, walletProvider);
           }
         },
@@ -337,7 +335,8 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
           const PopupMenuItem<String>(
             value: 'Switch Chain',
             child: ListTile(
-              leading: Icon(Icons.switch_access_shortcut, color: Colors.green, size: 20),
+              leading: Icon(Icons.switch_access_shortcut,
+                  color: Colors.green, size: 20),
               title: Text(
                 'Switch Chain',
                 style: TextStyle(color: Colors.green),

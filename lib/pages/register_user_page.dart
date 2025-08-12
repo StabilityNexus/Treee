@@ -81,9 +81,10 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
 
   Future<void> _pickAndUploadImage() async {
     try {
-      final XFile? profilePhoto = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? profilePhoto =
+          await _picker.pickImage(source: ImageSource.gallery);
       if (profilePhoto == null) return;
-      
+
       setState(() {
         _isUploading = true;
         _selectedImage = File(profilePhoto.path);
@@ -95,7 +96,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
           _isUploading = isUploading;
         });
       });
-      
+
       if (hash != null) {
         setState(() {
           _profilePhotoHash = hash;
@@ -111,7 +112,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
       setState(() {
         _isUploading = false;
       });
-      _showErrorDialog('Error', 'Failed to pick or upload image: ${e.toString()}');
+      _showErrorDialog(
+          'Error', 'Failed to pick or upload image: ${e.toString()}');
     }
   }
 
@@ -121,7 +123,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
       return false;
     }
     if (_profilePhotoHash == null || _profilePhotoHash!.isEmpty) {
-      _showErrorDialog('Validation Error', 'Please select and upload a profile photo');
+      _showErrorDialog(
+          'Validation Error', 'Please select and upload a profile photo');
       return false;
     }
     return true;
@@ -130,7 +133,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
   Future<void> _registerUser() async {
     if (!_validateFields()) return;
 
-    final WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final WalletProvider walletProvider =
+        Provider.of<WalletProvider>(context, listen: false);
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -142,13 +146,13 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
         name: nameController.text.trim(),
         profilePhotoHash: _profilePhotoHash.toString(),
       );
-      
+
       if (result.success) {
         _showSuccessDialog(
           'Registration Successful!',
           'User registered successfully!\n\n'
-          'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-          'Welcome to the Tree Planting Protocol!',
+              'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
+              'Welcome to the Tree Planting Protocol!',
         );
       } else {
         _showErrorDialog('Registration Failed', result.errorMessage!);
@@ -185,7 +189,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            
+
             // Name Field
             _buildFormField(
               controller: nameController,
@@ -194,14 +198,14 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               hint: 'Enter your full name',
               maxLines: 1,
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Profile Photo Section
             _buildProfilePhotoSection(),
-            
+
             const SizedBox(height: 40),
-            
+
             // Error Message
             if (_errorMessage != null && _errorMessage!.isNotEmpty)
               Container(
@@ -225,7 +229,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                   ],
                 ),
               ),
-            
+
             // Register Button
             SizedBox(
               width: double.infinity,
@@ -246,7 +250,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                         width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : const Text(
@@ -294,7 +299,6 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
           ],
         ),
         const SizedBox(height: 12),
-        
         GestureDetector(
           onTap: _isUploading ? null : _pickAndUploadImage,
           child: Container(

@@ -30,12 +30,11 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
       );
       return;
     }
-    
+
     Provider.of<MintNftProvider>(context, listen: false)
         .setDescription(description);
-    Provider.of<MintNftProvider>(context, listen: false)
-        .setSpecies(species);
-    
+    Provider.of<MintNftProvider>(context, listen: false).setSpecies(species);
+
     _showCustomSnackBar("Details submitted successfully!");
     context.push(RouteConstants.mintNftImagesPath);
   }
@@ -62,9 +61,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
           ],
         ),
-        backgroundColor: isError 
-            ? Colors.red.shade400 
-            : const Color(0xFF1CD381),
+        backgroundColor:
+            isError ? Colors.red.shade400 : const Color(0xFF1CD381),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -77,7 +75,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return BaseScaffold(
       title: "NFT Details",
       body: SingleChildScrollView(
@@ -88,7 +86,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
         child: Column(
           children: [
             _buildFormSection(screenWidth),
-            
             const SizedBox(height: 32),
             _buildPreviewSection(),
           ],
@@ -177,7 +174,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
               ],
             ),
           ),
-          
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -190,9 +186,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   icon: Icons.eco,
                   maxLines: 1,
                 ),
-                
                 const SizedBox(height: 20),
-                
                 _buildFormField(
                   controller: descriptionController,
                   label: 'Description',
@@ -201,7 +195,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   maxLines: 5,
                   minLines: 3,
                 ),
-                
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
