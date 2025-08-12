@@ -21,22 +21,27 @@ enum InitializationState {
 }
 
 class WalletProvider extends ChangeNotifier {
+  static final String _correctChainId = "11155111";
+  // dotenv.env['APPLICATION_CHAIN_ID'].toString();
   // ignore: deprecated_member_use
   Web3App? _web3App;
-  String? _currentAddress;
   bool _isConnected = false;
   bool _isConnecting = false;
+
   InitializationState _initializationState = InitializationState.notStarted;
+  String? _currentAddress;
   String _statusMessage = 'Initializing...';
   String? _currentChainId;
 
-  static const String _defaultChainId = '11155111';
-
   String? get currentAddress => _currentAddress;
-  bool get isConnected => _isConnected;
-  bool get isConnecting => _isConnecting;
   String get statusMessage => _statusMessage;
   String? get currentChainId => _currentChainId;
+
+  bool get isConnected => _isConnected;
+  bool get isConnecting => _isConnecting;
+  bool get isValidCurrentChain =>
+      _currentChainId?.toString() == _correctChainId;
+
   List<WalletOption> get walletOptions => walletOptionsList;
   InitializationState get initializationState => _initializationState;
 
@@ -412,7 +417,7 @@ class WalletProvider extends ChangeNotifier {
         EthereumAddress.fromHex(contractAddress),
       );
       final function = contract.function(functionName);
-      final targetChainId = _currentChainId ?? _defaultChainId;
+      final targetChainId = _currentChainId ?? _correctChainId;
       final rpcUrl = getChainDetails(targetChainId).first['rpcUrl'] as String?;
       final httpClient = http.Client();
       final ethClient = Web3Client(rpcUrl!, httpClient);
@@ -458,7 +463,7 @@ class WalletProvider extends ChangeNotifier {
 
       final function = contract.function(functionName);
       final encodedFunction = function.encodeCall(params);
-      final targetChainId = chainId ?? _currentChainId ?? _defaultChainId;
+      final targetChainId = chainId ?? _currentChainId ?? _correctChainId;
 
       if (_currentChainId != targetChainId) {
         logger.w(
@@ -645,7 +650,7 @@ class WalletProvider extends ChangeNotifier {
         throw Exception('No active WalletConnect session');
       }
 
-      final targetChainId = chainId ?? _currentChainId ?? _defaultChainId;
+      final targetChainId = chainId ?? _currentChainId ?? _correctChainId;
       final result = await _web3App!.request(
         topic: sessions.first.topic,
         chainId: 'eip155:$targetChainId',

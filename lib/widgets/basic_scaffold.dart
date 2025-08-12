@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/components/universal_navbar.dart';
 import 'package:tree_planting_protocol/components/bottom_navigation_widget.dart';
+import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 
 class BaseScaffold extends StatelessWidget {
   final Widget body;
@@ -24,13 +26,16 @@ class BaseScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = GoRouterState.of(context).uri.toString();
-
+    final provider = Provider.of<WalletProvider>(context, listen: false);
+    bool isCorrectChain = provider.isValidCurrentChain;
     return Scaffold(
       appBar: UniversalNavbar(title: title, actions: actions),
       extendBodyBehindAppBar: extendBodyBehindAppBar,
-      body: SafeArea(
-        child: body,
-      ),
+      body: isCorrectChain
+          ? SafeArea(
+              child: body,
+            )
+          : Text("Wrong chain man"),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: showBottomNavigation
           ? BottomNavigationWidget(currentRoute: currentRoute)

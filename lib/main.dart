@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
           },
           routes: [
             GoRoute(
-              path: ':id', 
+              path: ':id',
               name: '${RouteConstants.allTrees}_details',
               builder: (BuildContext context, GoRouterState state) {
                 final id = state.pathParameters['id']; // read the dynamic ID
