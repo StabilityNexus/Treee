@@ -366,7 +366,6 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             ),
           ),
 
-          // Content
           Expanded(
             child: _errorMessage != null
                 ? _buildErrorWidget()

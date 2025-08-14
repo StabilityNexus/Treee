@@ -186,4 +186,46 @@ class ContractReadFunctions {
       );
     }
   }
+
+  static Future<ContractReadResult> getTreeNFTInfo({
+    required WalletProvider walletProvider,
+    required int id,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet first',
+        );
+      }
+
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+      final List<dynamic> args = [BigInt.from(id)];
+      final result = await walletProvider.readContract(
+        contractAddress: TreeNFtContractAddress,
+        functionName: 'getTreeDetailsbyID',
+        params: args,
+        abi: TreeNftContractABI,
+      );
+
+      final tree = result.length > 0 ? result[0] ?? [] : [];
+      logger.d("Tree Info");
+      logger.d(tree);
+      return ContractReadResult.success(
+        data: {
+          'details': tree,
+        },
+      );
+    } catch (e) {
+      logger.e("Error fetching the details of the Tree NFT", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read the details of the Tree: ${e.toString()}',
+      );
+    }
+  }
 }

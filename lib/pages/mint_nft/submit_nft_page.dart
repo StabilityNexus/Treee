@@ -82,8 +82,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
     try {
       final result = await ContractWriteFunctions.mintNft(
         walletProvider: walletProvider,
-        latitude: mintNftProvider.getLatitude(),
-        longitude: mintNftProvider.getLongitude(),
+        latitude: mintNftProvider.getLatitude() + 90.0,
+        longitude: mintNftProvider.getLongitude() + 180.0,
         species: mintNftProvider.getSpecies(),
         photos: mintNftProvider.getInitialPhotos(),
         geoHash: mintNftProvider.getGeoHash(),
