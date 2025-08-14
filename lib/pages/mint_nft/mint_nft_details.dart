@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/flutter_map_widget.dart';
-import 'package:tree_planting_protocol/widgets/tree_NFT_view_widget.dart';
-import 'package:tree_planting_protocol/widgets/tree_nft_view_details_with_map.dart';
+import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_NFT_view_widget.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 
 class MintNftDetailsPage extends StatefulWidget {
   const MintNftDetailsPage({super.key});
@@ -30,12 +30,11 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
       );
       return;
     }
-    
+
     Provider.of<MintNftProvider>(context, listen: false)
         .setDescription(description);
-    Provider.of<MintNftProvider>(context, listen: false)
-        .setSpecies(species);
-    
+    Provider.of<MintNftProvider>(context, listen: false).setSpecies(species);
+
     _showCustomSnackBar("Details submitted successfully!");
     context.push(RouteConstants.mintNftImagesPath);
   }
@@ -62,9 +61,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
           ],
         ),
-        backgroundColor: isError 
-            ? Colors.red.shade400 
-            : const Color(0xFF1CD381),
+        backgroundColor:
+            isError ? Colors.red.shade400 : const Color(0xFF1CD381),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -77,7 +75,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return BaseScaffold(
       title: "NFT Details",
       body: SingleChildScrollView(
@@ -88,7 +86,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
         child: Column(
           children: [
             _buildFormSection(screenWidth),
-            
             const SizedBox(height: 32),
             _buildPreviewSection(),
           ],
@@ -177,8 +174,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
               ],
             ),
           ),
-          
-          // Form Fields
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -191,9 +186,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   icon: Icons.eco,
                   maxLines: 1,
                 ),
-                
                 const SizedBox(height: 20),
-                
                 _buildFormField(
                   controller: descriptionController,
                   label: 'Description',
@@ -202,10 +195,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   maxLines: 5,
                   minLines: 3,
                 ),
-                
                 const SizedBox(height: 32),
-                
-                // Submit Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,

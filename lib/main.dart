@@ -6,7 +6,9 @@ import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
+import 'package:tree_planting_protocol/pages/register_user_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
+import 'package:tree_planting_protocol/pages/tree_details_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
 
@@ -21,6 +23,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
+
 void main() async {
   try {
     await dotenv.load(fileName: ".env");
@@ -47,6 +50,13 @@ class MyApp extends StatelessWidget {
           },
         ),
         GoRoute(
+          path: '/register-user',
+          name: 'Register_user',
+          builder: (BuildContext context, GoRouterState state) {
+            return const RegisterUserPage();
+          },
+        ),
+        GoRoute(
           path: '/settings',
           name: 'settings_page',
           builder: (BuildContext context, GoRouterState state) {
@@ -59,14 +69,14 @@ class MyApp extends StatelessWidget {
             builder: (context, state) => const MintNftCoordinatesPage(),
             routes: [
               GoRoute(
-                path: 'details', 
+                path: 'details',
                 name: '${RouteConstants.mintNft}_details',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MintNftDetailsPage();
                 },
               ),
               GoRoute(
-                path: 'images', 
+                path: 'images',
                 name: '${RouteConstants.mintNft}_images',
                 builder: (BuildContext context, GoRouterState state) {
                   return const MultipleImageUploadPage();
@@ -88,10 +98,11 @@ class MyApp extends StatelessWidget {
           },
           routes: [
             GoRoute(
-              path: 'details',
+              path: ':id',
               name: '${RouteConstants.allTrees}_details',
               builder: (BuildContext context, GoRouterState state) {
-                return const AllTreesPage();
+                final id = state.pathParameters['id']; // read the dynamic ID
+                return TreeDetailsPage(treeId: id!);
               },
             ),
           ],

@@ -6,7 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 String API_KEY = dotenv.get('API_KEY', fallback: "");
 String API_SECRET = dotenv.get('API_SECRET', fallback: "");
 
-Future<String?> uploadToIPFS(File imageFile, Function(bool) setUploadingState) async {
+Future<String?> uploadToIPFS(
+    File imageFile, Function(bool) setUploadingState) async {
   setUploadingState(true);
 
   var url = Uri.parse("https://api.pinata.cloud/pinning/pinFileToIPFS");

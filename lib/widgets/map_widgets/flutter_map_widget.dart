@@ -7,8 +7,13 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 
 class CoordinatesMap extends StatefulWidget {
   final Function(double lat, double lng)? onLocationSelected;
-  
-  const CoordinatesMap({Key? key, this.onLocationSelected, required double lat, required double lng}) : super(key: key);
+
+  const CoordinatesMap(
+      {Key? key,
+      this.onLocationSelected,
+      required double lat,
+      required double lng})
+      : super(key: key);
 
   @override
   State<CoordinatesMap> createState() => _CoordinatesMapState();
@@ -42,7 +47,9 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: _hasError ? _buildErrorWidget() : _buildMapWidget(latitude, longitude),
+            child: _hasError
+                ? _buildErrorWidget()
+                : _buildMapWidget(latitude, longitude),
           ),
         );
       },
@@ -106,7 +113,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
             minZoom: 3.0,
             maxZoom: 18.0,
             interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all, 
+              flags: InteractiveFlag.all,
             ),
             onMapReady: () {
               setState(() {
@@ -114,7 +121,8 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
               });
             },
             onTap: (tapPosition, point) {
-              final provider = Provider.of<MintNftProvider>(context, listen: false);
+              final provider =
+                  Provider.of<MintNftProvider>(context, listen: false);
               provider.setLatitude(point.latitude);
               provider.setLongitude(point.longitude);
               if (widget.onLocationSelected != null) {
@@ -297,13 +305,14 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
   }
 }
 
-
 class StaticDisplayMap extends StatefulWidget {
   final Function(double lat, double lng)? onLocationSelected;
   final double lat;
   final double lng;
 
-  const StaticDisplayMap({Key? key, this.onLocationSelected, required this.lat, required this.lng}) : super(key: key);
+  const StaticDisplayMap(
+      {Key? key, this.onLocationSelected, required this.lat, required this.lng})
+      : super(key: key);
 
   @override
   State<StaticDisplayMap> createState() => _StaticDisplayMapState();
@@ -322,9 +331,14 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
     super.initState();
     _mapController = MapController();
   }
+
   double _sanitizeCoordinate(double value, double defaultValue) {
-    if (value.isNaN || value.isInfinite || value == double.infinity || value == double.negativeInfinity) {
-      logger.e('Invalid coordinate detected: $value, using default: $defaultValue');
+    if (value.isNaN ||
+        value.isInfinite ||
+        value == double.infinity ||
+        value == double.negativeInfinity) {
+      logger.e(
+          'Invalid coordinate detected: $value, using default: $defaultValue');
       return defaultValue;
     }
     return value;
@@ -344,7 +358,9 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: _hasError ? _buildErrorWidget() : _buildMapWidget(latitude, longitude),
+        child: _hasError
+            ? _buildErrorWidget()
+            : _buildMapWidget(latitude, longitude),
       ),
     );
   }
@@ -396,8 +412,12 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
   }
 
   Widget _buildMapWidget(double latitude, double longitude) {
-    if (latitude.isNaN || latitude.isInfinite || longitude.isNaN || longitude.isInfinite) {
-      logger.e('ERROR: Invalid coordinates in _buildMapWidget - lat: $latitude, lng: $longitude');
+    if (latitude.isNaN ||
+        latitude.isInfinite ||
+        longitude.isNaN ||
+        longitude.isInfinite) {
+      logger.e(
+          'ERROR: Invalid coordinates in _buildMapWidget - lat: $latitude, lng: $longitude');
       latitude = _defaultLat;
       longitude = _defaultLng;
     }
@@ -412,7 +432,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
             minZoom: 3.0,
             maxZoom: 18.0,
             interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all, 
+              flags: InteractiveFlag.all,
             ),
             onMapReady: () {
               setState(() {

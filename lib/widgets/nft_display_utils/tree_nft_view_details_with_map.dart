@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
-import 'package:tree_planting_protocol/widgets/flutter_map_widget.dart';
+import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
 
 class NewNFTMapWidget extends StatefulWidget {
   const NewNFTMapWidget({super.key});
@@ -16,13 +16,13 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
     final screenSize = MediaQuery.of(context).size;
     final screenWidth = screenSize.width;
     final screenHeight = screenSize.height;
-    final mapHeight = screenHeight * 0.35; 
-    final mapWidth = screenWidth * 0.9; 
-    final containerMaxWidth = screenWidth * 0.95; 
-    
+    final mapHeight = screenHeight * 0.35;
+    final mapWidth = screenWidth * 0.9;
+    final containerMaxWidth = screenWidth * 0.95;
+
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.05, 
+        horizontal: screenWidth * 0.05,
         vertical: 16.0,
       ),
       child: Column(
@@ -42,11 +42,14 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
             ),
             clipBehavior: Clip.antiAlias,
             child: StaticDisplayMap(
-              lat: Provider.of<MintNftProvider>(context).getLatitude().toDouble(),
-              lng: Provider.of<MintNftProvider>(context).getLongitude().toDouble(),
+              lat: Provider.of<MintNftProvider>(context)
+                  .getLatitude()
+                  .toDouble(),
+              lng: Provider.of<MintNftProvider>(context)
+                  .getLongitude()
+                  .toDouble(),
             ),
           ),
-          
           const SizedBox(height: 20),
           Container(
             width: double.infinity,
@@ -98,26 +101,25 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       'Description:',
-                      _formatDescription(provider.getDescription(), screenWidth),
+                      _formatDescription(provider.getDetails(), screenWidth),
                       screenWidth,
                       isDescription: true,
                     ),
                     ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: provider.getInitialPhotos().length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Image.network(
-                            provider.getInitialPhotos()[index],
-                            height: 100,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      }
-                    ),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: provider.getInitialPhotos().length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Image.network(
+                              provider.getInitialPhotos()[index],
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }),
                   ],
                 );
               },
@@ -128,9 +130,10 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, double screenWidth, {bool isDescription = false}) {
+  Widget _buildInfoRow(String label, String value, double screenWidth,
+      {bool isDescription = false}) {
     final fontSize = screenWidth < 360 ? 14.0 : 16.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -175,7 +178,7 @@ String _formatDescription(String description, double screenWidth) {
   } else {
     maxLength = 150;
   }
-  
+
   return description.length > maxLength
       ? '${description.substring(0, maxLength)}...'
       : description;

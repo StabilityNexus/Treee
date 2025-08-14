@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/tree_nft_view_details_with_map.dart';
+import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
+import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
 
 class SubmitNFTPage extends StatefulWidget {
   const SubmitNFTPage({super.key});
@@ -16,13 +15,11 @@ class SubmitNFTPage extends StatefulWidget {
 }
 
 class _SubmitNFTPageState extends State<SubmitNFTPage> {
-  static final String contractAddress = dotenv.env['CONTRACT_ADDRESS'] ??
-      '0xa122109493B90e322824c3444ed8D6236CAbAB7C';
-
   bool isLoading = false;
   bool isMinting = false;
   String? errorMessage;
   String? lastTransactionHash;
+  Map<String, dynamic>? lastTransactionData;
 
   void _showSuccessDialog(String title, String message) {
     showDialog(
@@ -53,7 +50,13 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
+          title: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.red),
+              const SizedBox(width: 8),
+              Text(title),
+            ],
+          ),
           content: Text(message),
           actions: [
             TextButton(
@@ -71,70 +74,149 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
     final mintNftProvider =
         Provider.of<MintNftProvider>(context, listen: false);
 
-    if (!walletProvider.isConnected) {
-      logger.e("Please connect your wallet before putting this request");
-      _showErrorDialog(
-          'Wallet Not Connected', 'Please connect your wallet before minting.');
-      return;
-    }
-
     setState(() {
       isMinting = true;
       errorMessage = null;
     });
 
     try {
-      final double rawLat = mintNftProvider.getLatitude();
-      final double rawLng = mintNftProvider.getLongitude();
+      final result = await ContractWriteFunctions.mintNft(
+        walletProvider: walletProvider,
+        latitude: mintNftProvider.getLatitude(),
+        longitude: mintNftProvider.getLongitude(),
+        species: mintNftProvider.getSpecies(),
+        photos: mintNftProvider.getInitialPhotos(),
+        geoHash: mintNftProvider.getGeoHash(),
+        metadata: mintNftProvider.getDetails(),
+      );
 
-      if (rawLat < -90.0 ||
-          rawLat > 90.0 ||
-          rawLng < -180.0 ||
-          rawLng > 180.0) {
-        _showErrorDialog(
-          'Invalid Coordinates',
-          'The selected coordinates are outside the valid range.\nLat: [-90, 90], Lng: [-180, 180].',
+      setState(() {
+        isMinting = false;
+        if (result.success) {
+          lastTransactionHash = result.transactionHash;
+          lastTransactionData = result.data;
+          errorMessage = null;
+        } else {
+          errorMessage = result.errorMessage;
+          lastTransactionHash = null;
+          lastTransactionData = null;
+        }
+      });
+
+      if (result.success) {
+        _showSuccessDialog(
+          'Transaction Sent!',
+          'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
+              'The NFT will be minted once the transaction is confirmed.\n\n'
+              'Species: ${result.data['species']}\n'
+              'Photos: ${result.data['photos'].length} uploaded',
         );
-        return;
+      } else {
+        _showErrorDialog('Transaction Failed', result.errorMessage!);
       }
-      final lat = BigInt.from((mintNftProvider.getLatitude() + 90.0) * 1e6);
-      final lng = BigInt.from((mintNftProvider.getLongitude() + 180.0) * 1e6);
-      logger.i("Calculated values being sent: Lat: $lat, Lng: $lng");
-      List<dynamic> args = [
-        lat,
-        lng,
-        mintNftProvider.getSpecies(),
-        mintNftProvider.getInitialPhotos().isNotEmpty ? mintNftProvider.getInitialPhotos()[0] : "",
-        "",
-        mintNftProvider.getGeoHash(),
-        mintNftProvider.getInitialPhotos(),
-      ];
-
-      final txHash = await walletProvider.writeContract(
-        contractAddress: TreeNFtContractAddress,
-        functionName: 'mintNft',
-        params: args,
-        abi: TreeNftContractABI,
-        chainId: walletProvider.currentChainId,
-      );
-
-      setState(() {
-        lastTransactionHash = txHash;
-        isMinting = false;
-      });
-
-      _showSuccessDialog(
-        'Transaction Sent!',
-        'Transaction hash: ${txHash.substring(0, 10)}...\n\nThe NFT will be minted once the transaction is confirmed.',
-      );
     } catch (e) {
-      logger.e("Error occurred", error: e);
+      logger.e("Unexpected error in _mintTreeNft", error: e);
       setState(() {
         isMinting = false;
-        errorMessage = e.toString();
+        errorMessage = 'Unexpected error: ${e.toString()}';
       });
-      _showErrorDialog('Transaction Failed', e.toString());
+      _showErrorDialog('Unexpected Error', e.toString());
     }
+  }
+
+  Widget _buildTransactionInfo() {
+    if (lastTransactionHash == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.receipt_long, color: Colors.green.shade700),
+              const SizedBox(width: 8),
+              const Text(
+                "Last Transaction:",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Hash: ${lastTransactionHash!.substring(0, 20)}...",
+            style: const TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 12,
+            ),
+          ),
+          if (lastTransactionData != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              "Species: ${lastTransactionData!['species']}",
+              style: const TextStyle(fontSize: 12),
+            ),
+            Text(
+              "Photos: ${lastTransactionData!['photos']?.length ?? 0}",
+              style: const TextStyle(fontSize: 12),
+            ),
+            Text(
+              "Location: (${lastTransactionData!['latitude']?.toStringAsFixed(6)}, ${lastTransactionData!['longitude']?.toStringAsFixed(6)})",
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorInfo() {
+    if (errorMessage == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red.shade700),
+              const SizedBox(width: 8),
+              const Text(
+                "Error:",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            errorMessage!,
+            style: TextStyle(
+              color: Colors.red.shade700,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -147,59 +229,53 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           children: [
             const NewNFTMapWidget(),
             const SizedBox(height: 30),
-            if (errorMessage != null)
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Text(
-                  errorMessage!,
-                  style: TextStyle(color: Colors.red.shade700),
-                ),
-              ),
-            ElevatedButton(
-              onPressed: isMinting ? null : _mintTreeNft,
-              child: isMinting
-                  ? const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+
+            _buildErrorInfo(),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isMinting ? null : _mintTreeNft,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: isMinting
+                      ? const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text("Minting...", style: TextStyle(fontSize: 16)),
+                          ],
+                        )
+                      : const Text(
+                          "Mint NFT",
+                          style: TextStyle(fontSize: 16),
                         ),
-                        SizedBox(width: 8),
-                        Text("Minting..."),
-                      ],
-                    )
-                  : const Text("Mint NFT"),
-            ),
-            if (lastTransactionHash != null)
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green.shade200),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Last Transaction:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      lastTransactionHash!.substring(0, 20) + "...",
-                      style: const TextStyle(fontFamily: 'monospace'),
-                    ),
-                  ],
                 ),
               ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Transaction info display
+            _buildTransactionInfo(),
+
+            const SizedBox(height: 16),
           ],
         ),
       ),

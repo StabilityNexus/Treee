@@ -47,7 +47,7 @@ class _NewNFTWidgetState extends State<NewNFTWidget> {
                   softWrap: true,
                 ),
                 Text(
-                  'Description: ${_formatDescription(provider.getDescription())}',
+                  'Description: ${_formatDescription(provider.getDetails())}',
                   style: const TextStyle(fontSize: 18),
                   softWrap: true,
                 ),

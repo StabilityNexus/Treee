@@ -33,19 +33,19 @@ String encodeParameter(dynamic param, String type) {
 }
 
 String weiToEther(String wei) {
-    final weiValue = BigInt.parse(wei.startsWith('0x') ? wei.substring(2) : wei,
-        radix: wei.startsWith('0x') ? 16 : 10);
-    final etherValue = weiValue / BigInt.from(10).pow(18);
-    return etherValue.toString();
-  }
+  final weiValue = BigInt.parse(wei.startsWith('0x') ? wei.substring(2) : wei,
+      radix: wei.startsWith('0x') ? 16 : 10);
+  final etherValue = weiValue / BigInt.from(10).pow(18);
+  return etherValue.toString();
+}
 
 String etherToWei(String ether) {
-    final etherValue = double.parse(ether);
-    final weiValue = (etherValue * 1e18).toInt();
-    return '0x${weiValue.toRadixString(16)}';
-  }
+  final etherValue = double.parse(ether);
+  final weiValue = (etherValue * 1e18).toInt();
+  return '0x${weiValue.toRadixString(16)}';
+}
 
 String formatAddress(String address) {
-    if (address.length <= 10) return address;
-    return '${address.substring(0, 6)}...${address.substring(address.length - 4)}';
-  }
+  if (address.length <= 10) return address;
+  return '${address.substring(0, 6)}...${address.substring(address.length - 4)}';
+}
