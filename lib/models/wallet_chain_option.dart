@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-final String ALCHEMY_API_KEY = dotenv.env['ALCHEMY_API_KEY'] ?? '';
+final String alchemyApiKey = dotenv.env['ALCHEMY_API_KEY'] ?? '';
 
 class WalletOption {
   final String name;
@@ -30,14 +30,14 @@ final List<WalletOption> walletOptionsList = [
 ];
 
 final Map<String, String> rpcUrls = {
-  '11155111': 'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
-  '1': 'https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+  '11155111': 'https://eth-sepolia.g.alchemy.com/v2/$alchemyApiKey',
+  '1': 'https://eth-mainnet.g.alchemy.com/v2/$alchemyApiKey',
 };
 
 final Map<String, Map<String, dynamic>> chainInfoList = {
   '1': {
     'name': 'Ethereum Mainnet',
-    'rpcUrl': 'https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+    'rpcUrl': 'https://eth-mainnet.g.alchemy.com/v2/$alchemyApiKey',
     'nativeCurrency': {
       'name': 'Ether',
       'symbol': 'ETH',
@@ -47,7 +47,7 @@ final Map<String, Map<String, dynamic>> chainInfoList = {
   },
   '11155111': {
     'name': 'Sepolia Testnet',
-    'rpcUrl': 'https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY',
+    'rpcUrl': 'https://eth-sepolia.g.alchemy.com/v2/$alchemyApiKey',
     'nativeCurrency': {
       'name': 'Sepolia Ether',
       'symbol': 'SEP',

@@ -105,10 +105,10 @@ class UserNftsWidget extends StatefulWidget {
   final String userAddress;
 
   const UserNftsWidget({
-    Key? key,
+    super.key,
     required this.isOwnerCalling,
     required this.userAddress,
-  }) : super(key: key);
+  });
 
   @override
   State<UserNftsWidget> createState() => _UserNftsWidgetState();
@@ -118,7 +118,9 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
   List<Tree> _nfts = [];
   bool _isLoading = false;
   String? _errorMessage;
+  // ignore: unused_field
   int _currentPage = 0;
+  // ignore: unused_field
   final int _itemsPerPage = 10;
   int _totalCount = 0;
   bool _hasMore = true;
@@ -193,7 +195,7 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.5),
+      shadowColor: Colors.black,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(
@@ -338,44 +340,41 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.isOwnerCalling ? "Your NFTs" : "User NFTs",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (_totalCount > 0)
                 Text(
-                  widget.isOwnerCalling ? "Your NFTs" : "User NFTs",
+                  '$_totalCount trees',
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.grey,
                   ),
                 ),
-                if (_totalCount > 0)
-                  Text(
-                    '$_totalCount trees',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
+        ),
 
-          // Content
-          Expanded(
-            child: _errorMessage != null
-                ? _buildErrorWidget()
-                : _nfts.isEmpty && !_isLoading
-                    ? _buildEmptyWidget()
-                    : _buildNFTsList(),
-          ),
-        ],
-      ),
+        // Content
+        Expanded(
+          child: _errorMessage != null
+              ? _buildErrorWidget()
+              : _nfts.isEmpty && !_isLoading
+                  ? _buildEmptyWidget()
+                  : _buildNFTsList(),
+        ),
+      ],
     );
   }
 

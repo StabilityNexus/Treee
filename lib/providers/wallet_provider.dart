@@ -366,6 +366,7 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
+  // ignore: unused_element
   String _getCurrentSessionChainId() {
     final sessions = _web3App!.sessions.getAll();
     if (!sessions.isNotEmpty) {

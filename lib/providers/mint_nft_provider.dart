@@ -5,7 +5,6 @@ class MintNftProvider extends ChangeNotifier {
   double _longitude = 0;
   String _species = "";
   String _details = "";
-  String _detailsHash = "";
   String _imageUri = "";
   String _qrIpfsHash = "";
   String _geoHash = "";

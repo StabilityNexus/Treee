@@ -278,7 +278,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFF1CD381).withOpacity(0.1),
+                color: const Color(0xFF1CD381),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -308,12 +308,12 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFFFAEB96).withOpacity(0.5),
+                color: const Color(0xFFFAEB96),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1CD381).withOpacity(0.05),
+                  color: const Color(0xFF1CD381),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -444,7 +444,7 @@ Widget _buildFormField({
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFF1CD381).withOpacity(0.1),
+              color: const Color(0xFF1CD381),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -470,12 +470,12 @@ Widget _buildFormField({
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFFAEB96).withOpacity(0.5),
+            color: const Color(0xFFFAEB96),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1CD381).withOpacity(0.05),
+              color: const Color(0xFF1CD381),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
