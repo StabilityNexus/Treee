@@ -32,4 +32,4 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Flutter build (apk)
-        run:  flutter build apk --release --no-tree-shake-icons 2>/dev/null | grep -v "deprecated"
+        run:  flutter build apk --release --no-tree-shake-icons | grep -v "deprecated"
