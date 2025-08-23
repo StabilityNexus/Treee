@@ -1,7 +1,7 @@
-import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
+import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 class ContractReadResult {
   final bool success;
@@ -69,10 +69,10 @@ class ContractReadFunctions {
       ];
 
       final result = await walletProvider.readContract(
-        contractAddress: TreeNFtContractAddress,
+        contractAddress: treeNFtContractAddress,
         functionName: 'getNFTsByUserPaginated',
         params: args,
-        abi: TreeNftContractABI,
+        abi: treeNftContractABI,
       );
       logger.i("NFTs read successfully: $result");
       if (result == null || result.isEmpty) {
@@ -117,9 +117,9 @@ class ContractReadFunctions {
         );
       }
       final result = await walletProvider.readContract(
-        contractAddress: TreeNFtContractAddress,
+        contractAddress: treeNFtContractAddress,
         functionName: 'ping',
-        abi: TreeNftContractABI,
+        abi: treeNftContractABI,
         params: [],
       );
       String pingResponse;
@@ -172,9 +172,9 @@ class ContractReadFunctions {
           EthereumAddress.fromHex(currentAddress);
       final List<dynamic> args = [userAddress];
       final result = await walletProvider.readContract(
-        contractAddress: TreeNFtContractAddress,
+        contractAddress: treeNFtContractAddress,
         functionName: 'getUserProfile',
-        abi: TreeNftContractABI,
+        abi: treeNftContractABI,
         params: args,
       );
       final profile = result.length > 0 ? result[0] ?? [] : [];

@@ -40,9 +40,12 @@ class WalletConnectDialog extends StatelessWidget {
                     onPressed: () async {
                       try {
                         await walletProvider.openWallet(wallet, uri);
+                        // ignore: use_build_context_synchronously
                         Navigator.of(context).pop();
                       } catch (e) {
+                        // ignore: use_build_context_synchronously
                         Navigator.of(context).pop();
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(e.toString()),
@@ -75,7 +78,9 @@ class WalletConnectDialog extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: uri));
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context).pop();
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('URI copied to clipboard!'),

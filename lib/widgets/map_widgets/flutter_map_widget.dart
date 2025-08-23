@@ -9,11 +9,10 @@ class CoordinatesMap extends StatefulWidget {
   final Function(double lat, double lng)? onLocationSelected;
 
   const CoordinatesMap(
-      {Key? key,
+      {super.key,
       this.onLocationSelected,
       required double lat,
-      required double lng})
-      : super(key: key);
+      required double lng});
 
   @override
   State<CoordinatesMap> createState() => _CoordinatesMapState();
@@ -23,10 +22,6 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
   late MapController _mapController;
   bool _mapLoaded = false;
   bool _hasError = false;
-  String? _errorMessage;
-  static const double _defaultLat = 28.9845;
-  static const double _defaultLng = 77.8956;
-
   @override
   void initState() {
     super.initState();
@@ -37,8 +32,8 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
   Widget build(BuildContext context) {
     return Consumer<MintNftProvider>(
       builder: (context, provider, _) {
-        final double latitude = provider.getLatitude() ?? _defaultLat;
-        final double longitude = provider.getLongitude() ?? _defaultLng;
+        final double latitude = provider.getLatitude();
+        final double longitude = provider.getLongitude();
 
         return Container(
           decoration: BoxDecoration(
@@ -91,7 +86,6 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
               onPressed: () {
                 setState(() {
                   _hasError = false;
-                  _errorMessage = null;
                 });
               },
               child: const Text("Retry"),
@@ -138,7 +132,6 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                 if (mounted) {
                   setState(() {
                     _hasError = true;
-                    _errorMessage = 'Network connection issue';
                   });
                 }
               },
@@ -161,7 +154,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
         ),
         if (!_mapLoaded)
           Container(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white,
             child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +172,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -202,7 +195,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black,
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -226,7 +219,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                           topLeft: Radius.circular(4),
                           topRight: Radius.circular(4),
                         ),
-                        child: Container(
+                        child: SizedBox(
                           width: 40,
                           height: 40,
                           child: const Icon(
@@ -257,7 +250,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                           bottomLeft: Radius.circular(4),
                           bottomRight: Radius.circular(4),
                         ),
-                        child: Container(
+                        child: SizedBox(
                           width: 40,
                           height: 40,
                           child: const Icon(
@@ -281,7 +274,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.8),
+              color: Colors.blue,
               borderRadius: BorderRadius.circular(4),
             ),
             child: const Text(
@@ -311,8 +304,10 @@ class StaticDisplayMap extends StatefulWidget {
   final double lng;
 
   const StaticDisplayMap(
-      {Key? key, this.onLocationSelected, required this.lat, required this.lng})
-      : super(key: key);
+      {super.key,
+      this.onLocationSelected,
+      required this.lat,
+      required this.lng});
 
   @override
   State<StaticDisplayMap> createState() => _StaticDisplayMapState();
@@ -322,7 +317,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
   late MapController _mapController;
   bool _mapLoaded = false;
   bool _hasError = false;
-  String? _errorMessage;
   static const double _defaultLat = 28.9845; // Example: Roorkee, India
   static const double _defaultLng = 77.8956;
 
@@ -400,7 +394,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
               onPressed: () {
                 setState(() {
                   _hasError = false;
-                  _errorMessage = null;
                 });
               },
               child: const Text("Retry"),
@@ -440,7 +433,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
               });
             },
             onTap: (tapPosition, point) {
-              // For static display, you might want to disable tap or handle differently
               if (widget.onLocationSelected != null) {
                 widget.onLocationSelected!(point.latitude, point.longitude);
               }
@@ -454,7 +446,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                 if (mounted) {
                   setState(() {
                     _hasError = true;
-                    _errorMessage = 'Network connection issue';
                   });
                 }
               },
@@ -477,7 +468,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
         ),
         if (!_mapLoaded)
           Container(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white,
             child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -495,7 +486,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -518,7 +509,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black,
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -542,7 +533,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                           topLeft: Radius.circular(4),
                           topRight: Radius.circular(4),
                         ),
-                        child: Container(
+                        child: SizedBox(
                           width: 40,
                           height: 40,
                           child: const Icon(
@@ -573,7 +564,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                           bottomLeft: Radius.circular(4),
                           bottomRight: Radius.circular(4),
                         ),
-                        child: Container(
+                        child: SizedBox(
                           width: 40,
                           height: 40,
                           child: const Icon(
@@ -597,7 +588,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.8),
+              color: Colors.blue,
               borderRadius: BorderRadius.circular(4),
             ),
             child: const Text(

@@ -1,5 +1,7 @@
 // ignore: constant_identifier_names
-const String TreeNftContractABI = '''[
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+const String treeNftContractABI = '''[
     {
       "type": "constructor",
       "inputs": [
@@ -1709,5 +1711,5 @@ const String TreeNftContractABI = '''[
     }
   ]''';
 
-const String TreeNFtContractAddress =
-    "0xD0B9957663a7d6bA29638Ef3067d54f832E0f0ED";
+final String treeNFtContractAddress =
+    dotenv.env['TREE_NFT_CONTRACT_ADDRESS'] ?? '';

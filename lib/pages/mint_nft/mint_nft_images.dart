@@ -42,12 +42,15 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
       if (images.isEmpty) return;
 
       logger.d('Selected ${images.length} images for upload');
+
+      // ignore: use_build_context_synchronously
+      final provider = Provider.of<MintNftProvider>(context, listen: false);
+
       setState(() {
         _processingImages = images.map((image) => File(image.path)).toList();
         _isUploading = true;
       });
 
-      final provider = Provider.of<MintNftProvider>(context, listen: false);
       List<String> newHashes = [];
 
       for (int i = 0; i < images.length; i++) {
@@ -252,7 +255,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                         width: 120,
                                         height: 120,
                                         decoration: BoxDecoration(
-                                          color: Colors.green.withOpacity(0.8),
+                                          color: Colors.green,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),

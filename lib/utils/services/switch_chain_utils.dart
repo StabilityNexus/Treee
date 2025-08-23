@@ -54,7 +54,7 @@ void showChainSelector(BuildContext context, WalletProvider walletProvider) {
                         },
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 16),
           ],
         ),

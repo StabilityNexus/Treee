@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
@@ -79,10 +77,10 @@ class ContractWriteFunctions {
         photos,
       ];
       final txHash = await walletProvider.writeContract(
-        contractAddress: TreeNFtContractAddress,
+        contractAddress: treeNFtContractAddress,
         functionName: 'mintNft',
         params: args,
-        abi: TreeNftContractABI,
+        abi: treeNftContractABI,
         chainId: walletProvider.currentChainId,
       );
 
@@ -120,10 +118,10 @@ class ContractWriteFunctions {
       }
       final List<dynamic> args = [name, profilePhotoHash];
       final txHash = await walletProvider.writeContract(
-        contractAddress: TreeNFtContractAddress,
+        contractAddress: treeNFtContractAddress,
         functionName: 'registerUserProfile',
         params: args,
-        abi: TreeNftContractABI,
+        abi: treeNftContractABI,
         chainId: walletProvider.currentChainId,
       );
 

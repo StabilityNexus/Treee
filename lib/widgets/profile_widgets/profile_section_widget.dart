@@ -34,9 +34,9 @@ class UserProfileData {
     try {
       dynamic actualData = data;
       return UserProfileData(
-        name: actualData[2].toString() ?? '',
-        userAddress: actualData[0].toString() ?? '',
-        profilePhotoIpfs: actualData[1].toString() ?? '',
+        name: actualData[2].toString(),
+        userAddress: actualData[0].toString(),
+        profilePhotoIpfs: actualData[1].toString(),
         dateJoined: _toInt(actualData[3]),
         verificationsRevoked: _toInt(actualData[4]),
         reportedSpam: _toInt(actualData[5]),
@@ -46,9 +46,9 @@ class UserProfileData {
         legacyTokens: _toInt(actualData[8]),
       );
     } catch (e) {
-      debugPrint("Error parsing Tree data: $e");
-      debugPrint("Data received: $data");
-      debugPrint("Data type: ${data.runtimeType}");
+      logger.d("Error parsing Tree data: $e");
+      logger.d("Data received: $data");
+      logger.d("Data type: ${data.runtimeType}");
 
       return UserProfileData(
         name: '',
@@ -244,119 +244,118 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
   }
 
   Widget _tokenWidget() {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 40,
-              width: 150,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 251, 251, 99),
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12, // shadow color
-                        blurRadius: 6, // shadow softness
-                        offset: Offset(0, 3), // shadow position
-                      ),
-                    ],
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: SizedBox(
+            height: 40,
+            width: 150,
+            child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 251, 251, 99),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 2,
                   ),
-                  child: Center(
-                      child: Text(
-                          'Planter Tokens : ${_userProfileData!.planterTokens}'))),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 40,
-              width: 150,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 28, 211, 129),
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12, // shadow color
+                      blurRadius: 6, // shadow softness
+                      offset: Offset(0, 3), // shadow position
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                      child: Text(
-                          'Care Tokens : ${_userProfileData!.careTokens}'))),
-            ),
+                  ],
+                ),
+                child: Center(
+                    child: Text(
+                        'Planter Tokens : ${_userProfileData!.planterTokens}'))),
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 40,
-              width: 150,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 251, 251, 99),
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: SizedBox(
+            height: 40,
+            width: 150,
+            child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 28, 211, 129),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                      child: Text(
-                          'Verifier Tokens : ${_userProfileData!.verifierTokens}'))),
-            ),
+                  ],
+                ),
+                child: Center(
+                    child:
+                        Text('Care Tokens : ${_userProfileData!.careTokens}'))),
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 40,
-              width: 150,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 28, 211, 129),
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: SizedBox(
+            height: 40,
+            width: 150,
+            child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 251, 251, 99),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                      child: Text(
-                          'Legacy Tokens : ${_userProfileData!.legacyTokens}'))),
-            ),
+                  ],
+                ),
+                child: Center(
+                    child: Text(
+                        'Verifier Tokens : ${_userProfileData!.verifierTokens}'))),
           ),
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: SizedBox(
+            height: 40,
+            width: 150,
+            child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 28, 211, 129),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Center(
+                    child: Text(
+                        'Legacy Tokens : ${_userProfileData!.legacyTokens}'))),
+          ),
+        ),
+      ],
     );
   }
 
+  // ignore: unused_element
   Widget _buildErrorState() {
     return Container(
       padding: const EdgeInsets.all(20),

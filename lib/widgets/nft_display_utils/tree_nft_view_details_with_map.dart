@@ -34,7 +34,7 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
               borderRadius: BorderRadius.circular(12.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -64,7 +64,7 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
