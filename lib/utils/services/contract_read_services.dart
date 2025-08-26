@@ -1,7 +1,7 @@
+import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 class ContractReadResult {
   final bool success;
@@ -183,6 +183,70 @@ class ContractReadFunctions {
       logger.e("Error reading User profile", error: e);
       return ContractReadResult.error(
         errorMessage: 'Failed to read User Profile: ${e.toString()}',
+      );
+    }
+  }
+
+  static Future<ContractReadResult> getTreeNFTInfo({
+    required WalletProvider walletProvider,
+    required int id,
+    required int offset,
+    required int limit,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet first',
+        );
+      }
+
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+      final List<dynamic> args = [BigInt.from(id)];
+
+      final treeDetailsResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'getTreeDetailsbyID',
+        params: args,
+        abi: treeNftContractABI,
+      );
+
+      final tree =
+          treeDetailsResult.length > 0 ? treeDetailsResult[0] ?? [] : [];
+      logger.d("Tree Info");
+      logger.d(tree);
+
+      final treeVerifiersResult = await walletProvider.readContract(
+          contractAddress: treeNFtContractAddress,
+          functionName: 'getTreeNftVerifiersPaginated',
+          params: [BigInt.from(id), BigInt.from(offset), BigInt.from(limit)],
+          abi: treeNftContractABI);
+
+      final verifiers =
+          treeVerifiersResult.length > 0 ? treeVerifiersResult[0] ?? [] : [];
+      logger.d("Tree Verifiers Info");
+      logger.d(verifiers);
+
+      final ownerResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'ownerOf',
+        params: [BigInt.from(id)],
+        abi: treeNftContractABI,
+      );
+
+      final owner = ownerResult.isNotEmpty ? ownerResult[0] : null;
+      return ContractReadResult.success(
+        data: {'details': tree, 'verifiers': verifiers, 'owner': owner},
+      );
+    } catch (e) {
+      logger.e("Error fetching the details of the Tree NFT", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read the details of the Tree: ${e.toString()}',
       );
     }
   }
