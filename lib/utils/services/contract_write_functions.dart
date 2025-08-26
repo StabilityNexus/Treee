@@ -138,4 +138,76 @@ class ContractWriteFunctions {
       );
     }
   }
+
+  static Future<ContractWriteResult> verifyTree(
+      {required WalletProvider walletProvider,
+      required int treeId,
+      required String description,
+      required List<String> photos}) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for verifying tree");
+        return ContractWriteResult.error(
+          errorMessage: 'Please connect your wallet before verifying.',
+        );
+      }
+
+      final List<dynamic> args = [BigInt.from(treeId), photos, description];
+      final txHash = await walletProvider.writeContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'verify',
+        params: args,
+        abi: treeNftContractABI,
+        chainId: walletProvider.currentChainId,
+      );
+
+      logger.i("Tree verification transaction sent: $txHash");
+
+      return ContractWriteResult.success(
+        transactionHash: txHash,
+        data: {'treeId': treeId},
+      );
+    } catch (e) {
+      logger.e("Error verifying Tree", error: e);
+      return ContractWriteResult.error(
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  static Future<ContractWriteResult> removeVerification(
+      {required WalletProvider walletProvider,
+      required int treeId,
+      required String address}) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for removing verification");
+        return ContractWriteResult.error(
+          errorMessage:
+              'Please connect your wallet before removing verification.',
+        );
+      }
+
+      final List<dynamic> args = [BigInt.from(treeId), address];
+      final txHash = await walletProvider.writeContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'removeVerification',
+        params: args,
+        abi: treeNftContractABI,
+        chainId: walletProvider.currentChainId,
+      );
+
+      logger.i("Remove verification transaction sent: $txHash");
+
+      return ContractWriteResult.success(
+        transactionHash: txHash,
+        data: {'treeId': treeId, 'address': address},
+      );
+    } catch (e) {
+      logger.e("Error removing verification", error: e);
+      return ContractWriteResult.error(
+        errorMessage: e.toString(),
+      );
+    }
+  }
 }
