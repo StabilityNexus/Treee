@@ -1,6 +1,7 @@
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
+import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 class ContractWriteResult {
   final bool success;
@@ -188,7 +189,11 @@ class ContractWriteFunctions {
         );
       }
 
-      final List<dynamic> args = [BigInt.from(treeId), address];
+      final List<dynamic> args = [
+        BigInt.from(treeId),
+        EthereumAddress.fromHex(address)
+      ];
+
       final txHash = await walletProvider.writeContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'removeVerification',

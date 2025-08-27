@@ -1,3 +1,4 @@
+// ignore: depend_on_referenced_packages
 import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';

@@ -273,7 +273,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
               ],
             ),
           ),
-          treeVerifiersSection(loggedInUser, treeDetails, loadTreeDetails, context),
+          treeVerifiersSection(
+              loggedInUser, treeDetails, loadTreeDetails, context),
         ],
       ),
     );
@@ -478,7 +479,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         );
       }
     } catch (e) {
-
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 

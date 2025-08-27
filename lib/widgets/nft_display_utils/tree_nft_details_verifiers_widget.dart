@@ -4,6 +4,50 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
 
+class Verifier {
+  final String address;
+  final int timestamp;
+  final List<String> proofHashes;
+  final String description;
+  final bool isActive;
+  final int verificationId;
+
+  Verifier({
+    required this.address,
+    required this.timestamp,
+    required this.proofHashes,
+    required this.description,
+    required this.isActive,
+    required this.verificationId,
+  });
+
+  factory Verifier.fromList(List<dynamic> data) {
+    return Verifier(
+      address: data[0].toString(),
+      timestamp: data[1] is BigInt
+          ? (data[1] as BigInt).toInt()
+          : int.parse(data[1].toString()),
+      proofHashes: data[2] is List
+          ? List<String>.from(data[2].map((p) => p.toString()))
+          : [],
+      description: data[3].toString(),
+      isActive: data[4] == true || data[4].toString().toLowerCase() == 'true',
+      verificationId: data[5] is BigInt
+          ? (data[5] as BigInt).toInt()
+          : int.parse(data[5].toString()),
+    );
+  }
+
+  String get formattedTimestamp {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+  }
+
+  String get shortAddress {
+    return "${address.substring(0, 6)}...${address.substring(address.length - 4)}";
+  }
+}
+
 class Tree {
   final int id;
   final int latitude;
@@ -19,7 +63,7 @@ class Tree {
   final List<String> ancestors;
   final int lastCareTimestamp;
   final int careCount;
-  final List<String> verifiers;
+  final List<Verifier> verifiers;
   final String owner;
 
   Tree({
@@ -67,7 +111,7 @@ class Tree {
             : [],
         lastCareTimestamp: _toInt(userData[12]),
         careCount: _toInt(userData[13]),
-        verifiers: List<String>.from(verifiers.map((a) => a.toString())),
+        verifiers: _parseVerifiers(verifiers),
         owner: owner,
       );
     } catch (e) {
@@ -97,59 +141,67 @@ class Tree {
     if (value is int) return value;
     return int.tryParse(value.toString()) ?? 0;
   }
+
+  static List<Verifier> _parseVerifiers(List<dynamic> verifiersData) {
+    List<Verifier> verifiers = [];
+
+    for (var verifierEntry in verifiersData) {
+      if (verifierEntry is List && verifierEntry.length >= 6) {
+        try {
+          verifiers.add(Verifier.fromList(verifierEntry));
+        } catch (e) {
+          logger.e("Error parsing verifier: $e");
+        }
+      }
+    }
+
+    return verifiers;
+  }
 }
 
-Future<void> _removeVerifier(
-    String verifierAddress, BuildContext context, Tree? treeDetails, Function loadTreeDetails) async {
+Future<void> _removeVerifier(Verifier verifier, BuildContext context,
+    Tree? treeDetails, Function loadTreeDetails) async {
+  final messenger = ScaffoldMessenger.of(context);
+  logger.d("Removing verifier: ${verifier.address}");
   try {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            const Text("Remove verifier functionality not yet implemented"),
-        backgroundColor: Colors.orange.shade600,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
     final provider = Provider.of<WalletProvider>(context, listen: false);
     final result = await ContractWriteFunctions.removeVerification(
       walletProvider: provider,
       treeId: treeDetails!.id,
-      address: verifierAddress,
+      address: verifier.address.toString(),
     );
 
-      if (result.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Verifier removed successfully!"),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        // Refresh the tree details
-        await loadTreeDetails();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to remove verifier: ${result.errorMessage}"),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Error: $e"),
+    if (result.success) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text("Verifier removed successfully!"),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      await loadTreeDetails();
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("Failed to remove verifier: ${result.errorMessage}"),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  } catch (e) {
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text("Error: $e"),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 }
 
-Widget treeVerifiersSection(
-    String? loggedInUser, Tree? treeDetails, Function loadTreeDetails ,BuildContext context) {
+Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
+    Function loadTreeDetails, BuildContext context) {
   if (treeDetails?.verifiers == null || treeDetails!.verifiers.isEmpty) {
     return Container(
       width: double.infinity,
@@ -250,15 +302,16 @@ Widget treeVerifiersSection(
         ...treeDetails!.verifiers.asMap().entries.map((entry) {
           final index = entry.key;
           final verifier = entry.value;
-          return _buildVerifierCard(verifier, index, isOwner, loadTreeDetails, treeDetails, context);
+          return _buildVerifierCard(
+              verifier, index, isOwner, loadTreeDetails, treeDetails, context);
         }),
       ],
     ),
   );
 }
 
-Widget _buildVerifierCard(
-    String verifierAddress, int index, bool canRemove, Function loadTreeDetails, Tree? treeDetails, BuildContext context) {
+Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
+    Function loadTreeDetails, Tree? treeDetails, BuildContext context) {
   return Container(
     margin: const EdgeInsets.only(bottom: 8.0),
     padding: const EdgeInsets.all(12.0),
@@ -267,61 +320,132 @@ Widget _buildVerifierCard(
       borderRadius: BorderRadius.circular(8.0),
       border: Border.all(color: Colors.blue.shade100),
     ),
-    child: Row(
+    child: Column(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(
-            Icons.person,
-            color: Colors.blue.shade600,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Verifier ${index + 1}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                "${verifierAddress.substring(0, 6)}...${verifierAddress.substring(verifierAddress.length - 4)}",
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 12,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (canRemove)
-          GestureDetector(
-            onTap: () =>
-                _showRemoveVerifierDialog(verifierAddress, index, context, treeDetails, loadTreeDetails),
-            child: Container(
-              width: 32,
-              height: 32,
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.red.shade200),
+                color: Colors.blue.shade100,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
-                Icons.close,
-                color: Colors.red.shade600,
-                size: 18,
+                Icons.person,
+                color: Colors.blue.shade600,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Verifier ${index + 1}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    verifier.shortAddress,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (canRemove)
+              GestureDetector(
+                onTap: () => _showRemoveVerifierDialog(
+                    verifier, index, context, treeDetails, loadTreeDetails),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.red.shade600,
+                    size: 18,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        if (verifier.description.isNotEmpty || verifier.proofHashes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (verifier.description.isNotEmpty) ...[
+                    Text(
+                      "Description:",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    Text(
+                      verifier.description,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 12, color: Colors.grey.shade500),
+                      const SizedBox(width: 4),
+                      Text(
+                        verifier.formattedTimestamp,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (verifier.proofHashes.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            "${verifier.proofHashes.length} proof${verifier.proofHashes.length != 1 ? 's' : ''}",
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.blue.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -330,8 +454,8 @@ Widget _buildVerifierCard(
   );
 }
 
-void _showRemoveVerifierDialog(
-    String verifierAddress, int index, BuildContext context, Tree? treeDetails, Function loadTreeDetails) {
+void _showRemoveVerifierDialog(Verifier verifier, int index,
+    BuildContext context, Tree? treeDetails, Function loadTreeDetails) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -361,17 +485,40 @@ void _showRemoveVerifierDialog(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.person, color: Colors.grey.shade600),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      verifierAddress,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
+                  Row(
+                    children: [
+                      Icon(Icons.person, color: Colors.grey.shade600),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          verifier.address,
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                  if (verifier.description.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      "Description: ${verifier.description}",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Text(
+                    "Verified: ${verifier.formattedTimestamp}",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
                     ),
                   ),
                 ],
@@ -401,7 +548,8 @@ void _showRemoveVerifierDialog(
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await _removeVerifier(verifierAddress, context, treeDetails, loadTreeDetails);
+              await _removeVerifier(
+                  verifier, context, treeDetails, loadTreeDetails);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade600,
