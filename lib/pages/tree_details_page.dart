@@ -1,13 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
+import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/static_map_display_widget.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_details_verifiers_widget.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 // ignore: constant_identifier_names
 const TREE_VERIFIERS_OFFSET = 0;
@@ -66,7 +70,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         }
       }
     }
-    logger.d("Tree Details: ${treeDetails?.verifiers}");
+    logger.d("Tree Details hot: ${treeDetails?.verifiers}");
     setState(() {
       _isLoading = false;
     });
@@ -325,77 +329,22 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
   void _showVerificationDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.verified, color: Colors.green.shade600),
-              const SizedBox(width: 8),
-              const Text("Verify Tree"),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Are you sure you want to verify this tree? This action will:",
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 12),
-              _buildVerificationPoint("• Record verification on blockchain"),
-              _buildVerificationPoint("• Require gas fees for transaction"),
-              _buildVerificationPoint("• Cannot be undone once confirmed"),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                "Cancel",
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await _performVerification();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Text("Verify"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildVerificationPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey.shade700,
-        ),
+      builder: (context) => _VerificationModal(
+        treeDetails: treeDetails!,
+        onVerify: _performVerification,
       ),
     );
   }
 
-  Future<void> _performVerification() async {
+  Future<void> _performVerification({
+    required String description,
+    required List<String> proofHashes,
+  }) async {
     logger.d("Starting tree verification process");
     logger.d("Logged in user: $loggedInUser");
     logger.d("Tree ID: ${treeDetails!.id}");
+    logger.d("Description: $description");
+    logger.d("Proof hashes: $proofHashes");
 
     try {
       // Get wallet provider
@@ -439,15 +388,13 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       final result = await ContractWriteFunctions.verifyTree(
         walletProvider: walletProvider,
         treeId: treeDetails!.id,
-        description: "Tree verified by user",
-        photos: ["verification_photo"],
+        description: description,
+        photos: proofHashes,
       );
 
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       if (result.success) {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -464,7 +411,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
 
         await loadTreeDetails();
       } else {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -482,7 +428,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         );
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       String errorMessage = "Verification failed";
@@ -500,8 +445,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       }
 
       logger.e("Verification error: $e");
-
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -544,10 +487,407 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                         child: _buildTreeNFTDetailsSection(
                             screenHeight, screenWidth, context),
                       ),
-                      const SizedBox(height: 20), // Extra bottom padding
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ));
+  }
+}
+
+class _VerificationModal extends StatefulWidget {
+  final Tree treeDetails;
+  final Function(
+      {required String description,
+      required List<String> proofHashes}) onVerify;
+
+  const _VerificationModal({
+    required this.treeDetails,
+    required this.onVerify,
+  });
+
+  @override
+  State<_VerificationModal> createState() => _VerificationModalState();
+}
+
+class _VerificationModalState extends State<_VerificationModal> {
+  final TextEditingController _descriptionController = TextEditingController();
+  final List<File> _selectedImages = [];
+  final List<String> _uploadedHashes = [];
+  bool _isUploading = false;
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    if (_selectedImages.length >= 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Maximum 3 images allowed"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      setState(() {
+        _selectedImages.add(File(image.path));
+      });
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    if (_selectedImages.length >= 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Maximum 3 images allowed"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      setState(() {
+        _selectedImages.add(File(image.path));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  Future<void> _uploadImages() async {
+    if (_selectedImages.isEmpty) return;
+
+    setState(() {
+      _isUploading = true;
+      _uploadedHashes.clear();
+    });
+
+    try {
+      for (int i = 0; i < _selectedImages.length; i++) {
+        File image = _selectedImages[i];
+        logger.d("Uploading image ${i + 1} of ${_selectedImages.length}");
+
+        final hash = await uploadToIPFS(image, (uploading) {});
+
+        if (hash != null) {
+          _uploadedHashes.add(hash);
+          logger.d("Successfully uploaded image ${i + 1}: $hash");
+        } else {
+          logger.e("Failed to upload image ${i + 1}");
+          throw Exception("Failed to upload image ${i + 1}");
+        }
+      }
+
+      logger.d(
+          "All images uploaded successfully. Total hashes: ${_uploadedHashes.length}");
+    } catch (e) {
+      logger.e("Error uploading images: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error uploading images: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Select Image Source"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("Camera"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _takePhoto();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text("Gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final dialogWidth =
+        screenSize.width * 0.9 > 500 ? 500.0 : screenSize.width * 0.9;
+    final dialogHeight =
+        screenSize.height * 0.8 > 700 ? 700.0 : screenSize.height * 0.8;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: dialogHeight,
+          maxWidth: dialogWidth,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Row(
+                children: [
+                  Icon(Icons.verified, color: Colors.green.shade600, size: 28),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      "Verify Tree",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Verification Description",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText:
+                            "Describe your verification (e.g., tree health, location accuracy, etc.)",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Proof Images (Optional)",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: TextButton.icon(
+                                onPressed: _selectedImages.length < 3
+                                    ? _showImageSourceDialog
+                                    : null,
+                                icon: const Icon(Icons.add_photo_alternate,
+                                    size: 18),
+                                label: const Text("Add",
+                                    style: TextStyle(fontSize: 12)),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (_selectedImages.isNotEmpty)
+                      SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _selectedImages.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      _selectedImages[index],
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    if (_isUploading)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(
+                                    Colors.blue.shade600),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text("Uploading images to IPFS..."),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isUploading ||
+                              _descriptionController.text.trim().isEmpty
+                          ? null
+                          : () async {
+                              if (_selectedImages.isNotEmpty &&
+                                  _uploadedHashes.length !=
+                                      _selectedImages.length) {
+                                await _uploadImages();
+                              }
+                              Navigator.pop(context);
+                              widget.onVerify(
+                                description: _descriptionController.text.trim(),
+                                proofHashes: _uploadedHashes,
+                              );
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        _selectedImages.isNotEmpty &&
+                                _uploadedHashes.length != _selectedImages.length
+                            ? "Upload & Verify"
+                            : "Verify Tree",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

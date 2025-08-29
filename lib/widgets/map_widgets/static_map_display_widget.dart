@@ -216,40 +216,15 @@ class _StaticCoordinatesMapState extends State<StaticCoordinatesMap> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Tree NFT Location",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
                       Text(
                         "${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
                         style: const TextStyle(
                           fontSize: 10,
-                          color: Colors.white70,
+                          color: Colors.black,
                           fontFamily: 'monospace',
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: const Text(
-                    "INTERACTIVE",
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
                   ),
                 ),
               ],
