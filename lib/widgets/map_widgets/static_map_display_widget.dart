@@ -1,9 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
-import 'package:tree_planting_protocol/utils/logger.dart';
 
 class StaticCoordinatesMap extends StatefulWidget {
   final double lat;
@@ -11,261 +8,18 @@ class StaticCoordinatesMap extends StatefulWidget {
   const StaticCoordinatesMap({super.key, required this.lat, required this.lng});
 
   @override
-  State<StaticCoordinatesMap> createState() => _CoordinatesMapState();
+  State<StaticCoordinatesMap> createState() => _StaticCoordinatesMapState();
 }
 
-class _CoordinatesMapState extends State<StaticCoordinatesMap> {
+class _StaticCoordinatesMapState extends State<StaticCoordinatesMap> {
   late MapController _mapController;
   bool _mapLoaded = false;
   bool _hasError = false;
-  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<MintNftProvider>(
-      builder: (context, provider, _) {
-        final double latitude = widget.lat;
-        final double longitude = widget.lng;
-
-        return Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: _hasError
-                ? _buildErrorWidget()
-                : _buildMapWidget(latitude, longitude),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    return Container(
-      color: Colors.grey[100],
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.map_outlined,
-              size: 60,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Map Unavailable",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Please use the coordinate fields below",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _hasError = false;
-                  _errorMessage = null;
-                });
-              },
-              child: const Text("Retry"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapWidget(double latitude, double longitude) {
-    return Stack(
-      children: [
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: LatLng(latitude, longitude),
-            initialZoom: 4.0,
-            minZoom: 3.0,
-            maxZoom: 18.0,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all,
-            ),
-            onMapReady: () {
-              setState(() {
-                _mapLoaded = true;
-              });
-            },
-            onTap: (tapPosition, point) {
-              final provider =
-                  Provider.of<MintNftProvider>(context, listen: false);
-              provider.setLatitude(point.latitude);
-              provider.setLongitude(point.longitude);
-            },
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'tree_planting_protocol',
-              errorTileCallback: (tile, error, stackTrace) {
-                if (mounted) {
-                  setState(() {
-                    _hasError = true;
-                    _errorMessage = 'Network connection issue';
-                  });
-                }
-              },
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(latitude, longitude),
-                  width: 80,
-                  height: 80,
-                  child: const Icon(
-                    Icons.location_pin,
-                    color: Colors.red,
-                    size: 40,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        if (!_mapLoaded)
-          Container(
-            color: Colors.white,
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text("Loading map..."),
-                ],
-              ),
-            ),
-          ),
-        Positioned(
-          top: 8,
-          left: 8,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              "${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 8,
-          top: 50,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          if (currentZoom < 18.0) {
-                            _mapController.move(
-                              _mapController.camera.center,
-                              currentZoom + 1,
-                            );
-                          }
-                        },
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4),
-                        ),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.black87,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 1,
-                      color: Colors.grey[300],
-                    ),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          if (currentZoom > 3.0) {
-                            _mapController.move(
-                              _mapController.camera.center,
-                              currentZoom - 1,
-                            );
-                          }
-                        },
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(4),
-                        ),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.remove,
-                            color: Colors.black87,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -273,61 +27,20 @@ class _CoordinatesMapState extends State<StaticCoordinatesMap> {
     _mapController.dispose();
     super.dispose();
   }
-}
-
-class StaticDisplayMap extends StatefulWidget {
-  final Function(double lat, double lng)? onLocationSelected;
-  final double lat;
-  final double lng;
-
-  const StaticDisplayMap(
-      {Key? key, this.onLocationSelected, required this.lat, required this.lng})
-      : super(key: key);
-
-  @override
-  State<StaticDisplayMap> createState() => _StaticDisplayMapState();
-}
-
-class _StaticDisplayMapState extends State<StaticDisplayMap> {
-  late MapController _mapController;
-  bool _mapLoaded = false;
-  bool _hasError = false;
-  String? _errorMessage;
-  static const double _defaultLat = 28.9845; // Example: Roorkee, India
-  static const double _defaultLng = 77.8956;
-
-  @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
-
-  double _sanitizeCoordinate(double value, double defaultValue) {
-    if (value.isNaN ||
-        value.isInfinite ||
-        value == double.infinity ||
-        value == double.negativeInfinity) {
-      logger.e(
-          'Invalid coordinate detected: $value, using default: $defaultValue');
-      return defaultValue;
-    }
-    return value;
-  }
 
   @override
   Widget build(BuildContext context) {
-    double latitude = _sanitizeCoordinate(widget.lat, _defaultLat);
-    double longitude = _sanitizeCoordinate(widget.lng, _defaultLng);
-    latitude = latitude.clamp(-90.0, 90.0);
-    longitude = longitude.clamp(-180.0, 180.0);
+    final double latitude = widget.lat;
+    final double longitude = widget.lng;
 
     return Container(
+      height: 200, // Fixed height for consistency
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         child: _hasError
             ? _buildErrorWidget()
             : _buildMapWidget(latitude, longitude),
@@ -344,10 +57,10 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
           children: [
             Icon(
               Icons.map_outlined,
-              size: 60,
+              size: 48,
               color: Colors.grey[400],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               "Map Unavailable",
               style: TextStyle(
@@ -356,24 +69,14 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                 color: Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
-              "Please use the coordinate fields below",
+              "Coordinates: ${widget.lat.toStringAsFixed(6)}, ${widget.lng.toStringAsFixed(6)}",
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[500],
+                fontFamily: 'monospace',
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _hasError = false;
-                  _errorMessage = null;
-                });
-              },
-              child: const Text("Retry"),
             ),
           ],
         ),
@@ -382,34 +85,27 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
   }
 
   Widget _buildMapWidget(double latitude, double longitude) {
-    if (latitude.isNaN ||
-        latitude.isInfinite ||
-        longitude.isNaN ||
-        longitude.isInfinite) {
-      logger.e(
-          'ERROR: Invalid coordinates in _buildMapWidget - lat: $latitude, lng: $longitude');
-      latitude = _defaultLat;
-      longitude = _defaultLng;
-    }
-
     return Stack(
       children: [
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
             initialCenter: LatLng(latitude, longitude),
-            initialZoom: 15.0,
+            initialZoom: 12.0,
             minZoom: 3.0,
             maxZoom: 18.0,
             interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all,
+              flags: InteractiveFlag.pinchZoom |
+                  InteractiveFlag.doubleTapZoom |
+                  InteractiveFlag.drag |
+                  InteractiveFlag.flingAnimation,
             ),
             onMapReady: () {
               setState(() {
                 _mapLoaded = true;
               });
+              _mapController.move(LatLng(latitude, longitude), 15.0);
             },
-            onTap: (tapPosition, point) {},
           ),
           children: [
             TileLayer(
@@ -419,7 +115,6 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
                 if (mounted) {
                   setState(() {
                     _hasError = true;
-                    _errorMessage = 'Network connection issue';
                   });
                 }
               },
@@ -428,12 +123,46 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
               markers: [
                 Marker(
                   point: LatLng(latitude, longitude),
-                  width: 80,
-                  height: 80,
-                  child: const Icon(
-                    Icons.location_pin,
-                    color: Colors.red,
-                    size: 40,
+                  width: 60,
+                  height: 60,
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade600,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.park,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      Container(
+                        width: 0,
+                        height: 0,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            left:
+                                BorderSide(width: 6, color: Colors.transparent),
+                            right:
+                                BorderSide(width: 6, color: Colors.transparent),
+                            top: BorderSide(width: 8, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -442,146 +171,196 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
         ),
         if (!_mapLoaded)
           Container(
-            color: Colors.white,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
                   SizedBox(height: 16),
-                  Text("Loading map..."),
+                  Text(
+                    "Loading tree location...",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
             ),
           ),
         Positioned(
-          top: 8,
-          left: 8,
+          top: 0,
+          left: 0,
+          right: 0,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              "${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
+              color: Colors.green.shade600,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          right: 8,
-          top: 50,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.location_on,
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  size: 18,
                 ),
-                child: Column(
-                  children: [
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          if (currentZoom < 18.0) {
-                            _mapController.move(
-                              _mapController.camera.center,
-                              currentZoom + 1,
-                            );
-                          }
-                        },
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4),
-                        ),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.black87,
-                            size: 20,
-                          ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Tree NFT Location",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
-                    Container(
-                      height: 1,
-                      color: Colors.grey[300],
-                    ),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          if (currentZoom > 3.0) {
-                            _mapController.move(
-                              _mapController.camera.center,
-                              currentZoom - 1,
-                            );
-                          }
-                        },
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(4),
-                        ),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.remove,
-                            color: Colors.black87,
-                            size: 20,
-                          ),
+                      Text(
+                        "${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white70,
+                          fontFamily: 'monospace',
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  child: const Text(
+                    "INTERACTIVE",
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Positioned(
-          bottom: 8,
-          left: 8,
-          right: 8,
+          right: 12,
+          top: 60,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(4),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Text(
-              "Static display • Use zoom buttons or pinch to zoom",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-              ),
-              textAlign: TextAlign.center,
+            child: Column(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      final currentZoom = _mapController.camera.zoom;
+                      if (currentZoom < 18.0) {
+                        _mapController.move(
+                          _mapController.camera.center,
+                          currentZoom + 1,
+                        );
+                      }
+                    },
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(6),
+                      topRight: Radius.circular(6),
+                    ),
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.black87,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  color: Colors.grey[300],
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      final currentZoom = _mapController.camera.zoom;
+                      if (currentZoom > 3.0) {
+                        _mapController.move(
+                          _mapController.camera.center,
+                          currentZoom - 1,
+                        );
+                      }
+                    },
+                    borderRadius: BorderRadius.zero,
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: const Icon(
+                        Icons.remove,
+                        color: Colors.black87,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  color: Colors.grey[300],
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      _mapController.move(
+                        LatLng(latitude, longitude),
+                        _mapController.camera.zoom,
+                      );
+                    },
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(6),
+                      bottomRight: Radius.circular(6),
+                    ),
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: const Icon(
+                        Icons.my_location,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
   }
 }

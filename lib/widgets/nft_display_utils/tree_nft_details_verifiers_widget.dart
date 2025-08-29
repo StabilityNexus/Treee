@@ -241,7 +241,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
     );
   }
 
-  final isOwner = treeDetails?.owner == loggedInUser;
+  final isOwner = treeDetails.owner == loggedInUser;
 
   return Container(
     width: double.infinity,
@@ -279,7 +279,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                "${treeDetails!.verifiers.length}",
+                "${treeDetails.verifiers.length}",
                 style: TextStyle(
                   color: Colors.blue.shade800,
                   fontWeight: FontWeight.bold,
@@ -299,7 +299,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
           ),
         ),
         const SizedBox(height: 16),
-        ...treeDetails!.verifiers.asMap().entries.map((entry) {
+        ...treeDetails.verifiers.asMap().entries.map((entry) {
           final index = entry.key;
           final verifier = entry.value;
           return _buildVerifierCard(

@@ -7,10 +7,12 @@ import 'package:tree_planting_protocol/utils/services/contract_write_functions.d
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/static_map_display_widget.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_details_verifiers_widget.dart';
-import 'package:tree_planting_protocol/models/tree_details.dart' hide Tree;
 
-final TREE_VERIFIERS_OFFSET = 0;
-final TREE_VERIFIERS_LIMIT = 10;
+
+// ignore: constant_identifier_names
+const TREE_VERIFIERS_OFFSET = 0;
+// ignore: constant_identifier_names
+const TREE_VERIFIERS_LIMIT = 10;
 
 class TreeDetailsPage extends StatefulWidget {
   final String treeId;
@@ -90,8 +92,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         ),
         clipBehavior: Clip.antiAlias,
         child: StaticCoordinatesMap(
-          lat: treeDetails!.latitude / 1e6,
-          lng: treeDetails!.longitude / 1e6,
+          lat: (treeDetails!.latitude / 1e6) - 90.0,
+          lng: (treeDetails!.longitude / 1e6) - 180.0,
         ),
       ),
     );
@@ -120,7 +122,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                   ),
                   child: Center(
                     child: Text(
-                      (treeDetails!.latitude / 1e6).toString(),
+                      ((treeDetails!.latitude / 1e6) - 90.0).toStringAsFixed(6),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 9, height: 1, color: Colors.white),
@@ -140,7 +142,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                   ),
                   child: Center(
                     child: Text(
-                      (treeDetails!.longitude / 1e6).toString(),
+                      ((treeDetails!.longitude / 1e6) - 180.0)
+                          .toStringAsFixed(6),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 9, height: 1, color: Colors.black),
