@@ -33,7 +33,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: SizedBox(
               height: 40,
               child: _buildPlantIllustrations(),
             ),
@@ -54,7 +54,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white,
                               width: 1,
                             ),
                           ),
@@ -151,14 +151,13 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildPlantIllustrations() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 251, 251, 99)
-            .withOpacity(0.9), // Beige background
+        color: const Color.fromARGB(255, 251, 251, 99),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(40),
           topRight: Radius.circular(40),
         ),
         border: Border.all(
-          color: Colors.black.withOpacity(0.2),
+          color: Colors.black,
           width: 1,
         ),
       ),
@@ -183,7 +182,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: treeImages.map((imagePath) {
-                    return Container(
+                    return SizedBox(
                       width: plantWidth,
                       height: plantWidth,
                       child: Image.asset(
@@ -241,15 +240,15 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
       constraints: const BoxConstraints(maxWidth: 100, minHeight: 20),
       // Limit max width
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.green.withOpacity(0.3),
+          color: Colors.green,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -267,7 +266,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.green[700],
               ),
               const SizedBox(width: 4),
-              Container(
+              SizedBox(
                 width: 10,
                 child: Flexible(
                   child: Text(
@@ -366,15 +365,15 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       constraints: const BoxConstraints(maxWidth: 80), // Limit max width
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.green.withOpacity(0.3),
+          color: Colors.green,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

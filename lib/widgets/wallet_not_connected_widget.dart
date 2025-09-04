@@ -26,6 +26,7 @@ Widget buildWalletNotConnectedWidget(BuildContext context) {
           onPressed: () {
             final walletProvider =
                 Provider.of<WalletProvider>(context, listen: false);
+            walletProvider.connectWallet();
           },
           child: const Text('Connect Wallet'),
         ),
