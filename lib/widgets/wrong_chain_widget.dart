@@ -24,7 +24,7 @@ Widget buildWrongChainWidget(BuildContext context) {
           ),
           const SizedBox(height: 16),
           Text(
-            'Please switch to the chain supported by Tree Planting Protocol i.e. ${walletProvider.correctChainId}',
+            'Please switch to the chain supported by Tree Planting Protocol',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,

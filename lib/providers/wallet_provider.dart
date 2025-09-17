@@ -186,12 +186,40 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> forceReconnect() async {
+    _updateStatus("Forcing reconnection...");
+    _isConnected = false;
+    _isConnecting = false;
+    _currentAddress = null;
+    _currentChainId = null;
+    notifyListeners();
+    
+    try {
+      await disconnectWallet();
+      final uri = await connectWallet(); // Return the URI
+      return uri;
+    } catch (e) {
+      _updateStatus("Force reconnect failed: ${e.toString()}");
+      _isConnecting = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<String?> connectWallet() async {
-    if (_initializationState != InitializationState.initialized ||
-        _isConnecting) {
-      return null;
+    if (_isConnected) {
+      _updateStatus('Already connected.');
+      throw Exception('Wallet is already connected.');
     }
 
+    if (_isConnecting) {
+      _updateStatus('Connection already in progress.');
+      throw Exception('A connection attempt is already in progress.');
+    }
+
+    if (_initializationState != InitializationState.initialized) {
+      throw Exception('Web3App is not initialized.');
+    }
     _updateStatus('Creating connection...');
     _isConnecting = true;
     notifyListeners();
@@ -679,7 +707,7 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> disconnectWallet() async {
     if (!_isConnected) return;
-
+    logger.d("Tried to disconnect");
     try {
       final sessions = _web3App!.sessions.getAll();
       if (sessions.isNotEmpty) {

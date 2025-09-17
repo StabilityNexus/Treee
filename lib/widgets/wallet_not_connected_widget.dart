@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tree_planting_protocol/providers/wallet_provider.dart';
-import 'package:provider/provider.dart';
 
 Widget buildWalletNotConnectedWidget(BuildContext context) {
   return Center(
@@ -22,14 +20,7 @@ Widget buildWalletNotConnectedWidget(BuildContext context) {
           ),
         ),
         const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            final walletProvider =
-                Provider.of<WalletProvider>(context, listen: false);
-            walletProvider.connectWallet();
-          },
-          child: const Text('Connect Wallet'),
-        ),
+       
       ],
     ),
   );
