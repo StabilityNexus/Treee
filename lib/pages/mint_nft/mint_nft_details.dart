@@ -320,6 +320,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildPreviewSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

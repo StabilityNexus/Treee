@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
@@ -408,6 +407,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildLocationStatus() {
     final isManual = _userHasManuallySetCoordinates;
     final isLoading = _isLoadingLocation;
