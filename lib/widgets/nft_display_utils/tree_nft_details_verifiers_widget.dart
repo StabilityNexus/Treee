@@ -765,12 +765,12 @@ void _showVerifierDetailsModal(
                                         (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return Container(
-                                        color: Colors.grey.shade100,
+                                        color: getThemeColors(context)['background'],
                                         child: Center(
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor: AlwaysStoppedAnimation(
-                                                themeColors['primary']),
+                                                getThemeColors(context)['primary']),
                                           ),
                                         ),
                                       );
@@ -808,17 +808,6 @@ void _showVerifierDetailsModal(
                               size: 20,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              verifier.isActive
-                                  ? "Active Verification"
-                                  : "Inactive Verification",
-                              style: TextStyle(
-                                color: verifier.isActive
-                                    ? getThemeColors(context)['primaryText']
-                                    : Colors.red.shade700,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -841,7 +830,7 @@ void _showVerifierDetailsModal(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text("Close"),
+                    child:  Text("Close", style: TextStyle(color: getThemeColors(context)['textPrimary']),),
                   ),
                 ),
               ),

@@ -9,9 +9,9 @@ Widget buildWrongChainWidget(BuildContext context) {
   return Center(
     child: Container(
       decoration: BoxDecoration(
-        color: getThemeColors(context)['primary'],
+        color: getThemeColors(context)['background'],
         border: Border.all(
-          color: getThemeColors(context)['border']!,
+          color: getThemeColors(context)['primaryBorder']!,
           width: 2,
         ),
       ),
