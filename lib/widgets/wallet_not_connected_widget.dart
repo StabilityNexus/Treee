@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 
 Widget buildWalletNotConnectedWidget(BuildContext context) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
+        Icon(
           Icons.account_balance_wallet,
           size: 64,
-          color: Colors.grey,
+          color: getThemeColors(context)['icon'],
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Please connect your wallet to view your NFTs',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey,
+            color: getThemeColors(context)['textPrimary'],
           ),
         ),
         const SizedBox(height: 16),
-       
       ],
     ),
   );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 
@@ -383,10 +384,10 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             size: 64,
-            color: Colors.red,
+            color: getThemeColors(context)['error'],
           ),
           const SizedBox(height: 16),
           Text(
@@ -409,10 +410,10 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.eco,
             size: 64,
-            color: Colors.grey,
+            color: getThemeColors(context)['icon'],
           ),
           const SizedBox(height: 16),
           Text(

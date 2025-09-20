@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 
 class MultipleImageUploadPage extends StatefulWidget {
   const MultipleImageUploadPage({super.key});
@@ -161,10 +161,12 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Upload Images',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text('Upload Images',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        )),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -173,7 +175,10 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                             onPressed:
                                 _isUploading ? null : _pickAndUploadImages,
                             icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Add Photos'),
+                            label: Text(
+                              'Add Photos',
+                              style: TextStyle(color: primaryGreenColor),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -183,7 +188,8 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                             icon: const Icon(Icons.delete_sweep),
                             label: const Text('Remove All'),
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.red,
+                              foregroundColor:
+                                  getThemeColors(context)['secondaryButton'],
                             ),
                           ),
                       ],
@@ -223,13 +229,15 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                         width: 120,
                                         height: 120,
                                         decoration: BoxDecoration(
-                                          color: Colors.black54,
+                                          color: getThemeColors(
+                                              context)['primary'],
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: CircularProgressIndicator(
-                                            color: Colors.white,
+                                            color: getThemeColors(
+                                                context)['primary'],
                                           ),
                                         ),
                                       ),
@@ -238,14 +246,16 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                         width: 120,
                                         height: 120,
                                         decoration: BoxDecoration(
-                                          color: Colors.black26,
+                                          color: getThemeColors(
+                                              context)['secondary'],
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: Icon(
                                             Icons.pending,
-                                            color: Colors.white,
+                                            color:
+                                                getThemeColors(context)['icon'],
                                             size: 32,
                                           ),
                                         ),
@@ -255,14 +265,16 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                         width: 120,
                                         height: 120,
                                         decoration: BoxDecoration(
-                                          color: Colors.green,
+                                          color: getThemeColors(
+                                              context)['primary'],
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
-                                        child: const Center(
+                                        child: Center(
                                           child: Icon(
                                             Icons.check_circle,
-                                            color: Colors.white,
+                                            color:
+                                                getThemeColors(context)['icon'],
                                             size: 32,
                                           ),
                                         ),
@@ -274,14 +286,16 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Colors.black54,
+                                          color: getThemeColors(
+                                              context)['secondaryBackground'],
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
                                         child: Text(
                                           '${index + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: getThemeColors(
+                                                context)['textSecondary'],
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -334,7 +348,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    NewNFTMapWidget(),
+                    // NewNFTMapWidget(),
                   ],
                 ),
               ),
@@ -349,13 +363,13 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         Icon(
                           Icons.cloud_off,
                           size: 64,
-                          color: Colors.grey[400],
+                          color: getThemeColors(context)['icon'],
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No images uploaded yet',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: getThemeColors(context)['textPrimary'],
                             fontSize: 16,
                           ),
                         ),
@@ -363,7 +377,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         Text(
                           'Tap "Add Photos" to get started',
                           style: TextStyle(
-                            color: Colors.grey[500],
+                            color: getThemeColors(context)['textPrimary'],
                             fontSize: 14,
                           ),
                         ),
@@ -378,7 +392,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.green,
+                            backgroundColor: getThemeColors(context)['primary'],
                             child: Text('${index + 1}'),
                           ),
                           title: Text(
@@ -403,8 +417,9 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                 tooltip: 'View IPFS Hash',
                               ),
                               IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
+                                icon: Icon(Icons.delete,
+                                    color: getThemeColors(
+                                        context)['secondaryButton']),
                                 onPressed: () => _removeUploadedHash(index),
                                 tooltip: 'Remove',
                               ),

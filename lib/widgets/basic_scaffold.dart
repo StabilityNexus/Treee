@@ -16,16 +16,17 @@ class BaseScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final bool extendBodyBehindAppBar;
   final bool showBottomNavigation;
+  final Widget? leading;
 
-  const BaseScaffold({
-    super.key,
-    required this.body,
-    this.title,
-    this.actions,
-    this.floatingActionButton,
-    this.extendBodyBehindAppBar = false,
-    this.showBottomNavigation = true,
-  });
+  const BaseScaffold(
+      {super.key,
+      required this.body,
+      this.title,
+      this.actions,
+      this.floatingActionButton,
+      this.extendBodyBehindAppBar = false,
+      this.showBottomNavigation = true,
+      this.leading});
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +48,6 @@ class BaseScaffold extends StatelessWidget {
             children: [
               const CircularProgressIndicator(),
               const Text("Connecting"),
-              ElevatedButton(
-                  onPressed: () async {
-                    await provider.forceReconnect();
-                  },
-                  child: const Text("Force Reconnect"))
             ],
           ));
         } else if (!isWalletConnected) {
@@ -63,7 +59,8 @@ class BaseScaffold extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: UniversalNavbar(title: title, actions: actions),
+          appBar:
+              UniversalNavbar(title: title, actions: actions, leading: leading),
           extendBodyBehindAppBar: extendBodyBehindAppBar,
           body: bodyContent,
           floatingActionButton: floatingActionButton,

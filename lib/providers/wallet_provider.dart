@@ -193,7 +193,7 @@ class WalletProvider extends ChangeNotifier {
     _currentAddress = null;
     _currentChainId = null;
     notifyListeners();
-    
+
     try {
       await disconnectWallet();
       final uri = await connectWallet(); // Return the URI

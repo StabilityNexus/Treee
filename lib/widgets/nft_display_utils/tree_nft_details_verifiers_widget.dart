@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
 
@@ -274,21 +275,6 @@ void _copyToClipboard(String text, BuildContext context) {
   );
 }
 
-Map<String, Color> _getThemeColors(BuildContext context) {
-  final themeProvider = Provider.of<ThemeProvider>(context);
-  return {
-    'primary': themeProvider.isDarkMode
-        ? const Color.fromARGB(255, 1, 135, 12)
-        : const Color.fromARGB(255, 28, 211, 129),
-    'primaryLight': themeProvider.isDarkMode
-        ? const Color.fromARGB(255, 1, 135, 12)
-        : const Color.fromARGB(255, 28, 211, 129),
-    'primaryBorder': themeProvider.isDarkMode
-        ? const Color.fromARGB(255, 1, 135, 12)
-        : const Color.fromARGB(255, 28, 211, 129),
-  };
-}
-
 Future<void> _removeVerifier(Verifier verifier, BuildContext context,
     Tree? treeDetails, Function loadTreeDetails) async {
   logger.d("Removing verifier: ${verifier.address}");
@@ -342,7 +328,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
   logger.d("treeDetails?.verifiers: ${treeDetails?.verifiers}");
   logger.d("verifiers length: ${treeDetails?.verifiers.length}");
 
-  final themeColors = _getThemeColors(context);
+  final themeColors = getThemeColors(context);
 
   if (treeDetails?.verifiers == null || treeDetails!.verifiers.isEmpty) {
     logger.d("No verifiers found, showing empty state");
@@ -351,22 +337,22 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
       margin: const EdgeInsets.symmetric(vertical: 16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: getThemeColors(context)['background']!,
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: getThemeColors(context)['border']!),
       ),
       child: Column(
         children: [
           Icon(
             Icons.group_off,
-            color: Colors.grey.shade400,
+            color: getThemeColors(context)['icon'],
             size: 32,
           ),
           const SizedBox(height: 8),
           Text(
             "No Verifiers Yet",
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: getThemeColors(context)['textPrimary'],
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -375,7 +361,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
           Text(
             "This tree hasn't been verified by anyone",
             style: TextStyle(
-              color: Colors.grey.shade500,
+              color: getThemeColors(context)['textPrimary']!,
               fontSize: 14,
             ),
           ),
@@ -383,9 +369,6 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
       ),
     );
   }
-
-  logger.d(
-      "Rendering verifiers section with ${treeDetails.verifiers.length} verifiers");
   final isOwner = treeDetails.owner == loggedInUser;
 
   return Container(
@@ -393,7 +376,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
     margin: const EdgeInsets.symmetric(vertical: 16.0),
     padding: const EdgeInsets.all(16.0),
     decoration: BoxDecoration(
-      color: themeColors['primaryLight'],
+      color: themeColors['primary'],
       borderRadius: BorderRadius.circular(12.0),
       border: Border.all(color: themeColors['primaryBorder']!),
     ),
@@ -404,31 +387,16 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
           children: [
             Icon(
               Icons.verified_user,
-              color: themeColors['primary'],
+              color: primaryYellowColor,
               size: 24,
             ),
             const SizedBox(width: 8),
             Text(
               "Tree Verifiers",
               style: TextStyle(
-                color: themeColors['primary'],
+                color: getThemeColors(context)['textPrimary']!,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: themeColors['primary']!,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                "${treeDetails.verifiers.length}",
-                style: TextStyle(
-                  color: themeColors['primary'],
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
           ],
@@ -457,7 +425,7 @@ Widget treeVerifiersSection(String? loggedInUser, Tree? treeDetails,
 
 Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
     Function loadTreeDetails, Tree? treeDetails, BuildContext context) {
-  final themeColors = _getThemeColors(context);
+  final themeColors = getThemeColors(context);
 
   return Container(
     margin: const EdgeInsets.only(bottom: 8.0),
@@ -475,7 +443,7 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(color: themeColors['primaryBorder']!),
+                border: Border.all(color: primaryYellowColor),
                 boxShadow: [
                   BoxShadow(
                     color: themeColors['primaryLight']!,
@@ -539,18 +507,16 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                                   Icon(
                                     Icons.copy,
                                     size: 12,
-                                    color: themeColors['primary']!,
+                                    color: Colors.black,
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 8),
                             if (verifier.proofHashes.isNotEmpty)
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: themeColors['primary']!,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -559,14 +525,15 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                                     Icon(
                                       Icons.photo_library,
                                       size: 10,
-                                      color: themeColors['primary'],
+                                      color: getThemeColors(context)['icon'],
                                     ),
                                     const SizedBox(width: 2),
                                     Text(
                                       "${verifier.proofHashes.length}",
                                       style: TextStyle(
                                         fontSize: 10,
-                                        color: themeColors['primary'],
+                                        color: getThemeColors(
+                                            context)['textPrimary'],
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -588,7 +555,7 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                               verifier.formattedTimestamp,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade600,
+                                color: getThemeColors(context)['textPrimary'],
                               ),
                             ),
                           ],
@@ -624,7 +591,7 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                   decoration: BoxDecoration(
                     color: Colors.red.shade500,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black,
@@ -633,9 +600,9 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
-                    color: Colors.white,
+                    color: getThemeColors(context)['icon'],
                     size: 16,
                   ),
                 ),
@@ -647,6 +614,7 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
   );
 }
 
+// verifier info modal
 void _showVerifierDetailsModal(
     Verifier verifier, BuildContext context, Map<String, Color> themeColors) {
   final screenSize = MediaQuery.of(context).size;
@@ -701,7 +669,7 @@ void _showVerifierDetailsModal(
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: themeColors['primary'],
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -724,14 +692,16 @@ void _showVerifierDetailsModal(
                           Row(
                             children: [
                               Icon(Icons.account_circle,
-                                  color: Colors.grey.shade600, size: 16),
+                                  color: getThemeColors(context)['icon'],
+                                  size: 16),
                               const SizedBox(width: 6),
                               Text(
                                 "Verifier Address",
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade700,
+                                  color:
+                                      getThemeColors(context)['textPrimary']!,
                                 ),
                               ),
                             ],
@@ -744,7 +714,7 @@ void _showVerifierDetailsModal(
                               width: double.infinity,
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: themeColors['primaryLight'],
+                                color: themeColors['primary'],
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                     color: themeColors['primaryBorder']!),
@@ -764,7 +734,7 @@ void _showVerifierDetailsModal(
                                   Icon(
                                     Icons.copy,
                                     size: 16,
-                                    color: themeColors['primary'],
+                                    color: getThemeColors(context)['icon'],
                                   ),
                                 ],
                               ),
@@ -788,7 +758,8 @@ void _showVerifierDetailsModal(
                         Row(
                           children: [
                             Icon(Icons.photo_library,
-                                color: Colors.grey.shade600, size: 20),
+                                color: getThemeColors(context)['icon'],
+                                size: 20),
                             const SizedBox(width: 8),
                             Text(
                               "Proof Images (${verifier.proofHashes.length})",
@@ -978,7 +949,7 @@ void _showRemoveVerifierDialog(
         ),
         title: Row(
           children: [
-            Icon(Icons.warning, color: Colors.orange.shade600),
+            Icon(Icons.warning, color: getThemeColors(context)['icon']),
             const SizedBox(width: 8),
             const Text("Remove Verifier"),
           ],
@@ -1040,7 +1011,7 @@ void _showRemoveVerifierDialog(
                           Icon(
                             Icons.copy,
                             size: 14,
-                            color: themeColors['primary'],
+                            color: getThemeColors(context)['icon'],
                           ),
                         ],
                       ),
@@ -1072,7 +1043,7 @@ void _showRemoveVerifierDialog(
               "This action:",
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: getThemeColors(context)['textPrimary'],
               ),
             ),
             _buildRemovalPoint("• Will require gas fees"),

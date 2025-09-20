@@ -34,7 +34,7 @@ class _StaticCoordinatesMapState extends State<StaticCoordinatesMap> {
     final double longitude = widget.lng;
 
     return Container(
-      height: 200, // Fixed height for consistency
+      height: 200,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),

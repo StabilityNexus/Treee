@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 
 class NewNFTWidget extends StatefulWidget {
   const NewNFTWidget({super.key});
@@ -18,9 +19,10 @@ class _NewNFTWidgetState extends State<NewNFTWidget> {
         constraints: const BoxConstraints(maxWidth: 350),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.green, width: 2),
+          border: Border.all(
+              color: getThemeColors(context)['primaryBorder']!, width: 2),
           borderRadius: BorderRadius.circular(8.0),
-          color: Colors.white,
+          color: getThemeColors(context)['background']!,
         ),
         child: Consumer<MintNftProvider>(
           builder: (ctx, provider, _) {

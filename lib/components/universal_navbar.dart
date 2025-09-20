@@ -11,8 +11,9 @@ import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
 class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final List<Widget>? actions;
+  final Widget? leading;
 
-  const UniversalNavbar({super.key, this.title, this.actions});
+  const UniversalNavbar({super.key, this.title, this.actions, this.leading});
 
   @override
   Size get preferredSize => const Size.fromHeight(120.0);
@@ -43,6 +44,9 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
+                  if (leading != null) ...[
+                    leading!,
+                  ],
                   Expanded(
                     flex: 2,
                     child: Row(
@@ -59,7 +63,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                             ),
                           ),
                           child: Image.asset(
-                            'assets/tree-navbar-images/logo.png', // Fixed path to match your folder structure
+                            'assets/tree-navbar-images/logo.png',
                             width: 28,
                             height: 28,
                             fit: BoxFit.contain,
@@ -186,7 +190,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                       width: plantWidth,
                       height: plantWidth,
                       child: Image.asset(
-                        'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                        'assets/tree-navbar-images/$imagePath',
                         width: 28,
                         height: 28,
                         fit: BoxFit.contain,
@@ -213,7 +217,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     height: plantWidth,
                     margin: EdgeInsets.zero,
                     child: Image.asset(
-                      'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                      'assets/tree-navbar-images/$imagePath',
                       width: 35,
                       height: 35,
                       fit: BoxFit.contain,
@@ -360,7 +364,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-Widget _buildConnectButton(
+  Widget _buildConnectButton(
       BuildContext context, WalletProvider walletProvider) {
     // Determine the state and corresponding visual properties
     Color backgroundColor;
@@ -368,7 +372,6 @@ Widget _buildConnectButton(
     Color textColor;
     IconData iconData;
     String buttonText;
-    bool isClickable;
 
     if (walletProvider.isConnecting) {
       backgroundColor = Colors.orange.shade50;
@@ -376,7 +379,7 @@ Widget _buildConnectButton(
       textColor = Colors.orange.shade700;
       iconData = Icons.sync;
       buttonText = 'Retry';
-      isClickable = true; // Keep clickable for retry functionality
+// Keep clickable for retry functionality
     } else if (walletProvider.isConnected) {
       // This case shouldn't normally happen as connected state shows the wallet menu
       backgroundColor = Colors.green.shade50;
@@ -384,7 +387,6 @@ Widget _buildConnectButton(
       textColor = Colors.green.shade700;
       iconData = Icons.account_balance_wallet;
       buttonText = 'Connected';
-      isClickable = true;
     } else {
       // Disconnected state
       backgroundColor = Colors.white;
@@ -392,7 +394,6 @@ Widget _buildConnectButton(
       textColor = Colors.green.shade700;
       iconData = Icons.account_balance_wallet;
       buttonText = 'Connect';
-      isClickable = true;
     }
 
     return Container(
@@ -418,7 +419,6 @@ Widget _buildConnectButton(
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
             if (walletProvider.isConnecting) {
-              // If connecting, allow force reconnect
               final uri = await walletProvider.forceReconnect();
               if (uri != null && context.mounted) {
                 showDialog(
@@ -427,7 +427,6 @@ Widget _buildConnectButton(
                 );
               }
             } else {
-              // Normal connect flow
               final uri = await walletProvider.connectWallet();
               if (uri != null && context.mounted) {
                 showDialog(
@@ -436,27 +435,27 @@ Widget _buildConnectButton(
                 );
               }
             }
-        },
+          },
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                walletProvider.isConnecting 
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                walletProvider.isConnecting
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                        ),
+                      )
+                    : Icon(
+                        iconData,
+                        size: 16,
+                        color: textColor,
                       ),
-                    )
-                  : Icon(
-                      iconData,
-                      size: 16,
-                      color: textColor,
-                    ),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
