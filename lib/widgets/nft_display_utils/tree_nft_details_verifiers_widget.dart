@@ -464,11 +464,11 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
                                   Text(
                                     verifier.shortAddress,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      fontFamily: 'monospace',
-                                      color: getThemeColors(context)['textPrimary']
-                                    ),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        fontFamily: 'monospace',
+                                        color: getThemeColors(
+                                            context)['textPrimary']),
                                   ),
                                   const SizedBox(width: 6),
                                   Icon(
@@ -548,8 +548,8 @@ Widget _buildVerifierCard(Verifier verifier, int index, bool canRemove,
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  _showRemoveVerifierDialog(verifier, index, context,
-                      treeDetails, loadTreeDetails);
+                  _showRemoveVerifierDialog(
+                      verifier, index, context, treeDetails, loadTreeDetails);
                 },
                 borderRadius: BorderRadius.circular(15),
                 child: Container(
@@ -634,7 +634,8 @@ void _showVerifierDetailsModal(
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.close, color: getThemeColors(context)['icon']),
+                      icon: Icon(Icons.close,
+                          color: getThemeColors(context)['icon']),
                     ),
                   ],
                 ),
@@ -676,7 +677,8 @@ void _showVerifierDetailsModal(
                                 color: getThemeColors(context)['primary'],
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: getThemeColors(context)['primaryBorder']!),
+                                    color: getThemeColors(
+                                        context)['primaryBorder']!),
                               ),
                               child: Row(
                                 children: [
@@ -725,7 +727,7 @@ void _showVerifierDetailsModal(
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color:getThemeColors(context)['textPrimary'],
+                                color: getThemeColors(context)['textPrimary'],
                               ),
                             ),
                           ],
@@ -765,12 +767,14 @@ void _showVerifierDetailsModal(
                                         (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return Container(
-                                        color: getThemeColors(context)['background'],
+                                        color: getThemeColors(
+                                            context)['background'],
                                         child: Center(
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor: AlwaysStoppedAnimation(
-                                                getThemeColors(context)['primary']),
+                                                getThemeColors(
+                                                    context)['primary']),
                                           ),
                                         ),
                                       );
@@ -830,7 +834,11 @@ void _showVerifierDetailsModal(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child:  Text("Close", style: TextStyle(color: getThemeColors(context)['textPrimary']),),
+                    child: Text(
+                      "Close",
+                      style: TextStyle(
+                          color: getThemeColors(context)['textPrimary']),
+                    ),
                   ),
                 ),
               ),
@@ -881,12 +889,8 @@ Widget _buildDetailRow(
   );
 }
 
-void _showRemoveVerifierDialog(
-    Verifier verifier,
-    int index,
-    BuildContext context,
-    Tree? treeDetails,
-    Function loadTreeDetails) {
+void _showRemoveVerifierDialog(Verifier verifier, int index,
+    BuildContext context, Tree? treeDetails, Function loadTreeDetails) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -915,7 +919,8 @@ void _showRemoveVerifierDialog(
               decoration: BoxDecoration(
                 color: getThemeColors(context)['primary'],
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: getThemeColors(context)['primaryBorder']!),
+                border: Border.all(
+                    color: getThemeColors(context)['primaryBorder']!),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -941,8 +946,8 @@ void _showRemoveVerifierDialog(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(6),
-                        border:
-                            Border.all(color: getThemeColors(context)['primaryBorder']!),
+                        border: Border.all(
+                            color: getThemeColors(context)['primaryBorder']!),
                       ),
                       child: Row(
                         children: [
