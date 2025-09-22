@@ -5,7 +5,7 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
 
 class UserProfileData {
   String name;
@@ -225,7 +225,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                   borderRadius: BorderRadius.circular(buttonCircularRadius),
                 ),
                 elevation: 4,
-                        side: const BorderSide(color: Colors.black, width: 2),
+                side: const BorderSide(color: Colors.black, width: 2),
               ),
               onPressed: () {
                 context.push('/organisations');

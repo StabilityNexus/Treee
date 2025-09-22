@@ -6,4 +6,3 @@ const String treeNftContractABI =
 
 final String treeNFtContractAddress =
     dotenv.env['TREE_NFT_CONTRACT_ADDRESS'] ?? '';
-
