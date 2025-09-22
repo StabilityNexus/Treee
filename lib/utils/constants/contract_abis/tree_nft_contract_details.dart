@@ -7,9 +7,3 @@ const String treeNftContractABI =
 final String treeNFtContractAddress =
     dotenv.env['TREE_NFT_CONTRACT_ADDRESS'] ?? '';
 
-// CareToken Address:          0xF9C45610FEA0382Ab5d28c7CaEe44F6aC26Fe956
-// PlanterToken Address:       0x18a3BB9E8b6a692b3B29Dcf49Ce58f4bf2CB0E93
-// VerifierToken Address:      0x52db3eEff09D1dBE30007fA06AE14aF9849D29ba
-// LegacyToken Address:        0xD5C0F25B883f018133d1Ce46fdb3365B660EF1db
-// TreeNft Address:            0xeD3D3a4f30ad25d29BD6cB46Bb705a120809DB23
-// OrganisationFactory:        0x75da54F30d347040e977860a9C3495b2C52b4F23

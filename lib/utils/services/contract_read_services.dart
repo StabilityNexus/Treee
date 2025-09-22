@@ -2,7 +2,7 @@
 import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
+import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_details.dart';
 
 class ContractReadResult {
   final bool success;

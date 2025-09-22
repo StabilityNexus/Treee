@@ -8,7 +8,6 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
-import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_widget.dart';
 import 'package:tree_planting_protocol/utils/services/get_current_location.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 
@@ -602,44 +601,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             },
           ),
         ),
-      ],
-    );
-  }
-
-  // ignore: unused_element
-  Widget _buildPreviewSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAEB96),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.preview,
-                  color: const Color(0xFF1CD381),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Live Preview',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1CD381),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const NewNFTWidget(),
       ],
     );
   }
