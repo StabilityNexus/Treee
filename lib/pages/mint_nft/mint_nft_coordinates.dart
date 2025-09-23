@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_widget.dart';
@@ -135,7 +137,19 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         return;
       }
 
-      final geohash = geoHasher.encode(lat, lng, precision: 12);
+      String geohash;
+      try {
+        logger.d("About to generate geohash for: lat=$lat, lng=$lng");
+        geohash = geoHasher.encode(lat, lng, precision: 12);
+        logger.d("Generated geohash: $geohash");
+      } catch (geohashError) {
+        logger.d("Geohash error: $geohashError");
+        _showCustomSnackBar(
+          "Error generating location code: $geohashError",
+          isError: true,
+        );
+        return;
+      }
 
       Provider.of<MintNftProvider>(context, listen: false).setLatitude(lat);
       Provider.of<MintNftProvider>(context, listen: false).setLongitude(lng);
@@ -148,7 +162,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
       context.push(RouteConstants.mintNftDetailsPath);
     } catch (e) {
       _showCustomSnackBar(
-        "Please enter valid numeric coordinates.",
+        "Please enter valid numeric coordinates. $latitude",
         isError: true,
       );
     }
@@ -179,7 +193,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
           children: [
             Icon(
               isError ? Icons.error_outline : Icons.check_circle_outline,
-              color: Colors.white,
+              color: getThemeColors(context)['primary'],
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -219,7 +233,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         ),
         child: Column(
           children: [
-            _buildFormSection(screenWidth, screenHeight),
+            _buildFormSection(screenWidth, screenHeight, context),
             const SizedBox(height: 32),
           ],
         ),
@@ -227,27 +241,13 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
     );
   }
 
-  Widget _buildFormSection(double screenWidth, double screenHeight) {
+  Widget _buildFormSection(
+      double screenWidth, double screenHeight, BuildContext context) {
     return Container(
       width: double.infinity,
       constraints: BoxConstraints(maxWidth: screenWidth * 0.92),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF1CD381),
-            const Color(0xFFFAEB96),
-          ],
-        ),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1CD381),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,12 +256,6 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF1CD381),
-                  const Color(0xFF1CD381),
-                ],
-              ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
@@ -272,17 +266,16 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.location_on,
-                    color: Colors.white,
+                    color: getThemeColors(context)['primary'],
                     size: 28,
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -291,14 +284,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: getThemeColors(context)['primary'],
                         ),
                       ),
                       Text(
                         'Mark where your tree is planted',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: getThemeColors(context)['textPrimary'],
                         ),
                       ),
                     ],
@@ -307,39 +300,36 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
               ],
             ),
           ),
-
-          // Content
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                _buildLocationStatus(),
                 const SizedBox(height: 24),
                 _buildMapSection(screenHeight),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFAEB96),
+                    color: primaryYellowColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFFFAEB96),
+                      color: getThemeColors(context)['secondary']!,
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: const Color(0xFF1CD381),
+                        color: getThemeColors(context)['primary'],
                         size: 20,
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Tap on the map or enter coordinates manually below',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.black87,
+                            color: getThemeColors(context)['textPrimary'],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -376,20 +366,19 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                   child: ElevatedButton(
                     onPressed: submitCoordinates,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1CD381),
-                      foregroundColor: Colors.white,
+                      backgroundColor: getThemeColors(context)['primary'],
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      shadowColor: const Color(0xFF1CD381),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Continue',
                           style: TextStyle(
+                            color: getThemeColors(context)['textPrimary'],
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
@@ -398,7 +387,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: getThemeColors(context)['primary'],
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Icon(
@@ -418,6 +407,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildLocationStatus() {
     final isManual = _userHasManuallySetCoordinates;
     final isLoading = _isLoadingLocation;
@@ -428,9 +418,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isLoading
-              ? Colors.orange
-              : (isManual ? const Color(0xFFFAEB96) : const Color(0xFF1CD381)),
+          color: isLoading ? primaryYellowColor : primaryGreenColor,
           width: 2,
         ),
       ),
@@ -456,7 +444,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                     isManual ? Icons.edit_location : Icons.my_location,
                     size: 20,
                     color: isManual
-                        ? Colors.orange.shade700
+                        ? const Color(0xFFFAEB96)
                         : const Color(0xFF1CD381),
                   ),
           ),
@@ -495,7 +483,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 onPressed: _refreshLocation,
                 icon: const Icon(Icons.refresh, size: 20),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF1CD381),
+                  backgroundColor: getThemeColors(context)['background'],
                   foregroundColor: const Color(0xFF1CD381),
                 ),
               ),
@@ -562,7 +550,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF1CD381),
+                color: getThemeColors(context)['textPrimary'],
                 size: 14,
               ),
             ),
@@ -583,7 +571,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFFAEB96),
+              color: getThemeColors(context)['secondary']!,
               width: 2,
             ),
           ),

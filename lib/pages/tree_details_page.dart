@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
+import 'package:tree_planting_protocol/utils/services/conversion_functions.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/static_map_display_widget.dart';
@@ -38,12 +39,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     loadTreeDetails();
   }
 
-  static int _toInt(dynamic value) {
-    if (value is BigInt) return value.toInt();
-    if (value is int) return value;
-    return int.tryParse(value.toString()) ?? 0;
-  }
-
   Future<void> loadTreeDetails() async {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     loggedInUser = walletProvider.currentAddress.toString();
@@ -52,7 +47,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     });
     final result = await ContractReadFunctions.getTreeNFTInfo(
         walletProvider: walletProvider,
-        id: _toInt(widget.treeId),
+        id: toInt(widget.treeId),
         offset: TREE_VERIFIERS_OFFSET,
         limit: TREE_VERIFIERS_LIMIT);
     if (result.success && result.data != null) {
@@ -60,7 +55,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       final List<dynamic> verifiersData = result.data['verifiers'] ?? [];
       final String owner = result.data['owner'].toString();
       treeDetails = Tree.fromContractData(treesData, verifiersData, owner);
-      logger.d("Verifiers data: $verifiersData");
       canVerify = true;
       for (var verifier in verifiersData) {
         if (verifier[0].toString().toLowerCase() ==
@@ -70,7 +64,6 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         }
       }
     }
-    logger.d("Tree Details hot: ${treeDetails?.verifiers}");
     setState(() {
       _isLoading = false;
     });
@@ -96,8 +89,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
         ),
         clipBehavior: Clip.antiAlias,
         child: StaticCoordinatesMap(
-          lat: (treeDetails!.latitude / 1e6) - 90.0,
-          lng: (treeDetails!.longitude / 1e6) - 180.0,
+          lat: (treeDetails!.latitude / 1e6) -
+              90.0, // Data stored on the contract is positive in all cases (needs to be converted)
+          lng: (treeDetails!.longitude / 1e6) -
+              180.0, // Data stored on the contract is positive in all cases (needs to be converted)
         ),
       ),
     );
@@ -121,15 +116,17 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                   height: 30,
                   decoration: BoxDecoration(
                     border: Border.all(width: 2.0),
-                    color: const Color.fromARGB(255, 28, 211, 129),
+                    color: getThemeColors(context)['primary'],
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Center(
                     child: Text(
                       ((treeDetails!.latitude / 1e6) - 90.0).toStringAsFixed(6),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 9, height: 1, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 9,
+                          height: 1,
+                          color: getThemeColors(context)['textPrimary']),
                     ),
                   ),
                 ),
@@ -149,8 +146,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                       ((treeDetails!.longitude / 1e6) - 180.0)
                           .toStringAsFixed(6),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 9, height: 1, color: Colors.black),
+                      style: TextStyle(
+                          fontSize: 9,
+                          height: 1,
+                          color: getThemeColors(context)['textPrimary']),
                     ),
                   ),
                 ),
@@ -169,8 +168,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                     child: Text(
                       (treeDetails!.species.toString()),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 9, height: 1, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 9,
+                          height: 1,
+                          color: getThemeColors(context)['textPrimary']),
                     ),
                   ),
                 ),
@@ -198,17 +199,13 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
             margin: const EdgeInsets.symmetric(vertical: 16.0),
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: canVerify
-                    ? [Colors.green.shade400, Colors.green.shade600]
-                    : [Colors.grey.shade300, Colors.grey.shade400],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: canVerify
+                  ? getThemeColors(context)['primary']
+                  : getThemeColors(context)['secondary'],
               borderRadius: BorderRadius.circular(12.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black,
+                  color: getThemeColors(context)['textPrimary']!,
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -218,14 +215,14 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
               children: [
                 Icon(
                   canVerify ? Icons.verified : Icons.lock,
-                  color: Colors.white,
+                  color: getThemeColors(context)['textPrimary']!,
                   size: 32,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   canVerify ? "Tree Verification" : "Verification Disabled",
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: getThemeColors(context)['textPrimary']!,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -235,8 +232,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                   canVerify
                       ? "Confirm this tree's authenticity"
                       : "You cannot verify this tree",
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: getThemeColors(context)['textPrimary'],
                     fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
@@ -249,9 +246,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor:
-                        canVerify ? Colors.green.shade600 : Colors.grey,
+                    backgroundColor: getThemeColors(context)['background'],
+                    foregroundColor: canVerify
+                        ? getThemeColors(context)['primary']
+                        : getThemeColors(context)['secondary'],
                     padding: const EdgeInsets.symmetric(
                         horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -297,9 +295,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: getThemeColors(context)['background'],
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+            color: getThemeColors(context)['primaryBorder']!, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,16 +308,16 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: getThemeColors(context)['textPrimary'],
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              color: getThemeColors(context)['textPrimary'],
             ),
           ),
         ],
@@ -340,29 +339,19 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     required String description,
     required List<String> proofHashes,
   }) async {
-    logger.d("Starting tree verification process");
-    logger.d("Logged in user: $loggedInUser");
-    logger.d("Tree ID: ${treeDetails!.id}");
-    logger.d("Description: $description");
-    logger.d("Proof hashes: $proofHashes");
-
     try {
-      // Get wallet provider
       WalletProvider walletProvider =
           Provider.of<WalletProvider>(context, listen: false);
-
-      // Validate wallet connection
       if (!walletProvider.isConnected) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text("Please connect your wallet first"),
-            backgroundColor: Colors.orange.shade600,
+            backgroundColor: getThemeColors(context)['primary'],
             behavior: SnackBarBehavior.floating,
           ),
         );
         return;
       }
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -372,7 +361,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      getThemeColors(context)['textPrimary']!),
                 ),
               ),
               const SizedBox(width: 16),
@@ -399,7 +389,8 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
+                Icon(Icons.check_circle,
+                    color: getThemeColors(context)['icon']),
                 const SizedBox(width: 8),
                 const Text("Tree verification submitted successfully!"),
               ],
@@ -415,13 +406,13 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error, color: Colors.white),
+                Icon(Icons.error, color: getThemeColors(context)['error']),
                 const SizedBox(width: 8),
                 Expanded(
                     child: Text("Verification failed: ${result.errorMessage}")),
               ],
             ),
-            backgroundColor: Colors.red.shade600,
+            backgroundColor: getThemeColors(context)['error'],
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 5),
           ),
@@ -454,7 +445,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
               Expanded(child: Text(errorMessage)),
             ],
           ),
-          backgroundColor: Colors.red.shade600,
+          backgroundColor: getThemeColors(context)['error'],
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 5),
         ),
@@ -526,9 +517,9 @@ class _VerificationModalState extends State<_VerificationModal> {
   Future<void> _pickImage() async {
     if (_selectedImages.length >= 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text("Maximum 3 images allowed"),
-          backgroundColor: Colors.orange,
+          backgroundColor: getThemeColors(context)['secondary']!,
         ),
       );
       return;
@@ -551,9 +542,9 @@ class _VerificationModalState extends State<_VerificationModal> {
   Future<void> _takePhoto() async {
     if (_selectedImages.length >= 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Maximum 3 images allowed"),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text("Maximum 3 images allowed"),
+          backgroundColor: getThemeColors(context)['secondary']!,
         ),
       );
       return;
@@ -610,7 +601,7 @@ class _VerificationModalState extends State<_VerificationModal> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error uploading images: $e"),
-          backgroundColor: Colors.red,
+          backgroundColor: getThemeColors(context)['error'],
         ),
       );
     } finally {
@@ -787,8 +778,9 @@ class _VerificationModalState extends State<_VerificationModal> {
                                       onTap: () => _removeImage(index),
                                       child: Container(
                                         padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              getThemeColors(context)['error'],
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(
@@ -810,7 +802,7 @@ class _VerificationModalState extends State<_VerificationModal> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: getThemeColors(context)['background'],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -821,7 +813,7 @@ class _VerificationModalState extends State<_VerificationModal> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation(
-                                    Colors.blue.shade600),
+                                    getThemeColors(context)['primary']),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -842,7 +834,8 @@ class _VerificationModalState extends State<_VerificationModal> {
                       onPressed: () => Navigator.pop(context),
                       child: Text(
                         "Cancel",
-                        style: TextStyle(color: Colors.grey.shade600),
+                        style: TextStyle(
+                            color: getThemeColors(context)['textPrimary']),
                       ),
                     ),
                   ),
@@ -866,8 +859,8 @@ class _VerificationModalState extends State<_VerificationModal> {
                               );
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        foregroundColor: Colors.white,
+                        backgroundColor: getThemeColors(context)['primary'],
+                        foregroundColor: getThemeColors(context)['background'],
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

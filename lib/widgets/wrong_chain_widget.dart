@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
 
 Widget buildWrongChainWidget(BuildContext context) {
@@ -8,23 +9,23 @@ Widget buildWrongChainWidget(BuildContext context) {
   return Center(
     child: Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: getThemeColors(context)['background'],
         border: Border.all(
-          color: Colors.black,
+          color: getThemeColors(context)['primaryBorder']!,
           width: 2,
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.account_balance_wallet,
             size: 64,
-            color: Colors.grey,
+            color: getThemeColors(context)['icon'],
           ),
           const SizedBox(height: 16),
           Text(
-            'Please switch to the chain supported by Tree Planting Protocol i.e. ${walletProvider.correctChainId}',
+            'Please switch to the chain supported by Tree Planting Protocol',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,
@@ -38,7 +39,7 @@ Widget buildWrongChainWidget(BuildContext context) {
             },
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(
-                const Color.fromARGB(255, 28, 211, 129),
+                getThemeColors(context)['primary']!,
               ),
             ),
             child: const Text('Switch Chain'),

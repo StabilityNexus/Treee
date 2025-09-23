@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/services/contract_write_functions.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
@@ -62,7 +63,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
         return AlertDialog(
           title: Row(
             children: [
-              const Icon(Icons.error, color: Colors.red),
+              Icon(Icons.error, color: getThemeColors(context)['error']),
               const SizedBox(width: 8),
               Text(title),
             ],
@@ -179,34 +180,29 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text(
+            Text(
               "Enter your details! Fellow Tree Planter!!",
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1CD381),
+                color: getThemeColors(context)['primary'],
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-
-            // Name Field
             _buildFormField(
               controller: nameController,
               label: 'Name',
               icon: Icons.person,
               hint: 'Enter your full name',
               maxLines: 1,
+              context: context,
             ),
 
             const SizedBox(height: 30),
-
-            // Profile Photo Section
             _buildProfilePhotoSection(),
-
             const SizedBox(height: 40),
 
-            // Error Message
             if (_errorMessage != null && _errorMessage!.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(12),
@@ -218,12 +214,14 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline, color: Colors.red.shade600),
+                    Icon(Icons.error_outline,
+                        color: getThemeColors(context)['error']),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: TextStyle(color: Colors.red.shade600),
+                        style:
+                            TextStyle(color: getThemeColors(context)['error']),
                       ),
                     ),
                   ],
@@ -237,21 +235,21 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               child: ElevatedButton(
                 onPressed: _isLoading || _isUploading ? null : _registerUser,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1CD381),
-                  foregroundColor: Colors.white,
+                  backgroundColor: getThemeColors(context)['primary'],
+                  foregroundColor: getThemeColors(context)['background'],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 2,
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              getThemeColors(context)['textPrimary']!),
                         ),
                       )
                     : const Text(
@@ -281,19 +279,19 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 color: const Color(0xFF1CD381),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.camera_alt,
-                color: Color(0xFF1CD381),
+                color: getThemeColors(context)['icon'],
                 size: 18,
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'Profile Photo',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1CD381),
+                color: getThemeColors(context)['primary'],
               ),
             ),
           ],
@@ -308,12 +306,12 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: const Color(0xFFFAEB96),
+                color: getThemeColors(context)['secondaryBorder']!,
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1CD381),
+                  color: getThemeColors(context)['primary']!,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -328,17 +326,18 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
 
   Widget _buildPhotoContent() {
     if (_isUploading) {
-      return const Column(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1CD381)),
+            valueColor: AlwaysStoppedAnimation<Color>(
+                getThemeColors(context)['primary']!),
           ),
           SizedBox(height: 16),
           Text(
             'Uploading to IPFS...',
             style: TextStyle(
-              color: Color(0xFF1CD381),
+              color: getThemeColors(context)['primary']!,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -367,9 +366,9 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 color: Colors.black54,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check,
-                color: Colors.white,
+                color: getThemeColors(context)['icon']!,
                 size: 16,
               ),
             ),
@@ -384,10 +383,10 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: Text(
                 'Tap to change photo',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: getThemeColors(context)['textPrimary'],
                   fontSize: 12,
                 ),
                 textAlign: TextAlign.center,
@@ -404,14 +403,14 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
         Icon(
           Icons.add_a_photo_outlined,
           size: 48,
-          color: Colors.grey.shade400,
+          color: getThemeColors(context)['icon']!,
         ),
         const SizedBox(height: 16),
         Text(
           'Tap to select profile photo',
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey.shade600,
+            color: getThemeColors(context)['textPrimary'],
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -420,7 +419,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
           'This field is required',
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey.shade500,
+            color: getThemeColors(context)['textPrimary'],
           ),
         ),
       ],
@@ -435,6 +434,7 @@ Widget _buildFormField({
   required IconData icon,
   int maxLines = 1,
   int? minLines,
+  required BuildContext context,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,22 +444,22 @@ Widget _buildFormField({
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFF1CD381),
+              color: getThemeColors(context)['primary'],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF1CD381),
+              color: getThemeColors(context)['primary'],
               size: 18,
             ),
           ),
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1CD381),
+              color: getThemeColors(context)['primary']!,
             ),
           ),
         ],
@@ -467,15 +467,15 @@ Widget _buildFormField({
       const SizedBox(height: 12),
       Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: getThemeColors(context)['background']!,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFFAEB96),
+            color: getThemeColors(context)['border']!,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1CD381),
+              color: getThemeColors(context)['shadow']!,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -485,15 +485,15 @@ Widget _buildFormField({
           controller: controller,
           maxLines: maxLines,
           minLines: minLines,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
-            color: Colors.black87,
+            color: getThemeColors(context)['textPrimary']!,
             height: 1.4,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: Colors.grey.shade500,
+              color: getThemeColors(context)['textSecondary']!,
               fontSize: 14,
             ),
             border: OutlineInputBorder(

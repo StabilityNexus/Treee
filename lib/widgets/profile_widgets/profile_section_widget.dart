@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
 
@@ -262,9 +263,9 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black12, // shadow color
-                      blurRadius: 6, // shadow softness
-                      offset: Offset(0, 3), // shadow position
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
                   ],
                 ),
@@ -486,14 +487,15 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
+            valueColor: AlwaysStoppedAnimation<Color>(
+                getThemeColors(context)['primary']!),
           ),
           const SizedBox(height: 16),
           Text(
             'Loading profile...',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.green.shade700,
+              color: getThemeColors(context)['primary'],
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
 
 class NewNFTMapWidget extends StatefulWidget {
@@ -61,10 +62,10 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.green, width: 2),
               borderRadius: BorderRadius.circular(12.0),
-              color: Colors.white,
+              color: getThemeColors(context)['background'],
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green,
+                  color: getThemeColors(context)['primary']!,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -142,7 +143,7 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
           style: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
-            color: Colors.green.shade700,
+            color: getThemeColors(context)['textPrimary']!,
           ),
         ),
         const SizedBox(height: 4),
@@ -158,7 +159,7 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
             value,
             style: TextStyle(
               fontSize: fontSize,
-              color: Colors.grey.shade800,
+              color: getThemeColors(context)['textPrimary']!,
               height: isDescription ? 1.4 : 1.2,
             ),
             softWrap: true,

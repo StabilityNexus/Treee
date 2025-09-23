@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 
 class CoordinatesMap extends StatefulWidget {
@@ -37,7 +38,8 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
 
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
+            border:
+                Border.all(color: getThemeColors(context)['primaryBorder']!),
             borderRadius: BorderRadius.circular(8),
           ),
           child: ClipRRect(
@@ -53,7 +55,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
 
   Widget _buildErrorWidget() {
     return Container(
-      color: Colors.grey[100],
+      color: getThemeColors(context)['background'],
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -142,9 +144,9 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                   point: LatLng(latitude, longitude),
                   width: 80,
                   height: 80,
-                  child: const Icon(
+                  child: Icon(
                     Icons.location_pin,
-                    color: Colors.red,
+                    color: getThemeColors(context)['marker'],
                     size: 40,
                   ),
                 ),
@@ -172,13 +174,13 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: getThemeColors(context)['background'],
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               "${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: getThemeColors(context)['textPrimary'],
                 fontSize: 10,
               ),
             ),
@@ -191,11 +193,11 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: getThemeColors(context)['background'],
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black,
+                      color: getThemeColors(context)['BNWBorder']!,
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -204,7 +206,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                 child: Column(
                   children: [
                     Material(
-                      color: Colors.transparent,
+                      color: getThemeColors(context)['BNWBorder'],
                       child: InkWell(
                         onTap: () {
                           final currentZoom = _mapController.camera.zoom;
@@ -222,9 +224,9 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                         child: SizedBox(
                           width: 40,
                           height: 40,
-                          child: const Icon(
+                          child: Icon(
                             Icons.add,
-                            color: Colors.black87,
+                            color: getThemeColors(context)['icon'],
                             size: 20,
                           ),
                         ),
@@ -232,7 +234,7 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                     ),
                     Container(
                       height: 1,
-                      color: Colors.grey[300],
+                      color: getThemeColors(context)['background'],
                     ),
                     Material(
                       color: Colors.transparent,
@@ -253,9 +255,9 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
                         child: SizedBox(
                           width: 40,
                           height: 40,
-                          child: const Icon(
+                          child: Icon(
                             Icons.remove,
-                            color: Colors.black87,
+                            color: getThemeColors(context)['icon'],
                             size: 20,
                           ),
                         ),
@@ -277,10 +279,10 @@ class _CoordinatesMapState extends State<CoordinatesMap> {
               color: Colors.blue,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
+            child: Text(
               "Tap to set location • Use zoom buttons or pinch to zoom",
               style: TextStyle(
-                color: Colors.white,
+                color: getThemeColors(context)['textPrimary'],
                 fontSize: 11,
               ),
               textAlign: TextAlign.center,
@@ -347,7 +349,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: getThemeColors(context)['primaryBorder']!),
         borderRadius: BorderRadius.circular(8),
       ),
       child: ClipRRect(
@@ -361,7 +363,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
 
   Widget _buildErrorWidget() {
     return Container(
-      color: Colors.grey[100],
+      color: getThemeColors(context)['background'],
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -369,7 +371,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
             Icon(
               Icons.map_outlined,
               size: 60,
-              color: Colors.grey[400],
+              color: getThemeColors(context)['icon'],
             ),
             const SizedBox(height: 16),
             Text(
@@ -377,7 +379,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: getThemeColors(context)['textSecondary'],
               ),
             ),
             const SizedBox(height: 8),
@@ -385,7 +387,7 @@ class _StaticDisplayMapState extends State<StaticDisplayMap> {
               "Please use the coordinate fields below",
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[500],
+                color: getThemeColors(context)['textPrimary'],
               ),
               textAlign: TextAlign.center,
             ),

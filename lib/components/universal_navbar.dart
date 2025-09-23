@@ -11,8 +11,9 @@ import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
 class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final List<Widget>? actions;
+  final Widget? leading;
 
-  const UniversalNavbar({super.key, this.title, this.actions});
+  const UniversalNavbar({super.key, this.title, this.actions, this.leading});
 
   @override
   Size get preferredSize => const Size.fromHeight(120.0);
@@ -43,6 +44,9 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
+                  if (leading != null) ...[
+                    leading!,
+                  ],
                   Expanded(
                     flex: 2,
                     child: Row(
@@ -59,7 +63,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                             ),
                           ),
                           child: Image.asset(
-                            'assets/tree-navbar-images/logo.png', // Fixed path to match your folder structure
+                            'assets/tree-navbar-images/logo.png',
                             width: 28,
                             height: 28,
                             fit: BoxFit.contain,
@@ -186,7 +190,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                       width: plantWidth,
                       height: plantWidth,
                       child: Image.asset(
-                        'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                        'assets/tree-navbar-images/$imagePath',
                         width: 28,
                         height: 28,
                         fit: BoxFit.contain,
@@ -213,7 +217,7 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     height: plantWidth,
                     margin: EdgeInsets.zero,
                     child: Image.asset(
-                      'assets/tree-navbar-images/$imagePath', // Fixed: consistent path
+                      'assets/tree-navbar-images/$imagePath',
                       width: 35,
                       height: 35,
                       fit: BoxFit.contain,
@@ -362,13 +366,43 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildConnectButton(
       BuildContext context, WalletProvider walletProvider) {
+    // Determine the state and corresponding visual properties
+    Color backgroundColor;
+    Color borderColor;
+    Color textColor;
+    IconData iconData;
+    String buttonText;
+
+    if (walletProvider.isConnecting) {
+      backgroundColor = Colors.orange.shade50;
+      borderColor = Colors.orange;
+      textColor = Colors.orange.shade700;
+      iconData = Icons.sync;
+      buttonText = 'Retry';
+// Keep clickable for retry functionality
+    } else if (walletProvider.isConnected) {
+      // This case shouldn't normally happen as connected state shows the wallet menu
+      backgroundColor = Colors.green.shade50;
+      borderColor = Colors.green;
+      textColor = Colors.green.shade700;
+      iconData = Icons.account_balance_wallet;
+      buttonText = 'Connected';
+    } else {
+      // Disconnected state
+      backgroundColor = Colors.white;
+      borderColor = Colors.green;
+      textColor = Colors.green.shade700;
+      iconData = Icons.account_balance_wallet;
+      buttonText = 'Connect';
+    }
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 80), // Limit max width
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.green,
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -384,12 +418,22 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
-            final uri = await walletProvider.connectWallet();
-            if (uri != null && context.mounted) {
-              showDialog(
-                context: context,
-                builder: (context) => WalletConnectDialog(uri: uri),
-              );
+            if (walletProvider.isConnecting) {
+              final uri = await walletProvider.forceReconnect();
+              if (uri != null && context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) => WalletConnectDialog(uri: uri),
+                );
+              }
+            } else {
+              final uri = await walletProvider.connectWallet();
+              if (uri != null && context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) => WalletConnectDialog(uri: uri),
+                );
+              }
             }
           },
           child: Padding(
@@ -398,17 +442,26 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.account_balance_wallet,
-                  size: 16,
-                  color: Colors.green[700],
-                ),
+                walletProvider.isConnecting
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(textColor),
+                        ),
+                      )
+                    : Icon(
+                        iconData,
+                        size: 16,
+                        color: textColor,
+                      ),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    'Connect',
+                    buttonText,
                     style: TextStyle(
-                      color: Colors.green[700],
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),

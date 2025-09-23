@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -28,7 +29,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         return AlertDialog(
           title: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.green),
+              Icon(Icons.check_circle,
+                  color: getThemeColors(context)['primary']),
               const SizedBox(width: 8),
               Text(title),
             ],
@@ -52,7 +54,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         return AlertDialog(
           title: Row(
             children: [
-              const Icon(Icons.error, color: Colors.red),
+              Icon(Icons.error, color: getThemeColors(context)['error']),
               const SizedBox(width: 8),
               Text(title),
             ],
@@ -131,16 +133,16 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: getThemeColors(context)['primary'],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: getThemeColors(context)['primaryBorder']!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long, color: Colors.green.shade700),
+              Icon(Icons.receipt_long, color: getThemeColors(context)['icon']!),
               const SizedBox(width: 8),
               const Text(
                 "Last Transaction:",
@@ -186,16 +188,17 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
+        color: getThemeColors(context)['error']!,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: getThemeColors(context)['error']!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.red.shade700),
+              Icon(Icons.error_outline,
+                  color: getThemeColors(context)['error']!),
               const SizedBox(width: 8),
               const Text(
                 "Error:",
@@ -210,7 +213,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           Text(
             errorMessage!,
             style: TextStyle(
-              color: Colors.red.shade700,
+              color: getThemeColors(context)['error']!,
               fontSize: 14,
             ),
           ),
@@ -229,9 +232,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           children: [
             const NewNFTMapWidget(),
             const SizedBox(height: 30),
-
             _buildErrorInfo(),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -269,12 +270,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Transaction info display
             _buildTransactionInfo(),
-
             const SizedBox(height: 16),
           ],
         ),
