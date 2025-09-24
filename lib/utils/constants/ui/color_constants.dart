@@ -53,5 +53,8 @@ Map<String, Color> getThemeColors(BuildContext context) {
     'marker': themeProvider.isDarkMode
         ? const Color.fromARGB(255, 255, 100, 100)
         : const Color.fromARGB(255, 255, 0, 0),
+    'primaryShadow': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 0, 0, 0),
   };
 }
