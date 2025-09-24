@@ -5,7 +5,6 @@ import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 
 class MintNftDetailsPage extends StatefulWidget {
   const MintNftDetailsPage({super.key});
@@ -316,44 +315,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  // ignore: unused_element
-  Widget _buildPreviewSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAEB96),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.preview,
-                  color: primaryGreenColor,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Live Preview',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: primaryGreenColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const NewNFTMapWidget(),
       ],
     );
   }

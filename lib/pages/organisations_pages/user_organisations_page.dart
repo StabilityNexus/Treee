@@ -5,7 +5,7 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_factory_contract.dart/organisation_factory_read_functions.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_factory_contract.dart/organisation_factory_contract_read_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
 class OrganisationsPage extends StatefulWidget {
