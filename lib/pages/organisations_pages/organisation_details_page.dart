@@ -1,11 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/providers/theme_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_read_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+
+Color primaryYellowColor = Color.fromARGB(255, 251, 251, 99);
+Color primaryGreenColor = Color.fromARGB(255, 28, 211, 129);
+
+Map<String, Color> getThemeColors(BuildContext context) {
+  final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+  return {
+    'primary': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
+    'primaryLight': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
+    'primaryBorder': themeProvider.isDarkMode ? const Color.fromARGB(255, 1, 135, 12) : const Color.fromARGB(255, 28, 211, 129),
+    'border': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 18, 18, 18),
+    'BNWBorder': themeProvider.isDarkMode ? const Color.fromARGB(255, 1, 135, 12) : const Color.fromARGB(255, 28, 211, 129),
+    'secondary': themeProvider.isDarkMode ? Color.fromARGB(255, 131, 131, 36) : Color.fromARGB(255, 251, 251, 99),
+    'background': themeProvider.isDarkMode ? const Color.fromARGB(255, 18, 18, 18) : const Color.fromARGB(255, 255, 255, 255),
+    'secondaryBackground': themeProvider.isDarkMode ? const Color.fromARGB(255, 83, 81, 84) : const Color.fromARGB(255, 210, 210, 210),
+    'textPrimary': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+    'textSecondary': themeProvider.isDarkMode ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 255, 255, 255),
+    'primaryButton': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
+    'secondaryButton': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
+    'icon': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+    'error': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
+    'marker': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
+    'primaryShadow': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+  };
+}
 
 class OrganisationDetailsPage extends StatefulWidget {
   final String organisationAddress;
@@ -28,11 +55,18 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
   bool isOwner = false;
   bool _isLoading = false;
   String _errorMessage = "";
+  final TextEditingController _addMemberController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchOrganisationDetails();
+  }
+
+  @override
+  void dispose() {
+    _addMemberController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchOrganisationDetails() async {
@@ -79,6 +113,241 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _addMember(String address) async {
+    logger.d("Adding member: $address");
+    
+    // Simulate API call
+    await Future.delayed(Duration(seconds: 1));
+    
+    // For now, just add to local list and show success
+    setState(() {
+      organisationMembers.add(address);
+    });
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Member added successfully'),
+          backgroundColor: getThemeColors(context)['primary'],
+        ),
+      );
+    }
+  }
+
+  Future<void> _removeMember(String address) async {
+    logger.d("Removing member: $address");
+    
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {
+      organisationMembers.remove(address);
+    });
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Member removed successfully'),
+          backgroundColor: getThemeColors(context)['error'],
+        ),
+      );
+    }
+  }
+
+  void _copyAddress(String address) {
+    Clipboard.setData(ClipboardData(text: address));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Address copied to clipboard'),
+        backgroundColor: getThemeColors(context)['primary'],
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showAddMemberModal() {
+    _addMemberController.clear();
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: getThemeColors(context)['background'],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(buttonCircularRadius),
+          side: BorderSide(
+            color: getThemeColors(context)['border']!,
+            width: buttonborderWidth,
+          ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Add Member',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(
+                      Icons.close,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Enter the wallet address of the new member:',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: getThemeColors(context)['textPrimary'],
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _addMemberController,
+                style: TextStyle(
+                  color: getThemeColors(context)['textPrimary'],
+                  fontFamily: 'monospace',
+                ),
+                decoration: InputDecoration(
+                  hintText: '0x...',
+                  hintStyle: TextStyle(
+                    color: getThemeColors(context)['textPrimary'],
+                  ),
+                  filled: true,
+                  fillColor: getThemeColors(context)['secondary'],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: getThemeColors(context)['border']!,
+                      width: 1,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: getThemeColors(context)['border']!,
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: getThemeColors(context)['primary']!,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: getThemeColors(context)['secondaryBackground'],
+                      foregroundColor: getThemeColors(context)['textPrimary'],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                      ),
+                      side: BorderSide(
+                        color: getThemeColors(context)['border']!,
+                        width: buttonborderWidth,
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      final address = _addMemberController.text.trim();
+                      if (address.isNotEmpty) {
+                        Navigator.of(context).pop();
+                        _addMember(address);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: getThemeColors(context)['primary'],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                      ),
+                      side: const BorderSide(color: Colors.black, width: 2),
+                    ),
+                    child: const Text('Add Member'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showRemoveMemberConfirmation(String address) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: getThemeColors(context)['background'],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(buttonCircularRadius),
+          side: BorderSide(
+            color: getThemeColors(context)['border']!,
+            width: buttonborderWidth,
+          ),
+        ),
+        title: Text(
+          'Remove Member',
+          style: TextStyle(
+            color: getThemeColors(context)['textPrimary'],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to remove this member?\n\n${_truncateAddress(address)}',
+          style: TextStyle(
+            color: getThemeColors(context)['textPrimary'],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: getThemeColors(context)['textPrimary'],
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _removeMember(address);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: getThemeColors(context)['error'],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(buttonCircularRadius),
+              ),
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
   }
 
   String _formatDate(int timestamp) {
@@ -148,8 +417,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          
-          // Organisation Name
           Text(
             organisationName.isNotEmpty ? organisationName : 'Organisation',
             style: const TextStyle(
@@ -160,8 +427,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          
-          // Address
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -182,8 +447,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          
-          // Status Badges
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -271,8 +534,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             ),
           ),
           const SizedBox(height: 20),
-          
-          // Creation Date
           Row(
             children: [
               Icon(
@@ -318,7 +579,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Owners Section
           if (organisationOwners.isNotEmpty) ...[
             Row(
               children: [
@@ -342,24 +602,42 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             ...organisationOwners.map((owner) => _buildMemberTile(owner, true)),
             const SizedBox(height: 20),
           ],
-          
-          // Members Section
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.group,
-                size: 20,
-                color: getThemeColors(context)['secondary'],
+              Row(
+                children: [
+                  Icon(
+                    Icons.group,
+                    size: 20,
+                    color: getThemeColors(context)['secondary'],
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Members (${organisationMembers.length})',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Members (${organisationMembers.length})',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: getThemeColors(context)['textPrimary'],
+              if (isOwner)
+                ElevatedButton.icon(
+                  onPressed: _showAddMemberModal,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add Member'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['primary'],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(buttonCircularRadius),
+                    ),
+                    side: const BorderSide(color: Colors.black, width: 1),
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -369,13 +647,17 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey,
+                color: getThemeColors(context)['secondaryBackground'],
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: getThemeColors(context)['border']!,
+                  width: 1,
+                ),
               ),
               child: Text(
                 'No members yet',
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: getThemeColors(context)['textPrimary'],
                   fontSize: 14,
                 ),
               ),
@@ -385,12 +667,12 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
     );
   }
 
-  Widget _buildMemberTile(String address, bool isOwner) {
+  Widget _buildMemberTile(String address, bool isMemberOwner) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isOwner 
+        color: isMemberOwner 
             ? getThemeColors(context)['primary']
             : getThemeColors(context)['secondary'],
         borderRadius: BorderRadius.circular(8),
@@ -402,11 +684,11 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
       child: Row(
         children: [
           Icon(
-            isOwner ? Icons.admin_panel_settings : Icons.person,
+            isMemberOwner ? Icons.admin_panel_settings : Icons.person,
             size: 16,
-            color: isOwner 
+            color: isMemberOwner 
                 ? getThemeColors(context)['primary']
-                : getThemeColors(context)['secondary'],
+                : getThemeColors(context)['textPrimary'],
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -419,6 +701,38 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () => _copyAddress(address),
+            icon: Icon(
+              Icons.copy,
+              size: 16,
+              color: getThemeColors(context)['textPrimary'],
+            ),
+            tooltip: 'Copy address',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
+          ),
+          if (isOwner && !isMemberOwner) ...[
+            const SizedBox(width: 4),
+            IconButton(
+              onPressed: () => _showRemoveMemberConfirmation(address),
+              icon: Icon(
+                Icons.remove_circle,
+                size: 16,
+                color: getThemeColors(context)['error'],
+              ),
+              tooltip: 'Remove member',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(
+                minWidth: 32,
+                minHeight: 32,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -456,7 +770,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           Icon(
             Icons.error_outline,
             size: 64,
-            color: Colors.red.shade400,
+            color: getThemeColors(context)['error'],
           ),
           const SizedBox(height: 16),
           Text(
@@ -464,7 +778,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: getThemeColors(context)['error'] ?? Colors.red,
+              color: getThemeColors(context)['error'],
             ),
           ),
           const SizedBox(height: 8),
@@ -472,7 +786,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
             _errorMessage,
             style: TextStyle(
               fontSize: 14,
-              color: getThemeColors(context)['error'] ?? Colors.red,
+              color: getThemeColors(context)['error'],
             ),
             textAlign: TextAlign.center,
           ),
