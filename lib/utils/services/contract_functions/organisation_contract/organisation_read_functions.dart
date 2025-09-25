@@ -43,7 +43,8 @@ class OrganisationContractReadFunctions {
       if (!walletProvider.isConnected) {
         logger.e("Wallet not connected for reading organisations");
         return ContractReadResult.error(
-          errorMessage: 'Please connect your wallet before reading organisations.',
+          errorMessage:
+              'Please connect your wallet before reading organisations.',
         );
       }
 
@@ -79,8 +80,10 @@ class OrganisationContractReadFunctions {
           .toList();
 
       final timeOfCreation = orgDetailsResult[6] as BigInt;
-      final isOwner = owners.any((o) => o.toLowerCase() == address.toLowerCase());
-      final isMember = members.any((m) => m.toLowerCase() == address.toLowerCase());
+      final isOwner =
+          owners.any((o) => o.toLowerCase() == address.toLowerCase());
+      final isMember =
+          members.any((m) => m.toLowerCase() == address.toLowerCase());
 
       return ContractReadResult.success(
         data: {
@@ -103,4 +106,3 @@ class OrganisationContractReadFunctions {
     }
   }
 }
-

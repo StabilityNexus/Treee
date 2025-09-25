@@ -7,6 +7,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_read_functions.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_write_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
 Color primaryYellowColor = Color.fromARGB(255, 251, 251, 99);
@@ -15,22 +16,54 @@ Color primaryGreenColor = Color.fromARGB(255, 28, 211, 129);
 Map<String, Color> getThemeColors(BuildContext context) {
   final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
   return {
-    'primary': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
-    'primaryLight': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
-    'primaryBorder': themeProvider.isDarkMode ? const Color.fromARGB(255, 1, 135, 12) : const Color.fromARGB(255, 28, 211, 129),
-    'border': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 18, 18, 18),
-    'BNWBorder': themeProvider.isDarkMode ? const Color.fromARGB(255, 1, 135, 12) : const Color.fromARGB(255, 28, 211, 129),
-    'secondary': themeProvider.isDarkMode ? Color.fromARGB(255, 131, 131, 36) : Color.fromARGB(255, 251, 251, 99),
-    'background': themeProvider.isDarkMode ? const Color.fromARGB(255, 18, 18, 18) : const Color.fromARGB(255, 255, 255, 255),
-    'secondaryBackground': themeProvider.isDarkMode ? const Color.fromARGB(255, 83, 81, 84) : const Color.fromARGB(255, 210, 210, 210),
-    'textPrimary': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
-    'textSecondary': themeProvider.isDarkMode ? const Color.fromARGB(255, 0, 0, 0) : const Color.fromARGB(255, 255, 255, 255),
-    'primaryButton': themeProvider.isDarkMode ? Color.fromARGB(255, 0, 128, 70) : Color.fromARGB(255, 28, 211, 129),
-    'secondaryButton': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
-    'icon': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
-    'error': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
-    'marker': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 100, 100) : const Color.fromARGB(255, 255, 0, 0),
-    'primaryShadow': themeProvider.isDarkMode ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+    'primary': themeProvider.isDarkMode
+        ? Color.fromARGB(255, 0, 128, 70)
+        : Color.fromARGB(255, 28, 211, 129),
+    'primaryLight': themeProvider.isDarkMode
+        ? Color.fromARGB(255, 0, 128, 70)
+        : Color.fromARGB(255, 28, 211, 129),
+    'primaryBorder': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 1, 135, 12)
+        : const Color.fromARGB(255, 28, 211, 129),
+    'border': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 18, 18, 18),
+    'BNWBorder': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 1, 135, 12)
+        : const Color.fromARGB(255, 28, 211, 129),
+    'secondary': themeProvider.isDarkMode
+        ? Color.fromARGB(255, 131, 131, 36)
+        : Color.fromARGB(255, 251, 251, 99),
+    'background': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 18, 18, 18)
+        : const Color.fromARGB(255, 255, 255, 255),
+    'secondaryBackground': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 83, 81, 84)
+        : const Color.fromARGB(255, 210, 210, 210),
+    'textPrimary': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 0, 0, 0),
+    'textSecondary': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 0, 0, 0)
+        : const Color.fromARGB(255, 255, 255, 255),
+    'primaryButton': themeProvider.isDarkMode
+        ? Color.fromARGB(255, 0, 128, 70)
+        : Color.fromARGB(255, 28, 211, 129),
+    'secondaryButton': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 100, 100)
+        : const Color.fromARGB(255, 255, 0, 0),
+    'icon': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 0, 0, 0),
+    'error': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 100, 100)
+        : const Color.fromARGB(255, 255, 0, 0),
+    'marker': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 100, 100)
+        : const Color.fromARGB(255, 255, 0, 0),
+    'primaryShadow': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 0, 0, 0),
   };
 }
 
@@ -99,7 +132,8 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
         });
       } else {
         setState(() {
-          _errorMessage = result.errorMessage ?? "Failed to load organisation details";
+          _errorMessage =
+              result.errorMessage ?? "Failed to load organisation details";
         });
         logger.e("Error fetching organisation details: ${result.errorMessage}");
       }
@@ -115,42 +149,85 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
     }
   }
 
-  Future<void> _addMember(String address) async {
-    logger.d("Adding member: $address");
-    
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 1));
-    
-    // For now, just add to local list and show success
+  Future<void> addMember(String address) async {
     setState(() {
-      organisationMembers.add(address);
+      _isLoading = true;
+      _errorMessage = "";
     });
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Member added successfully'),
-          backgroundColor: getThemeColors(context)['primary'],
-        ),
+
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    try {
+      final result = await OrganisationContractWriteFunctions.addMember(
+        walletProvider: walletProvider,
+        organisationContractAddress: widget.organisationAddress,
+        userAddress: address,
       );
+
+      if (result.success) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Transaction sent successfully'),
+            // ignore: use_build_context_synchronously
+            backgroundColor: getThemeColors(context)['primary'],
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage = result.errorMessage ?? "Failed to add member";
+        });
+        logger.e("Error adding member: ${result.errorMessage}");
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Error adding member: $e";
+      });
+      logger.e("Error adding member: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  Future<void> _removeMember(String address) async {
-    logger.d("Removing member: $address");
-    
-    await Future.delayed(Duration(seconds: 1));
+  Future<void> removeMember(String address) async {
     setState(() {
-      organisationMembers.remove(address);
+      _isLoading = true;
+      _errorMessage = "";
     });
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Member removed successfully'),
-          backgroundColor: getThemeColors(context)['error'],
-        ),
+
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    try {
+      final result = await OrganisationContractWriteFunctions.removeMember(
+        walletProvider: walletProvider,
+        organisationContractAddress: widget.organisationAddress,
+        userAddress: address,
       );
+
+      if (result.success) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Transaction sent successfully'),
+            // ignore: use_build_context_synchronously
+            backgroundColor: getThemeColors(context)['primary'],
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage = result.errorMessage ?? "Failed to add member";
+        });
+        logger.e("Error adding member: ${result.errorMessage}");
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Error adding member: $e";
+      });
+      logger.e("Error adding member: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -256,10 +333,12 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: getThemeColors(context)['secondaryBackground'],
+                      backgroundColor:
+                          getThemeColors(context)['secondaryBackground'],
                       foregroundColor: getThemeColors(context)['textPrimary'],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                        borderRadius:
+                            BorderRadius.circular(buttonCircularRadius),
                       ),
                       side: BorderSide(
                         color: getThemeColors(context)['border']!,
@@ -274,14 +353,15 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
                       final address = _addMemberController.text.trim();
                       if (address.isNotEmpty) {
                         Navigator.of(context).pop();
-                        _addMember(address);
+                        addMember(address.toString());
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: getThemeColors(context)['primary'],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                        borderRadius:
+                            BorderRadius.circular(buttonCircularRadius),
                       ),
                       side: const BorderSide(color: Colors.black, width: 2),
                     ),
@@ -334,7 +414,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _removeMember(address);
+              removeMember(address);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: getThemeColors(context)['error'],
@@ -366,7 +446,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Logo
           Container(
             width: 120,
             height: 120,
@@ -450,10 +529,14 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (isOwner) _buildStatusBadge("Owner", getThemeColors(context)['primary']!),
+              if (isOwner)
+                _buildStatusBadge("Owner", getThemeColors(context)['primary']!),
               if (isOwner && isMember) const SizedBox(width: 8),
-              if (isMember && !isOwner) _buildStatusBadge("Member", getThemeColors(context)['secondary']!),
-              if (!isMember && !isOwner) _buildStatusBadge("Visitor", Colors.grey),
+              if (isMember && !isOwner)
+                _buildStatusBadge(
+                    "Member", getThemeColors(context)['secondary']!),
+              if (!isMember && !isOwner)
+                _buildStatusBadge("Visitor", Colors.grey),
             ],
           ),
         ],
@@ -523,8 +606,8 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
               ),
             ),
             child: Text(
-              organisationDescription.isNotEmpty 
-                  ? organisationDescription 
+              organisationDescription.isNotEmpty
+                  ? organisationDescription
                   : 'No description available',
               style: TextStyle(
                 fontSize: 14,
@@ -631,7 +714,8 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: getThemeColors(context)['primary'],
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(buttonCircularRadius),
                     ),
@@ -642,7 +726,8 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           ),
           const SizedBox(height: 12),
           if (organisationMembers.isNotEmpty)
-            ...organisationMembers.map((member) => _buildMemberTile(member, false))
+            ...organisationMembers
+                .map((member) => _buildMemberTile(member, false))
           else
             Container(
               padding: const EdgeInsets.all(16),
@@ -672,7 +757,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isMemberOwner 
+        color: isMemberOwner
             ? getThemeColors(context)['primary']
             : getThemeColors(context)['secondary'],
         borderRadius: BorderRadius.circular(8),
@@ -686,7 +771,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           Icon(
             isMemberOwner ? Icons.admin_panel_settings : Icons.person,
             size: 16,
-            color: isMemberOwner 
+            color: isMemberOwner
                 ? getThemeColors(context)['primary']
                 : getThemeColors(context)['textPrimary'],
           ),
@@ -741,22 +826,24 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
   Widget _buildLoadingState() {
     return Container(
       padding: const EdgeInsets.all(40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-                getThemeColors(context)['primary']!),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading organisation details...',
-            style: TextStyle(
-              fontSize: 16,
-              color: getThemeColors(context)['primary'],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  getThemeColors(context)['primary']!),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              'Loading organisation details...',
+              style: TextStyle(
+                fontSize: 16,
+                color: getThemeColors(context)['primary'],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -818,7 +905,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
       actions: [
         IconButton(
           onPressed: _isLoading ? null : fetchOrganisationDetails,
-          icon: _isLoading 
+          icon: _isLoading
               ? SizedBox(
                   width: 20,
                   height: 20,
