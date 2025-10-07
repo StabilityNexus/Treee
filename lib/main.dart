@@ -6,6 +6,9 @@ import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
+import 'package:tree_planting_protocol/pages/organisations_pages/create_organisation.dart';
+import 'package:tree_planting_protocol/pages/organisations_pages/organisation_details_page.dart';
+import 'package:tree_planting_protocol/pages/organisations_pages/user_organisations_page.dart';
 import 'package:tree_planting_protocol/pages/register_user_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/tree_details_page.dart';
@@ -61,6 +64,30 @@ class MyApp extends StatelessWidget {
           name: 'settings_page',
           builder: (BuildContext context, GoRouterState state) {
             return const SettingsPage();
+          },
+        ),
+        GoRoute(
+          path: '/organisations',
+          name: 'organisations_page',
+          builder: (BuildContext context, GoRouterState state) {
+            return const OrganisationsPage();
+          },
+          routes: [
+            GoRoute(
+              path: ':address',
+              name: 'organisation_details',
+              builder: (BuildContext context, GoRouterState state) {
+                final address = state.pathParameters['address'];
+                return OrganisationDetailsPage(organisationAddress: address!);
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/create-organisation',
+          name: 'create_organisation_page',
+          builder: (BuildContext context, GoRouterState state) {
+            return const CreateOrganisationPage();
           },
         ),
         GoRoute(

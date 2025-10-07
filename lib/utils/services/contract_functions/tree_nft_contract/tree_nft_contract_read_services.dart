@@ -2,7 +2,7 @@
 import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_abi.dart';
+import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_details.dart';
 
 class ContractReadResult {
   final bool success;
@@ -47,14 +47,12 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet before reading NFTs.',
         );
       }
-
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
           errorMessage: 'Invalid wallet address format',
         );
       }
-
       final EthereumAddress userAddress = EthereumAddress.fromHex(address);
       if (offset < 0 || limit <= 0 || limit > 100) {
         return ContractReadResult.error(
@@ -62,7 +60,6 @@ class ContractReadFunctions {
               'Invalid pagination parameters. Offset must be >= 0 and limit must be between 1-100',
         );
       }
-
       final List<dynamic> args = [
         userAddress,
         BigInt.from(offset),
@@ -81,7 +78,6 @@ class ContractReadFunctions {
           errorMessage: 'No data returned from contract',
         );
       }
-
       final trees = result.length > 0 ? result[0] ?? [] : [];
       final totalCount =
           result.length > 1 ? int.parse(result[1].toString()) : 0;
@@ -110,7 +106,6 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet before pinging.',
         );
       }
-
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
@@ -141,7 +136,6 @@ class ContractReadFunctions {
       );
     } catch (e) {
       logger.e("Error pinging contract", error: e);
-
       String detailedError = 'Ping failed: ${e.toString()}';
       return ContractReadResult.error(
         errorMessage: detailedError,
@@ -160,14 +154,12 @@ class ContractReadFunctions {
               'Please connect your wallet before fetching user details from blockchain',
         );
       }
-
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
           errorMessage: 'Invalid wallet address format',
         );
       }
-
       final String currentAddress = walletProvider.currentAddress!.toString();
       final EthereumAddress userAddress =
           EthereumAddress.fromHex(currentAddress);
@@ -201,7 +193,6 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet first',
         );
       }
-
       final String address = walletProvider.currentAddress.toString();
       if (!address.startsWith('0x')) {
         return ContractReadResult.error(
@@ -209,37 +200,31 @@ class ContractReadFunctions {
         );
       }
       final List<dynamic> args = [BigInt.from(id)];
-
       final treeDetailsResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'getTreeDetailsbyID',
         params: args,
         abi: treeNftContractABI,
       );
-
       final tree =
           treeDetailsResult.length > 0 ? treeDetailsResult[0] ?? [] : [];
       logger.d("Tree Info");
       logger.d(tree);
-
       final treeVerifiersResult = await walletProvider.readContract(
           contractAddress: treeNFtContractAddress,
           functionName: 'getTreeNftVerifiersPaginated',
           params: [BigInt.from(id), BigInt.from(offset), BigInt.from(limit)],
           abi: treeNftContractABI);
-
       final verifiers =
           treeVerifiersResult.length > 0 ? treeVerifiersResult[0] ?? [] : [];
       logger.d("Tree Verifiers Info");
       logger.d(verifiers);
-
       final ownerResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'ownerOf',
         params: [BigInt.from(id)],
         abi: treeNftContractABI,
       );
-
       final owner = ownerResult.isNotEmpty ? ownerResult[0] : null;
       return ContractReadResult.success(
         data: {'details': tree, 'verifiers': verifiers, 'owner': owner},

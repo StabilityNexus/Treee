@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
 
 class Tree {
   final int id;
@@ -216,14 +217,14 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.black,
+                    color: getThemeColors(context)['border']!,
                     width: 0.5,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black,
                       spreadRadius: 1,
-                      blurRadius: 2,
+                      blurRadius: buttonBlurRadius,
                       offset: const Offset(0, 2),
                     ),
                   ],
@@ -245,12 +246,14 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.green, size: 16),
+                Icon(Icons.location_on,
+                    color: getThemeColors(context)['icon'], size: 16),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     'Location: ${tree.latitude / 1000000}, ${tree.longitude / 1000000}',
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                        color: getThemeColors(context)['textPrimary']),
                   ),
                 ),
               ],
@@ -258,22 +261,26 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.calendar_today, color: Colors.green, size: 16),
+                Icon(Icons.calendar_today,
+                    color: getThemeColors(context)['icon'], size: 16),
                 const SizedBox(width: 4),
                 Text(
                   'Planted: ${DateTime.fromMillisecondsSinceEpoch(tree.planting * 1000).toString().split(' ')[0]}',
-                  style: const TextStyle(color: Colors.grey),
+                  style:
+                      TextStyle(color: getThemeColors(context)['textPrimary']),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.favorite, color: Colors.red, size: 16),
+                Icon(Icons.favorite,
+                    color: getThemeColors(context)['icon'], size: 16),
                 const SizedBox(width: 4),
                 Text(
                   'Care Count: ${tree.careCount}',
-                  style: const TextStyle(color: Colors.grey),
+                  style:
+                      TextStyle(color: getThemeColors(context)['textPrimary']),
                 ),
               ],
             ),
@@ -281,15 +288,17 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: tree.death == 0 ? Colors.green : Colors.red,
+                  color: tree.death == 0
+                      ? getThemeColors(context)['primary']
+                      : getThemeColors(context)['error'],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   tree.death < DateTime.now().millisecondsSinceEpoch ~/ 1000
                       ? 'Deceased'
                       : 'Alive',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: getThemeColors(context)['textSecondary'],
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -301,34 +310,42 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
                     padding: const EdgeInsets.only(right: 6.0, top: 8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 28, 211, 129),
+                        backgroundColor: getThemeColors(context)['primary'],
                         shadowColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(buttonCircularRadius),
+                        ),
                         elevation: 4,
                         side: const BorderSide(color: Colors.black, width: 2),
                       ),
                       onPressed: () {
                         context.push('/trees/${tree.id}');
                       },
-                      child: const Text(
+                      child: Text(
                         "View details",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: getThemeColors(context)['textPrimary']),
                       ),
                     )),
                 Padding(
                     padding: const EdgeInsets.only(right: 16.0, top: 8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 251, 251, 99),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(buttonCircularRadius),
+                        ),
+                        backgroundColor: getThemeColors(context)['secondary'],
                         shadowColor: Colors.black,
                         elevation: 4,
                         side: const BorderSide(color: Colors.black, width: 2),
                       ),
                       onPressed: () {},
-                      child: const Text(
+                      child: Text(
                         "View on the map",
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                            color: getThemeColors(context)['textPrimary']),
                       ),
                     ))
               ],

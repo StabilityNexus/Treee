@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/contract_read_services.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
 
 class UserProfileData {
   String name;
@@ -216,28 +217,24 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                 color: Colors.black,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: SizedBox(
-                height: 40,
-                width: 135,
-                child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF4E63),
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12, // shadow color
-                          blurRadius: 6, // shadow softness
-                          offset: Offset(0, 3), // shadow position
-                        ),
-                      ],
-                    ),
-                    child: Center(child: Text('Organisations'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: getThemeColors(context)['secondaryButton'],
+                foregroundColor: getThemeColors(context)['textPrimary'],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(buttonCircularRadius),
+                ),
+                elevation: 4,
+                side: const BorderSide(color: Colors.black, width: 2),
+              ),
+              onPressed: () {
+                context.push('/organisations');
+              },
+              child: Text(
+                "Organisations",
+                style: TextStyle(
+                  color: getThemeColors(context)['textPrimary'],
+                ),
               ),
             ),
           ],
@@ -249,109 +246,116 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: SizedBox(
-            height: 40,
-            width: 150,
-            child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 251, 251, 99),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(buttonCircularRadius),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['secondary'],
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: buttonborderWidth,
                     ),
-                  ],
-                ),
-                child: Center(
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                  child: Center(
                     child: Text(
-                        'Planter Tokens : ${_userProfileData!.planterTokens}'))),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: SizedBox(
-            height: 40,
-            width: 150,
-            child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 28, 211, 129),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
+                        'Planter Tokens : ${_userProfileData!.planterTokens}',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
                 ),
-                child: Center(
-                    child:
-                        Text('Care Tokens : ${_userProfileData!.careTokens}'))),
-          ),
-        ),
+              ),
+            )),
         Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: SizedBox(
-            height: 40,
-            width: 150,
-            child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 251, 251, 99),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(buttonCircularRadius),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['primary'],
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: buttonborderWidth,
                     ),
-                  ],
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                  child: Center(
+                    child: Text('Care Tokens : ${_userProfileData!.careTokens}',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
                 ),
-                child: Center(
+              ),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(buttonCircularRadius),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['secondary'],
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: buttonborderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                  child: Center(
                     child: Text(
-                        'Verifier Tokens : ${_userProfileData!.verifierTokens}'))),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: SizedBox(
-            height: 40,
-            width: 150,
-            child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 28, 211, 129),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
+                        'Verifier Tokens : ${_userProfileData!.verifierTokens}',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
                 ),
-                child: Center(
+              ),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SizedBox(
+              height: 40,
+              width: 150,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(buttonCircularRadius),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['primary'],
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: buttonborderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                  child: Center(
                     child: Text(
-                        'Legacy Tokens : ${_userProfileData!.legacyTokens}'))),
-          ),
-        ),
+                        'Legacy Tokens : ${_userProfileData!.legacyTokens}',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
+                ),
+              ),
+            )),
       ],
     );
   }
@@ -374,7 +378,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.red.shade700,
+              color: getThemeColors(context)['error']!,
             ),
           ),
           const SizedBox(height: 8),
@@ -382,7 +386,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             _errorMessage ?? 'Unknown error occurred',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.red.shade600,
+              color: getThemeColors(context)['error']!,
             ),
             textAlign: TextAlign.center,
           ),

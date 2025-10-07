@@ -17,6 +17,9 @@ Map<String, Color> getThemeColors(BuildContext context) {
     'primaryBorder': themeProvider.isDarkMode
         ? const Color.fromARGB(255, 1, 135, 12)
         : const Color.fromARGB(255, 28, 211, 129),
+    'border': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 18, 18, 18),
     'BNWBorder': themeProvider.isDarkMode
         ? const Color.fromARGB(255, 1, 135, 12)
         : const Color.fromARGB(255, 28, 211, 129),
@@ -50,5 +53,8 @@ Map<String, Color> getThemeColors(BuildContext context) {
     'marker': themeProvider.isDarkMode
         ? const Color.fromARGB(255, 255, 100, 100)
         : const Color.fromARGB(255, 255, 0, 0),
+    'primaryShadow': themeProvider.isDarkMode
+        ? const Color.fromARGB(255, 255, 255, 255)
+        : const Color.fromARGB(255, 0, 0, 0),
   };
 }
