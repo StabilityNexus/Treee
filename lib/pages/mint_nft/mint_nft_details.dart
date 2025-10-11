@@ -16,14 +16,25 @@ class MintNftDetailsPage extends StatefulWidget {
 class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   final descriptionController = TextEditingController();
   final speciesController = TextEditingController();
+  final numberOfTreesController = TextEditingController();
 
   void submitDetails() {
     final description = descriptionController.text;
     final species = speciesController.text;
+    final numberOfTreesText = numberOfTreesController.text;
 
-    if (description.isEmpty || species.isEmpty) {
+    if (description.isEmpty || species.isEmpty || numberOfTreesText.isEmpty) {
       _showCustomSnackBar(
-        "Please enter both description and species.",
+        "Please enter description, species, and number of trees.",
+        isError: true,
+      );
+      return;
+    }
+
+    final numberOfTrees = int.tryParse(numberOfTreesText);
+    if (numberOfTrees == null || numberOfTrees <= 0) {
+      _showCustomSnackBar(
+        "Please enter a valid number of trees (greater than 0).",
         isError: true,
       );
       return;
@@ -32,6 +43,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     Provider.of<MintNftProvider>(context, listen: false)
         .setDescription(description);
     Provider.of<MintNftProvider>(context, listen: false).setSpecies(species);
+    Provider.of<MintNftProvider>(context, listen: false)
+        .setNumberOfTrees(numberOfTrees);
 
     _showCustomSnackBar("Details submitted successfully!");
     context.push(RouteConstants.mintNftImagesPath);
@@ -183,6 +196,15 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                 ),
                 const SizedBox(height: 20),
                 _buildFormField(
+                  controller: numberOfTreesController,
+                  label: 'Number of Trees',
+                  hint: 'e.g., 1, 5, 10...',
+                  icon: Icons.format_list_numbered,
+                  maxLines: 1,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 20),
+                _buildFormField(
                   controller: descriptionController,
                   label: 'Description',
                   hint: 'Describe your tree planting experience...',
@@ -245,6 +267,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     required IconData icon,
     int maxLines = 1,
     int? minLines,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,6 +317,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             controller: controller,
             maxLines: maxLines,
             minLines: minLines,
+            keyboardType: keyboardType,
             style: TextStyle(
               fontSize: 16,
               color: getThemeColors(context)['textPrimary'],
@@ -323,6 +347,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   void dispose() {
     descriptionController.dispose();
     speciesController.dispose();
+    numberOfTreesController.dispose();
     super.dispose();
   }
 }

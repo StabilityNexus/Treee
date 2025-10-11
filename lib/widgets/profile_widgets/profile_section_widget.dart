@@ -472,7 +472,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             padding: const EdgeInsets.all(4.0),
             child: SizedBox(
               height: 40,
-              width: 150,
+              width: 165,
               child: Material(
                 elevation: 4,
                 borderRadius: BorderRadius.circular(buttonCircularRadius),
@@ -485,6 +485,17 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     ),
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
+                  child: Center(
+                    child: Builder(builder: (context) {
+                      return Text(
+                          'Reported Spam : ${_userProfileData!.reportedSpam}',
+                          style: TextStyle(
+                            color: getThemeColors(context)['textPrimary'],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ));
+                    }),
+                  ),
                 ),
               ),
             )),
@@ -492,7 +503,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             padding: const EdgeInsets.all(4.0),
             child: SizedBox(
               height: 40,
-              width: 150,
+              width: 165,
               child: Material(
                 elevation: 4,
                 borderRadius: BorderRadius.circular(buttonCircularRadius),
@@ -512,6 +523,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                           style: TextStyle(
                             color: getThemeColors(context)['textPrimary'],
                             fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ));
                     }),
                   ),
@@ -522,7 +534,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             padding: const EdgeInsets.all(4.0),
             child: SizedBox(
               height: 40,
-              width: 150,
+              width: 165,
               child: Material(
                 elevation: 4,
                 borderRadius: BorderRadius.circular(buttonCircularRadius),
@@ -535,6 +547,17 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     ),
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
+                  child: Center(
+                    child: Builder(builder: (context) {
+                      return Text(
+                          'Verifications Revoked : ${_userProfileData!.verificationsRevoked}',
+                          style: TextStyle(
+                            color: getThemeColors(context)['textPrimary'],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ));
+                    }),
+                  ),
                 ),
               ),
             )),
@@ -542,7 +565,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             padding: const EdgeInsets.all(4.0),
             child: SizedBox(
               height: 40,
-              width: 150,
+              width: 165,
               child: Material(
                 elevation: 4,
                 borderRadius: BorderRadius.circular(buttonCircularRadius),
@@ -564,6 +587,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                           style: TextStyle(
                             color: getThemeColors(context)['textPrimary'],
                             fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ));
                     }),
                   ),
@@ -591,8 +615,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: (getThemeColors(context)['shadow'] ?? Colors.grey)
-                .withOpacity(0.2),
+            color: (getThemeColors(context)['shadow'] ?? Colors.grey),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
