@@ -41,6 +41,7 @@ class ContractWriteFunctions {
     required String species,
     required List<String> photos,
     required String geoHash,
+    required int numberOfTrees,
     required String metadata,
     String additionalData = "",
   }) async {
@@ -63,6 +64,7 @@ class ContractWriteFunctions {
       }
       final lat = BigInt.from((latitude + 90.0) * 1e6);
       final lng = BigInt.from((longitude + 180.0) * 1e6);
+      final numberOfTreesBigInt = BigInt.from(numberOfTrees);
 
       logger.i("Minting NFT with coordinates: Lat: $lat, Lng: $lng");
       logger
@@ -76,6 +78,7 @@ class ContractWriteFunctions {
         metadata,
         geoHash,
         photos,
+        numberOfTreesBigInt,
       ];
       final txHash = await walletProvider.writeContract(
         contractAddress: treeNFtContractAddress,

@@ -171,6 +171,8 @@ class ContractReadFunctions {
         params: args,
       );
       final profile = result.length > 0 ? result[0] ?? [] : [];
+      logger.d("User Profile");
+      logger.d(profile);
       return ContractReadResult.success(data: {'profile': profile});
     } catch (e) {
       logger.e("Error reading User profile", error: e);

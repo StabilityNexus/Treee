@@ -1,6 +1,1069 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String organisationContractAbi =
-    '''[{"type":"constructor","inputs":[{"name":"_name","type":"string","internalType":"string"},{"name":"_description","type":"string","internalType":"string"},{"name":"_photoIpfsHash","type":"string","internalType":"string"},{"name":"_creator","type":"address","internalType":"address"},{"name":"_factoryAddress","type":"address","internalType":"address"},{"name":"_treeNFTContractAddress","type":"address","internalType":"address"},{"name":"_founder","type":"address","internalType":"address"}],"stateMutability":"nonpayable"},{"type":"function","name":"addMember","inputs":[{"name":"user","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"changePaginationLimit","inputs":[{"name":"_limit","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"checkMembership","inputs":[{"name":"user","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"checkOwnership","inputs":[{"name":"user","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"description","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"founder","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"getMemberCount","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"getMembers","inputs":[],"outputs":[{"name":"","type":"address[]","internalType":"address[]"}],"stateMutability":"view"},{"type":"function","name":"getOrganisationInfo","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"string","internalType":"string"},{"name":"","type":"string","internalType":"string"},{"name":"","type":"string","internalType":"string"},{"name":"","type":"address[]","internalType":"address[]"},{"name":"","type":"address[]","internalType":"address[]"},{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"getOwners","inputs":[],"outputs":[{"name":"","type":"address[]","internalType":"address[]"}],"stateMutability":"view"},{"type":"function","name":"getTreePlantingProposal","inputs":[{"name":"proposalID","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"tuple","internalType":"struct TreePlantingProposal","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"latitude","type":"uint256","internalType":"uint256"},{"name":"longitude","type":"uint256","internalType":"uint256"},{"name":"species","type":"string","internalType":"string"},{"name":"imageUri","type":"string","internalType":"string"},{"name":"qrIpfsHash","type":"string","internalType":"string"},{"name":"photos","type":"string[]","internalType":"string[]"},{"name":"geoHash","type":"string","internalType":"string"},{"name":"metadata","type":"string","internalType":"string"},{"name":"status","type":"uint256","internalType":"uint256"}]}],"stateMutability":"view"},{"type":"function","name":"getTreePlantingProposals","inputs":[{"name":"status","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"tuple[]","internalType":"struct TreePlantingProposal[]","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"latitude","type":"uint256","internalType":"uint256"},{"name":"longitude","type":"uint256","internalType":"uint256"},{"name":"species","type":"string","internalType":"string"},{"name":"imageUri","type":"string","internalType":"string"},{"name":"qrIpfsHash","type":"string","internalType":"string"},{"name":"photos","type":"string[]","internalType":"string[]"},{"name":"geoHash","type":"string","internalType":"string"},{"name":"metadata","type":"string","internalType":"string"},{"name":"status","type":"uint256","internalType":"uint256"}]}],"stateMutability":"view"},{"type":"function","name":"getTreePlantingProposalsByStatus","inputs":[{"name":"status","type":"uint256","internalType":"uint256"},{"name":"offset","type":"uint256","internalType":"uint256"},{"name":"limit","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"proposals","type":"tuple[]","internalType":"struct TreePlantingProposal[]","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"latitude","type":"uint256","internalType":"uint256"},{"name":"longitude","type":"uint256","internalType":"uint256"},{"name":"species","type":"string","internalType":"string"},{"name":"imageUri","type":"string","internalType":"string"},{"name":"qrIpfsHash","type":"string","internalType":"string"},{"name":"photos","type":"string[]","internalType":"string[]"},{"name":"geoHash","type":"string","internalType":"string"},{"name":"metadata","type":"string","internalType":"string"},{"name":"status","type":"uint256","internalType":"uint256"}]},{"name":"totalMatching","type":"uint256","internalType":"uint256"},{"name":"hasMore","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"getVerificationRequest","inputs":[{"name":"verificationID","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"tuple","internalType":"struct OrganisationVerificationRequest","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"initialMember","type":"address","internalType":"address"},{"name":"organisationContract","type":"address","internalType":"address"},{"name":"status","type":"uint256","internalType":"uint256"},{"name":"description","type":"string","internalType":"string"},{"name":"timestamp","type":"uint256","internalType":"uint256"},{"name":"proofHashes","type":"string[]","internalType":"string[]"},{"name":"treeNftId","type":"uint256","internalType":"uint256"}]}],"stateMutability":"view"},{"type":"function","name":"getVerificationRequests","inputs":[{"name":"status","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"tuple[]","internalType":"struct OrganisationVerificationRequest[]","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"initialMember","type":"address","internalType":"address"},{"name":"organisationContract","type":"address","internalType":"address"},{"name":"status","type":"uint256","internalType":"uint256"},{"name":"description","type":"string","internalType":"string"},{"name":"timestamp","type":"uint256","internalType":"uint256"},{"name":"proofHashes","type":"string[]","internalType":"string[]"},{"name":"treeNftId","type":"uint256","internalType":"uint256"}]}],"stateMutability":"view"},{"type":"function","name":"getVerificationRequestsByStatus","inputs":[{"name":"status","type":"uint256","internalType":"uint256"},{"name":"offset","type":"uint256","internalType":"uint256"},{"name":"limit","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"requests","type":"tuple[]","internalType":"struct OrganisationVerificationRequest[]","components":[{"name":"id","type":"uint256","internalType":"uint256"},{"name":"initialMember","type":"address","internalType":"address"},{"name":"organisationContract","type":"address","internalType":"address"},{"name":"status","type":"uint256","internalType":"uint256"},{"name":"description","type":"string","internalType":"string"},{"name":"timestamp","type":"uint256","internalType":"uint256"},{"name":"proofHashes","type":"string[]","internalType":"string[]"},{"name":"treeNftId","type":"uint256","internalType":"uint256"}]},{"name":"totalMatching","type":"uint256","internalType":"uint256"},{"name":"hasMore","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"leaveOrganisation","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"makeOwner","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"members","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"name","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"organisationFactoryContract","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract OrganisationFactory"}],"stateMutability":"view"},{"type":"function","name":"owners","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"paginationLimit","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"photoIpfsHash","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"type":"function","name":"plantTreeProposal","inputs":[{"name":"_latitude","type":"uint256","internalType":"uint256"},{"name":"_longitude","type":"uint256","internalType":"uint256"},{"name":"_species","type":"string","internalType":"string"},{"name":"_imageURI","type":"string","internalType":"string"},{"name":"_qrIpfshash","type":"string","internalType":"string"},{"name":"_metadata","type":"string","internalType":"string"},{"name":"photos","type":"string[]","internalType":"string[]"},{"name":"geoHash","type":"string","internalType":"string"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"removeMember","inputs":[{"name":"member","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"requestVerification","inputs":[{"name":"_description","type":"string","internalType":"string"},{"name":"_proofHashes","type":"string[]","internalType":"string[]"},{"name":"_treeNftID","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"nonpayable"},{"type":"function","name":"timeOfCreation","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"treeNFTContract","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract TreeNft"}],"stateMutability":"view"},{"type":"function","name":"voteOnTreePlantingProposal","inputs":[{"name":"proposalID","type":"uint256","internalType":"uint256"},{"name":"vote","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"voteOnVerificationRequest","inputs":[{"name":"verificationID","type":"uint256","internalType":"uint256"},{"name":"vote","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"event","name":"UserAddedToOrganisation","inputs":[{"name":"user","type":"address","indexed":true,"internalType":"address"},{"name":"organisationContract","type":"address","indexed":true,"internalType":"address"},{"name":"timestamp","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"by_user","type":"address","indexed":false,"internalType":"address"}],"anonymous":false},{"type":"event","name":"UserRemovedFromOrganisation","inputs":[{"name":"user","type":"address","indexed":true,"internalType":"address"},{"name":"organisationContract","type":"address","indexed":true,"internalType":"address"},{"name":"timestamp","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"by_user","type":"address","indexed":false,"internalType":"address"}],"anonymous":false},{"type":"error","name":"AlreadyMember","inputs":[]},{"type":"error","name":"AlreadyOwner","inputs":[]},{"type":"error","name":"AlreadyProcessed","inputs":[]},{"type":"error","name":"AlreadyVoted","inputs":[]},{"type":"error","name":"InvalidAddressInput","inputs":[]},{"type":"error","name":"InvalidCoordinates","inputs":[]},{"type":"error","name":"InvalidInput","inputs":[]},{"type":"error","name":"InvalidNameInput","inputs":[]},{"type":"error","name":"InvalidProposalId","inputs":[]},{"type":"error","name":"InvalidVerificationId","inputs":[]},{"type":"error","name":"NeedAnotherOwner","inputs":[]},{"type":"error","name":"NotOrganisationMember","inputs":[]},{"type":"error","name":"OnlyOwner","inputs":[]},{"type":"error","name":"PaginationLimitExceeded","inputs":[]}]''';
+const String organisationContractAbi = ''' [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "_name",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_description",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_photoIpfsHash",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_creator",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_factoryAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_treeNFTContractAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_founder",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "addMember",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "changePaginationLimit",
+      "inputs": [
+        {
+          "name": "_limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "checkMembership",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "checkOwnership",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "description",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "founder",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getMemberCount",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getMembers",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getOrganisationInfo",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        },
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        },
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getOwners",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getTreePlantingProposal",
+      "inputs": [
+        {
+          "name": "proposalID",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct TreePlantingProposal",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "latitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "longitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "species",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "imageUri",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "qrPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "photos",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "geoHash",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "metadata",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "numberOfTrees",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getTreePlantingProposals",
+      "inputs": [
+        {
+          "name": "status",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple[]",
+          "internalType": "struct TreePlantingProposal[]",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "latitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "longitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "species",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "imageUri",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "qrPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "photos",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "geoHash",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "metadata",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "numberOfTrees",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getTreePlantingProposalsByStatus",
+      "inputs": [
+        {
+          "name": "status",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "proposals",
+          "type": "tuple[]",
+          "internalType": "struct TreePlantingProposal[]",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "latitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "longitude",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "species",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "imageUri",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "qrPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "photos",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "geoHash",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "metadata",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "numberOfTrees",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalMatching",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "hasMore",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getVerificationRequest",
+      "inputs": [
+        {
+          "name": "verificationID",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct OrganisationVerificationRequest",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "initialMember",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "organisationContract",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "proofHashes",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "treeNftId",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getVerificationRequests",
+      "inputs": [
+        {
+          "name": "status",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationVerificationRequest[]",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "initialMember",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "organisationContract",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "proofHashes",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "treeNftId",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getVerificationRequestsByStatus",
+      "inputs": [
+        {
+          "name": "status",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "requests",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationVerificationRequest[]",
+          "components": [
+            {
+              "name": "id",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "initialMember",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "organisationContract",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "status",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "proofHashes",
+              "type": "string[]",
+              "internalType": "string[]"
+            },
+            {
+              "name": "treeNftId",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalMatching",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "hasMore",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "leaveOrganisation",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "makeOwner",
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "members",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "name",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "organisationFactoryContract",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract OrganisationFactory"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "owners",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "paginationLimit",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "photoIpfsHash",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "string",
+          "internalType": "string"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "plantTreeProposal",
+      "inputs": [
+        {
+          "name": "_latitude",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_longitude",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_species",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_imageURI",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_qrPhoto",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_metadata",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "photos",
+          "type": "string[]",
+          "internalType": "string[]"
+        },
+        {
+          "name": "geoHash",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "numberOfTrees",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "removeMember",
+      "inputs": [
+        {
+          "name": "member",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "requestVerification",
+      "inputs": [
+        {
+          "name": "_description",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "_proofHashes",
+          "type": "string[]",
+          "internalType": "string[]"
+        },
+        {
+          "name": "_treeNftID",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "timeOfCreation",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "treeNFTContract",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract TreeNft"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "voteOnTreePlantingProposal",
+      "inputs": [
+        {
+          "name": "proposalID",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "vote",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "voteOnVerificationRequest",
+      "inputs": [
+        {
+          "name": "verificationID",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "vote",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "UserAddedToOrganisation",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "organisationContract",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "timestamp",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "by_user",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "UserRemovedFromOrganisation",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "organisationContract",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "timestamp",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "by_user",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AlreadyMember",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AlreadyOwner",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AlreadyProcessed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AlreadyVoted",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidAddressInput",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidCoordinates",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidInput",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidNameInput",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidProposalId",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidVerificationId",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NeedAnotherOwner",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NotOrganisationMember",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OnlyOwner",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "PaginationLimitExceeded",
+      "inputs": []
+    }
+  ] ''';
 final String organisationContractAddress =
     dotenv.env['ORGANISATION_FACTORY_CONTRACT_ADDRESS'] ?? '';

@@ -10,67 +10,90 @@ import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nf
 class UserProfileData {
   String name;
   final String userAddress;
-  final String profilePhotoIpfs;
+  final String profilePhoto;
   final int dateJoined;
   final int verificationsRevoked;
   final int reportedSpam;
-  final int verifierTokens;
   final int careTokens;
-  final int planterTokens;
   final int legacyTokens;
 
   UserProfileData(
       {required this.name,
       required this.userAddress,
-      required this.profilePhotoIpfs,
+      required this.profilePhoto,
       required this.dateJoined,
       required this.verificationsRevoked,
       required this.reportedSpam,
-      required this.verifierTokens,
       required this.careTokens,
-      required this.planterTokens,
       required this.legacyTokens});
 
   factory UserProfileData.fromContractData(dynamic data) {
-    logger.d(data);
+    logger.d("Raw contract data: $data");
+    logger.d("Data type: ${data.runtimeType}");
+    logger.d("Data length: ${data is List ? data.length : 'N/A'}");
+
     try {
       dynamic actualData = data;
-      return UserProfileData(
-        name: actualData[2].toString(),
-        userAddress: actualData[0].toString(),
-        profilePhotoIpfs: actualData[1].toString(),
+
+      if (actualData is! List || actualData.length < 8) {
+        logger.e(
+            "Invalid data: Expected List with at least 8 elements, got ${actualData.runtimeType} with length ${actualData is List ? actualData.length : 'N/A'}");
+        throw Exception("Invalid contract data structure");
+      }
+      final userProfile = UserProfileData(
+        userAddress: actualData[0]?.toString() ?? '',
+        profilePhoto: actualData[1]?.toString() ?? '',
+        name: actualData[2]?.toString() ?? '',
         dateJoined: _toInt(actualData[3]),
         verificationsRevoked: _toInt(actualData[4]),
         reportedSpam: _toInt(actualData[5]),
-        verifierTokens: _toInt(actualData[6]),
-        careTokens: _toInt(actualData[9]),
-        planterTokens: _toInt(actualData[7]),
-        legacyTokens: _toInt(actualData[8]),
+        legacyTokens: _toInt(actualData[6]),
+        careTokens: _toInt(actualData[7]),
       );
+      return userProfile;
     } catch (e) {
-      logger.d("Error parsing Tree data: $e");
-      logger.d("Data received: $data");
-      logger.d("Data type: ${data.runtimeType}");
 
       return UserProfileData(
         name: '',
         userAddress: '',
-        profilePhotoIpfs: '',
+        profilePhoto: '',
         dateJoined: 0,
         verificationsRevoked: 0,
         reportedSpam: 0,
-        verifierTokens: 0,
         careTokens: 0,
-        planterTokens: 0,
         legacyTokens: 0,
       );
     }
   }
 
   static int _toInt(dynamic value) {
-    if (value is BigInt) return value.toInt();
-    if (value is int) return value;
-    return int.tryParse(value.toString()) ?? 0;
+    try {
+      if (value == null) {
+        logger.d("_toInt: value is null, returning 0");
+        return 0;
+      }
+      if (value is BigInt) {
+        logger.d("_toInt: Converting BigInt $value to int");
+        return value.toInt();
+      }
+      if (value is int) {
+        logger.d("_toInt: Value is already int: $value");
+        return value;
+      }
+      if (value is String) {
+        final parsed = int.tryParse(value);
+        logger.d("_toInt: Parsing string '$value' to int: $parsed");
+        return parsed ?? 0;
+      }
+      final parsed = int.tryParse(value.toString());
+      logger.d(
+          "_toInt: Converting ${value.runtimeType} '$value' to int: $parsed");
+      return parsed ?? 0;
+    } catch (e) {
+      logger.e(
+          "_toInt: Error converting $value (${value.runtimeType}) to int: $e");
+      return 0;
+    }
   }
 }
 
@@ -114,9 +137,12 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
 
       if (result.success && result.data != null) {
         final List data = result.data['profile'] ?? [];
+        logger.d("Profile data from contract result: $data");
 
         setState(() {
           _userProfileData = UserProfileData.fromContractData(data);
+          logger.d(
+              "State updated with UserProfileData: ${_userProfileData?.name}, Care: ${_userProfileData?.careTokens}, Legacy: ${_userProfileData?.legacyTokens}");
         });
       } else {
         final errorMsg = result.errorMessage?.toLowerCase() ?? '';
@@ -171,32 +197,75 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                 border: Border.all(color: Colors.black, width: 4),
               ),
               child: ClipOval(
-                child: _userProfileData!.profilePhotoIpfs.isNotEmpty
-                    ? Image.network(
-                        _userProfileData!.profilePhotoIpfs,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.black,
+                child: Builder(
+                  builder: (context) {
+                    logger.d(
+                        "UI: Profile photo URL: '${_userProfileData!.profilePhoto}'");
+                    logger.d(
+                        "UI: Profile photo isEmpty: ${_userProfileData!.profilePhoto.isEmpty}");
+
+                    return _userProfileData!.profilePhoto.isNotEmpty
+                        ? Image.network(
+                            _userProfileData!.profilePhoto,
+                            fit: BoxFit.cover,
+                            headers: {
+                              'Access-Control-Allow-Origin': '*',
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              logger.e(
+                                  "Profile photo loading error for URL: ${_userProfileData!.profilePhoto}");
+                              logger.e("Error: $error");
+                              logger.e("Stack trace: $stackTrace");
+
+                              // Try alternative IPFS gateway if original fails
+                              String originalUrl =
+                                  _userProfileData!.profilePhoto;
+                              if (originalUrl.contains('pinata.cloud')) {
+                                String ipfsHash =
+                                    originalUrl.split('/ipfs/').last;
+                                String alternativeUrl =
+                                    'https://ipfs.io/ipfs/$ipfsHash';
+                                logger.d(
+                                    "Trying alternative IPFS gateway: $alternativeUrl");
+
+                                return Image.network(
+                                  alternativeUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error2, stackTrace2) {
+                                    logger.e(
+                                        "Alternative IPFS gateway also failed: $error2");
+                                    return const Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: Colors.black,
+                                    );
+                                  },
+                                );
+                              }
+
+                              return const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.black,
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const CircularProgressIndicator(
+                                color: Colors.black,
+                              );
+                            },
+                          )
+                        : Container(
+                            color: Colors.green.shade300,
+                            child: const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.white,
+                            ),
                           );
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const CircularProgressIndicator(
-                            color: Colors.black,
-                          );
-                        },
-                      )
-                    : Container(
-                        color: Colors.green.shade300,
-                        child: const Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.white,
-                        ),
-                      ),
+                  },
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -262,14 +331,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     ),
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
-                  child: Center(
-                    child: Text(
-                        'Planter Tokens : ${_userProfileData!.planterTokens}',
-                        style: TextStyle(
-                          color: getThemeColors(context)['textPrimary'],
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
                 ),
               ),
             )),
@@ -291,11 +352,16 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
                   child: Center(
-                    child: Text('Care Tokens : ${_userProfileData!.careTokens}',
-                        style: TextStyle(
-                          color: getThemeColors(context)['textPrimary'],
-                          fontWeight: FontWeight.bold,
-                        )),
+                    child: Builder(builder: (context) {
+                      logger.d(
+                          "UI: Displaying Care Tokens: ${_userProfileData!.careTokens}");
+                      return Text(
+                          'Care Tokens : ${_userProfileData!.careTokens}',
+                          style: TextStyle(
+                            color: getThemeColors(context)['textPrimary'],
+                            fontWeight: FontWeight.bold,
+                          ));
+                    }),
                   ),
                 ),
               ),
@@ -317,14 +383,6 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     ),
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
-                  child: Center(
-                    child: Text(
-                        'Verifier Tokens : ${_userProfileData!.verifierTokens}',
-                        style: TextStyle(
-                          color: getThemeColors(context)['textPrimary'],
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
                 ),
               ),
             )),
@@ -346,12 +404,16 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                     borderRadius: BorderRadius.circular(buttonCircularRadius),
                   ),
                   child: Center(
-                    child: Text(
-                        'Legacy Tokens : ${_userProfileData!.legacyTokens}',
-                        style: TextStyle(
-                          color: getThemeColors(context)['textPrimary'],
-                          fontWeight: FontWeight.bold,
-                        )),
+                    child: Builder(builder: (context) {
+                      logger.d(
+                          "UI: Displaying Legacy Tokens: ${_userProfileData!.legacyTokens}");
+                      return Text(
+                          'Legacy Tokens : ${_userProfileData!.legacyTokens}',
+                          style: TextStyle(
+                            color: getThemeColors(context)['textPrimary'],
+                            fontWeight: FontWeight.bold,
+                          ));
+                    }),
                   ),
                 ),
               ),

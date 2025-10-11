@@ -89,6 +89,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         species: mintNftProvider.getSpecies(),
         photos: mintNftProvider.getInitialPhotos(),
         geoHash: mintNftProvider.getGeoHash(),
+        numberOfTrees: mintNftProvider.getNumberOfTrees(),
         metadata: mintNftProvider.getDetails(),
       );
 

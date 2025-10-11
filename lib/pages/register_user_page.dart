@@ -306,7 +306,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: getThemeColors(context)['secondaryBorder']!,
+                color: getThemeColors(context)['primaryBorder']!,
                 width: 2,
               ),
               boxShadow: [
@@ -449,7 +449,7 @@ Widget _buildFormField({
             ),
             child: Icon(
               icon,
-              color: getThemeColors(context)['primary'],
+              color: getThemeColors(context)['icon'],
               size: 18,
             ),
           ),

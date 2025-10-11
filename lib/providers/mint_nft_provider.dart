@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class MintNftProvider extends ChangeNotifier {
   double _latitude = 0;
   double _longitude = 0;
+  int _numberOfTrees = 0;
   String _species = "";
   String _details = "";
   String _imageUri = "";
@@ -12,6 +13,7 @@ class MintNftProvider extends ChangeNotifier {
 
   double getLatitude() => _latitude;
   double getLongitude() => _longitude;
+  int getNumberOfTrees() => _numberOfTrees;
   String getSpecies() => _species;
   String getImageUri() => _imageUri;
   String getQrIpfsHash() => _qrIpfsHash;
@@ -56,6 +58,11 @@ class MintNftProvider extends ChangeNotifier {
 
   void setInitialPhotos(List<String> initialPhotos) {
     _initialPhotos = initialPhotos;
+    notifyListeners();
+  }
+
+  void setNumberOfTrees(int numberOfTrees) {
+    _numberOfTrees = numberOfTrees;
     notifyListeners();
   }
 
