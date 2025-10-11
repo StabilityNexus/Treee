@@ -96,53 +96,6 @@ class ContractReadFunctions {
     }
   }
 
-  static Future<ContractReadResult> ping({
-    required WalletProvider walletProvider,
-  }) async {
-    try {
-      if (!walletProvider.isConnected) {
-        logger.e("Wallet not connected for ping");
-        return ContractReadResult.error(
-          errorMessage: 'Please connect your wallet before pinging.',
-        );
-      }
-      final String address = walletProvider.currentAddress.toString();
-      if (!address.startsWith('0x')) {
-        return ContractReadResult.error(
-          errorMessage: 'Invalid wallet address format',
-        );
-      }
-      final result = await walletProvider.readContract(
-        contractAddress: treeNFtContractAddress,
-        functionName: 'ping',
-        abi: treeNftContractABI,
-        params: [],
-      );
-      String pingResponse;
-      if (result != null) {
-        if (result is List && result.isNotEmpty) {
-          pingResponse =
-              result[0]?.toString() ?? 'Ping successful - no return value';
-        } else {
-          pingResponse = result.toString();
-        }
-      } else {
-        pingResponse = 'Ping successful - no return value';
-      }
-      return ContractReadResult.success(
-        data: {
-          'result': pingResponse,
-        },
-      );
-    } catch (e) {
-      logger.e("Error pinging contract", error: e);
-      String detailedError = 'Ping failed: ${e.toString()}';
-      return ContractReadResult.error(
-        errorMessage: detailedError,
-      );
-    }
-  }
-
   static Future<ContractReadResult> getProfileDetails({
     required WalletProvider walletProvider,
   }) async {
@@ -164,16 +117,27 @@ class ContractReadFunctions {
       final EthereumAddress userAddress =
           EthereumAddress.fromHex(currentAddress);
       final List<dynamic> args = [userAddress];
-      final result = await walletProvider.readContract(
+      final userVerifierTokensResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'getUserVerifierTokenDetails',
+        abi: treeNftContractABI,
+        params: args,
+      );
+      final userProfileResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'getUserProfile',
         abi: treeNftContractABI,
         params: args,
       );
-      final profile = result.length > 0 ? result[0] ?? [] : [];
+      final profile =
+          userProfileResult.length > 0 ? userProfileResult[0] ?? [] : [];
+      final verifierTokens = userVerifierTokensResult.length > 0
+          ? userVerifierTokensResult[0] ?? []
+          : [];
       logger.d("User Profile");
       logger.d(profile);
-      return ContractReadResult.success(data: {'profile': profile});
+      return ContractReadResult.success(
+          data: {'profile': profile, 'verifierTokens': verifierTokens});
     } catch (e) {
       logger.e("Error reading User profile", error: e);
       return ContractReadResult.error(
@@ -210,8 +174,6 @@ class ContractReadFunctions {
       );
       final tree =
           treeDetailsResult.length > 0 ? treeDetailsResult[0] ?? [] : [];
-      logger.d("Tree Info");
-      logger.d(tree);
       final treeVerifiersResult = await walletProvider.readContract(
           contractAddress: treeNFtContractAddress,
           functionName: 'getTreeNftVerifiersPaginated',
