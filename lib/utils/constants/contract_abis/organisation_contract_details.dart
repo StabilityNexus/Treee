@@ -284,6 +284,11 @@ const String organisationContractAbi = ''' [
               "name": "numberOfTrees",
               "type": "uint256",
               "internalType": "uint256"
+            },
+            {
+              "name": "initiator",
+              "type": "address",
+              "internalType": "address"
             }
           ]
         }
@@ -360,6 +365,11 @@ const String organisationContractAbi = ''' [
               "name": "numberOfTrees",
               "type": "uint256",
               "internalType": "uint256"
+            },
+            {
+              "name": "initiator",
+              "type": "address",
+              "internalType": "address"
             }
           ]
         }
@@ -446,6 +456,11 @@ const String organisationContractAbi = ''' [
               "name": "numberOfTrees",
               "type": "uint256",
               "internalType": "uint256"
+            },
+            {
+              "name": "initiator",
+              "type": "address",
+              "internalType": "address"
             }
           ]
         },

@@ -105,4 +105,171 @@ class OrganisationContractReadFunctions {
       );
     }
   }
+
+  static Future<ContractReadResult> getVerificationRequestsByStatus({
+    required WalletProvider walletProvider,
+    required String organisationContractAddress,
+    required int status, // 0: Pending, 1: Approved, 2: Rejected
+    required int offset,
+    required int limit,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet.',
+        );
+      }
+
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      final args = [
+        BigInt.from(status),
+        BigInt.from(offset),
+        BigInt.from(limit)
+      ];
+      final contractResult = await walletProvider.readContract(
+        contractAddress: organisationContractAddress,
+        functionName: 'getVerificationRequestsByStatus',
+        params: args,
+        abi: organisationContractAbi,
+      );
+
+      if (contractResult == null || contractResult.isEmpty) {
+        return ContractReadResult.error(
+          errorMessage: 'No data returned from contract',
+        );
+      }
+
+      // Parse the contract result according to the return structure:
+      // returns (OrganisationVerificationRequest[] memory requests, uint256 totalMatching, bool hasMore)
+      final requests =
+          contractResult[0] as List; // OrganisationVerificationRequest[]
+      final totalMatching = (contractResult[1] as BigInt).toInt();
+      final hasMore = contractResult[2] as bool;
+
+      // Parse each OrganisationVerificationRequest
+      final List<Map<String, dynamic>> parsedRequests = requests.map((request) {
+        final requestList = request as List;
+        return {
+          'id': (requestList[0] as BigInt).toInt(),
+          'initialMember': (requestList[1] as EthereumAddress).hex,
+          'organisationContract': (requestList[2] as EthereumAddress).hex,
+          'status': (requestList[3] as BigInt).toInt(),
+          'description': requestList[4] as String,
+          'timestamp': (requestList[5] as BigInt).toInt(),
+          'proofHashes':
+              (requestList[6] as List).map((hash) => hash as String).toList(),
+          'treeNftId': (requestList[7] as BigInt).toInt(),
+        };
+      }).toList();
+
+      return ContractReadResult.success(
+        data: {
+          'requests': parsedRequests,
+          'totalMatching': totalMatching,
+          'hasMore': hasMore,
+          'status': status,
+          'offset': offset,
+          'limit': limit,
+        },
+      );
+    } catch (e) {
+      logger.e("Error reading verification requests", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read verification requests: ${e.toString()}',
+      );
+    }
+  }
+
+  static Future<ContractReadResult> getTreePlantingProposalsByStatus({
+    required WalletProvider walletProvider,
+    required String organisationContractAddress,
+    required int status, // 0: Pending, 1: Approved, 2: Rejected
+    required int offset,
+    required int limit,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for reading tree planting proposals");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet before reading proposals.',
+        );
+      }
+
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      final args = [
+        BigInt.from(status),
+        BigInt.from(offset),
+        BigInt.from(limit)
+      ];
+      final contractResult = await walletProvider.readContract(
+        contractAddress: organisationContractAddress,
+        functionName: 'getTreePlantingProposalsByStatus',
+        params: args,
+        abi: organisationContractAbi,
+      );
+
+      if (contractResult == null || contractResult.isEmpty) {
+        return ContractReadResult.error(
+          errorMessage: 'No data returned from contract',
+        );
+      }
+
+      // Parse the contract result according to the return structure:
+      // returns (TreePlantingProposal[] memory proposals, uint256 totalMatching, bool hasMore)
+      final proposals = contractResult[0] as List; // TreePlantingProposal[]
+      final totalMatching = (contractResult[1] as BigInt).toInt();
+      final hasMore = contractResult[2] as bool;
+
+      // Parse each TreePlantingProposal
+      final List<Map<String, dynamic>> parsedProposals =
+          proposals.map((proposal) {
+        final proposalList = proposal as List;
+        return {
+          'id': (proposalList[0] as BigInt).toInt(),
+          'latitude': (proposalList[1] as BigInt).toInt(),
+          'longitude': (proposalList[2] as BigInt).toInt(),
+          'species': proposalList[3] as String,
+          'imageUri': proposalList[4] as String,
+          'qrPhoto': proposalList[5] as String,
+          'photos': (proposalList[6] as List)
+              .map((photo) => photo as String)
+              .toList(),
+          'geoHash': proposalList[7] as String,
+          'metadata': proposalList[8] as String,
+          'status': (proposalList[9] as BigInt).toInt(),
+          'numberOfTrees': (proposalList[10] as BigInt).toInt(),
+          'initiator': (proposalList[11] as EthereumAddress).hex,
+        };
+      }).toList();
+
+      return ContractReadResult.success(
+        data: {
+          'proposals': parsedProposals,
+          'totalMatching': totalMatching,
+          'hasMore': hasMore,
+          'status': status,
+          'offset': offset,
+          'limit': limit,
+        },
+      );
+    } catch (e) {
+      logger.e("Error reading tree planting proposals", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read tree planting proposals: ${e.toString()}',
+      );
+    }
+  }
 }

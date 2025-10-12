@@ -404,7 +404,7 @@ class WalletProvider extends ChangeNotifier {
     if (accounts != null && accounts.isNotEmpty) {
       return accounts.first.split(':')[1];
     }
-    return '11155111'; // Default to Sepolia if no accounts found
+    return '11155111';
   }
 
   Future<bool> switchChain(String newChainId) async {
@@ -483,7 +483,6 @@ class WalletProvider extends ChangeNotifier {
         throw Exception('Wallet not connected');
       }
 
-      // Validate active WalletConnect session before transaction
       final sessions = _web3App!.sessions.getAll();
       if (sessions.isEmpty) {
         logger.w(
@@ -500,9 +499,7 @@ class WalletProvider extends ChangeNotifier {
 
       final session = sessions.first;
 
-      // Validate session is still valid
-      if (session.expiry != null &&
-          DateTime.now().millisecondsSinceEpoch / 1000 > session.expiry) {
+      if (DateTime.now().millisecondsSinceEpoch / 1000 > session.expiry) {
         logger.w('WalletConnect session has expired');
         _updateConnection(
           isConnected: false,
@@ -514,7 +511,6 @@ class WalletProvider extends ChangeNotifier {
             'WalletConnect session has expired. Please reconnect your wallet.');
       }
 
-      // Validate session has the required accounts
       final accounts = session.namespaces['eip155']?.accounts;
       if (accounts == null || accounts.isEmpty) {
         logger.w('No accounts found in WalletConnect session');

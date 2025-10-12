@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
@@ -8,6 +7,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_read_functions.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_write_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+import 'package:tree_planting_protocol/widgets/organisation_details_page/tabs/tabs.dart';
 
 class OrganisationDetailsPage extends StatefulWidget {
   final String organisationAddress;
@@ -32,13 +32,13 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
   bool _isLoading = false;
   String _errorMessage = "";
   final TextEditingController _addMemberController = TextEditingController();
-  
+
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     fetchOrganisationDetails();
   }
 
@@ -178,17 +178,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
     }
   }
 
-  void _copyAddress(String address) {
-    Clipboard.setData(ClipboardData(text: address));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Address copied to clipboard'),
-        backgroundColor: getThemeColors(context)['primary'],
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   void _showAddMemberModal() {
     _addMemberController.clear();
     showDialog(
@@ -323,66 +312,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
     );
   }
 
-  void _showRemoveMemberConfirmation(String address) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: getThemeColors(context)['background'],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(buttonCircularRadius),
-          side: BorderSide(
-            color: getThemeColors(context)['border']!,
-            width: buttonborderWidth,
-          ),
-        ),
-        title: Text(
-          'Remove Member',
-          style: TextStyle(
-            color: getThemeColors(context)['textPrimary'],
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to remove this member?\n\n${_truncateAddress(address)}',
-          style: TextStyle(
-            color: getThemeColors(context)['textPrimary'],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: getThemeColors(context)['textPrimary'],
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              removeMember(address);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: getThemeColors(context)['error'],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(buttonCircularRadius),
-              ),
-            ),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(int timestamp) {
-    if (timestamp == 0) return "Unknown";
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    return "${date.day}/${date.month}/${date.year}";
-  }
-
   String _truncateAddress(String address) {
     if (address.length <= 10) return address;
     return '${address.substring(0, 6)}...${address.substring(address.length - 4)}';
@@ -427,8 +356,12 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
             text: 'Members',
           ),
           Tab(
-            icon: Icon(Icons.timeline),
-            text: 'Activity',
+            icon: Icon(Icons.verified_user),
+            text: 'Verifications',
+          ),
+          Tab(
+            icon: Icon(Icons.nature),
+            text: 'Proposals',
           ),
         ],
       ),
@@ -557,266 +490,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
     );
   }
 
-  Widget _buildInfoSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['background'],
-        borderRadius: BorderRadius.circular(buttonCircularRadius),
-        border: Border.all(
-          color: getThemeColors(context)['border']!,
-          width: buttonborderWidth,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'About',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: getThemeColors(context)['textPrimary'],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: getThemeColors(context)['secondary'],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: getThemeColors(context)['border']!,
-                width: 1,
-              ),
-            ),
-            child: Text(
-              organisationDescription.isNotEmpty
-                  ? organisationDescription
-                  : 'No description available',
-              style: TextStyle(
-                fontSize: 14,
-                color: getThemeColors(context)['textPrimary'],
-                height: 1.4,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today,
-                size: 20,
-                color: getThemeColors(context)['primary'],
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Created: ${_formatDate(timeOfCreation)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: getThemeColors(context)['textPrimary'],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMembersSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['background'],
-        borderRadius: BorderRadius.circular(buttonCircularRadius),
-        border: Border.all(
-          color: getThemeColors(context)['border']!,
-          width: buttonborderWidth,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (organisationOwners.isNotEmpty) ...[
-            Row(
-              children: [
-                Icon(
-                  Icons.admin_panel_settings,
-                  size: 20,
-                  color: getThemeColors(context)['primary'],
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Owners (${organisationOwners.length})',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: getThemeColors(context)['textPrimary'],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...organisationOwners.map((owner) => _buildMemberTile(owner, true)),
-            const SizedBox(height: 20),
-          ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.group,
-                    size: 20,
-                    color: getThemeColors(context)['secondary'],
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Members (${organisationMembers.length})',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: getThemeColors(context)['textPrimary'],
-                    ),
-                  ),
-                ],
-              ),
-              if (isOwner)
-                ElevatedButton.icon(
-                  onPressed: _showAddMemberModal,
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add Member'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: getThemeColors(context)['primary'],
-                    foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(buttonCircularRadius),
-                    ),
-                    side: const BorderSide(color: Colors.black, width: 1),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (organisationMembers.isNotEmpty)
-            ...organisationMembers
-                .map((member) => _buildMemberTile(member, false))
-          else
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: getThemeColors(context)['secondaryBackground'],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: getThemeColors(context)['border']!,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'No members yet',
-                style: TextStyle(
-                  color: getThemeColors(context)['textPrimary'],
-                  fontSize: 14,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMemberTile(String address, bool isMemberOwner) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isMemberOwner
-            ? getThemeColors(context)['primary']
-            : getThemeColors(context)['secondary'],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: getThemeColors(context)['border']!,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isMemberOwner ? Icons.admin_panel_settings : Icons.person,
-            size: 16,
-            color: isMemberOwner
-                ? getThemeColors(context)['primary']
-                : getThemeColors(context)['textPrimary'],
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              _truncateAddress(address),
-              style: TextStyle(
-                fontSize: 14,
-                color: getThemeColors(context)['textPrimary'],
-                fontFamily: 'monospace',
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: () => _copyAddress(address),
-            icon: Icon(
-              Icons.copy,
-              size: 16,
-              color: getThemeColors(context)['textPrimary'],
-            ),
-            tooltip: 'Copy address',
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(
-              minWidth: 32,
-              minHeight: 32,
-            ),
-          ),
-          if (isOwner && !isMemberOwner) ...[
-            const SizedBox(width: 4),
-            IconButton(
-              onPressed: () => _showRemoveMemberConfirmation(address),
-              icon: Icon(
-                Icons.remove_circle,
-                size: 16,
-                color: getThemeColors(context)['error'],
-              ),
-              tooltip: 'Remove member',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 32,
-                minHeight: 32,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   Widget _buildLoadingState() {
     return Container(
       padding: const EdgeInsets.all(40),
@@ -890,76 +563,6 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
     );
   }
 
-  Widget _buildActivityTab() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['background'],
-        borderRadius: BorderRadius.circular(buttonCircularRadius),
-        border: Border.all(
-          color: getThemeColors(context)['border']!,
-          width: buttonborderWidth,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.timeline,
-            size: 64,
-            color: getThemeColors(context)['secondary'],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Activity Feed',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: getThemeColors(context)['textPrimary'],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Track organization activities, member changes, and other events here.',
-            style: TextStyle(
-              fontSize: 14,
-              color: getThemeColors(context)['textPrimary'],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: getThemeColors(context)['secondary'],
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: getThemeColors(context)['border']!,
-                width: 1,
-              ),
-            ),
-            child: Text(
-              'Coming Soon',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: getThemeColors(context)['textPrimary'],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -996,14 +599,22 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
                       child: TabBarView(
                         controller: _tabController,
                         children: [
-                          SingleChildScrollView(
-                            child: _buildInfoSection(),
+                          InfoTab(
+                            organisationDescription: organisationDescription,
+                            timeOfCreation: timeOfCreation,
                           ),
-                          SingleChildScrollView(
-                            child: _buildMembersSection(),
+                          MembersTab(
+                            organisationOwners: organisationOwners,
+                            organisationMembers: organisationMembers,
+                            isOwner: isOwner,
+                            onAddMember: _showAddMemberModal,
+                            onRemoveMember: removeMember,
                           ),
-                          SingleChildScrollView(
-                            child: _buildActivityTab(),
+                          VerificationRequestsTab(
+                            organisationAddress: widget.organisationAddress,
+                          ),
+                          PlantingProposalsTab(
+                            organisationAddress: widget.organisationAddress,
                           ),
                         ],
                       ),
