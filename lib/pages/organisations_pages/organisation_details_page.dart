@@ -9,7 +9,6 @@ import 'package:tree_planting_protocol/utils/services/contract_functions/organis
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_write_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
-
 class OrganisationDetailsPage extends StatefulWidget {
   final String organisationAddress;
 
@@ -20,7 +19,8 @@ class OrganisationDetailsPage extends StatefulWidget {
       _OrganisationDetailsPageState();
 }
 
-class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
+class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
+    with SingleTickerProviderStateMixin {
   String organisationName = "";
   String organisationDescription = "";
   String organisationLogoHash = "";
@@ -32,16 +32,20 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
   bool _isLoading = false;
   String _errorMessage = "";
   final TextEditingController _addMemberController = TextEditingController();
+  
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     fetchOrganisationDetails();
   }
 
   @override
   void dispose() {
     _addMemberController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -384,6 +388,53 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
     return '${address.substring(0, 6)}...${address.substring(address.length - 4)}';
   }
 
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: getThemeColors(context)['background'],
+        borderRadius: BorderRadius.circular(buttonCircularRadius),
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: buttonborderWidth,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: _tabController,
+        labelColor: Colors.white,
+        unselectedLabelColor: getThemeColors(context)['textPrimary'],
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          color: getThemeColors(context)['primary'],
+          borderRadius: BorderRadius.circular(buttonCircularRadius),
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        dividerColor: Colors.transparent,
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.info_outline),
+            text: 'Info',
+          ),
+          Tab(
+            icon: Icon(Icons.group),
+            text: 'Members',
+          ),
+          Tab(
+            icon: Icon(Icons.timeline),
+            text: 'Activity',
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildOrganisationHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -508,7 +559,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
 
   Widget _buildInfoSection() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: getThemeColors(context)['background'],
@@ -585,7 +636,7 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
 
   Widget _buildMembersSection() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: getThemeColors(context)['background'],
@@ -839,6 +890,76 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
     );
   }
 
+  Widget _buildActivityTab() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: getThemeColors(context)['background'],
+        borderRadius: BorderRadius.circular(buttonCircularRadius),
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: buttonborderWidth,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.timeline,
+            size: 64,
+            color: getThemeColors(context)['secondary'],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Activity Feed',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: getThemeColors(context)['textPrimary'],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Track organization activities, member changes, and other events here.',
+            style: TextStyle(
+              fontSize: 14,
+              color: getThemeColors(context)['textPrimary'],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: getThemeColors(context)['secondary'],
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: getThemeColors(context)['border']!,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'Coming Soon',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: getThemeColors(context)['textPrimary'],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -866,15 +987,28 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage> {
           ? _buildLoadingState()
           : _errorMessage.isNotEmpty
               ? _buildErrorState()
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildOrganisationHeader(),
-                      _buildInfoSection(),
-                      _buildMembersSection(),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+              : Column(
+                  children: [
+                    _buildOrganisationHeader(),
+                    const SizedBox(height: 16),
+                    _buildTabBar(),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          SingleChildScrollView(
+                            child: _buildInfoSection(),
+                          ),
+                          SingleChildScrollView(
+                            child: _buildMembersSection(),
+                          ),
+                          SingleChildScrollView(
+                            child: _buildActivityTab(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
     );
   }
