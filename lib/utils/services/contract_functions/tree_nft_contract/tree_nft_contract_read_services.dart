@@ -200,4 +200,92 @@ class ContractReadFunctions {
       );
     }
   }
+
+  static Future<ContractReadResult> getRecentTreesPaginated({
+    required WalletProvider walletProvider,
+    required int offset,
+    required int limit,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected");
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet first',
+        );
+      }
+      final String address = walletProvider.currentAddress.toString();
+      if (!address.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      if (offset < 0 || limit <= 0 || limit > 50) {
+        return ContractReadResult.error(
+          errorMessage:
+              'Invalid pagination parameters. Offset must be >= 0 and limit must be between 1-50',
+        );
+      }
+
+      final List<dynamic> args = [BigInt.from(offset), BigInt.from(limit)];
+      final contractResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'getRecentTreesPaginated',
+        params: args,
+        abi: treeNftContractABI,
+      );
+
+      if (contractResult == null || contractResult.isEmpty) {
+        return ContractReadResult.error(
+          errorMessage: 'No data returned from contract',
+        );
+      }
+      final trees = contractResult[0] as List; 
+      final totalCount =
+          (contractResult[1] as BigInt).toInt(); 
+      final hasMore = contractResult[2] as bool;
+
+      final List<Map<String, dynamic>> parsedTrees = trees.map((tree) {
+        final treeList = tree as List;
+        return {
+          'id': (treeList[0] as BigInt).toInt(),
+          'latitude': (treeList[1] as BigInt).toInt(),
+          'longitude': (treeList[2] as BigInt).toInt(),
+          'planting': (treeList[3] as BigInt).toInt(),
+          'death': (treeList[4] as BigInt).toInt(),
+          'species': treeList[5] as String,
+          'imageUri': treeList[6] as String,
+          'qrPhoto': treeList[7] as String,
+          'metadata': treeList[8] as String,
+          'photos':
+              (treeList[9] as List).map((photo) => photo as String).toList(),
+          'geoHash': treeList[10] as String,
+          'ancestors': (treeList[11] as List)
+              .map((ancestor) => (ancestor as EthereumAddress).hex)
+              .toList(),
+          'lastCareTimestamp': (treeList[12] as BigInt).toInt(),
+          'careCount': (treeList[13] as BigInt).toInt(),
+          'numberOfTrees': (treeList[14] as BigInt).toInt(),
+        };
+      }).toList();
+
+      logger
+          .d("Recent trees fetched successfully: ${parsedTrees.length} trees");
+
+      return ContractReadResult.success(
+        data: {
+          'trees': parsedTrees,
+          'totalCount': totalCount,
+          'hasMore': hasMore,
+          'offset': offset,
+          'limit': limit,
+        },
+      );
+    } catch (e) {
+      logger.e("Error fetching recent trees", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read recent trees: ${e.toString()}',
+      );
+    }
+  }
 }
