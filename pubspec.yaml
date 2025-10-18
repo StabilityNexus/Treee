@@ -51,6 +51,7 @@ dependencies:
   geolocator: ^9.0.2
   location: ^7.0.0
   permission_handler: ^12.0.1
+  flutter_svg: ^2.0.10+1
   # fluttertoast: ^8.2.8
   
 
@@ -64,6 +65,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -80,6 +82,7 @@ flutter:
     - .env
     - assets/
     - assets/tree-navbar-images/
+    - assets/stability-nexus/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -98,5 +101,13 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/tree-navbar-images/logo.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/tree-navbar-images/logo.png"
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
