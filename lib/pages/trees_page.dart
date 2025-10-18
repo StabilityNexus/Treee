@@ -144,9 +144,11 @@ class _AllTreesPageState extends State<AllTreesPage> {
                   await walletProvider.connectWallet();
                   if (!mounted) return;
                   if (walletProvider.isConnected) {
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Text('Wallet connected successfully!'),
+                        // ignore: use_build_context_synchronously
                         backgroundColor: getThemeColors(context)['primary'],
                         behavior: SnackBarBehavior.floating,
                       ),
@@ -154,9 +156,11 @@ class _AllTreesPageState extends State<AllTreesPage> {
                   }
                 } catch (e) {
                   if (!mounted) return;
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Failed to connect wallet: $e'),
+                      // ignore: use_build_context_synchronously
                       backgroundColor: getThemeColors(context)['error'],
                       behavior: SnackBarBehavior.floating,
                     ),

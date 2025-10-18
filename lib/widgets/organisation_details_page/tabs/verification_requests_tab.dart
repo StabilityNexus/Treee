@@ -403,7 +403,7 @@ class _VerificationRequestsTabState extends State<VerificationRequestsTab>
             ),
           ),
           SizedBox(
-            height: 500, 
+            height: 500,
             child: TabBarView(
               controller: _statusTabController,
               children: [

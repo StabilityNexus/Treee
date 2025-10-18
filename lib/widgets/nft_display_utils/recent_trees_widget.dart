@@ -42,7 +42,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
     });
 
     try {
-      final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+      final walletProvider =
+          Provider.of<WalletProvider>(context, listen: false);
 
       final result = await ContractReadFunctions.getRecentTreesPaginated(
         walletProvider: walletProvider,
@@ -55,7 +56,7 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
         final int totalCount = result.data['totalCount'] ?? 0;
         final bool hasMore = result.data['hasMore'] ?? false;
 
-        final List<Map<String, dynamic>> newTrees = 
+        final List<Map<String, dynamic>> newTrees =
             List<Map<String, dynamic>>.from(treesData);
 
         setState(() {
@@ -104,7 +105,7 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
   }
 
   Widget _buildTreeCard(Map<String, dynamic> tree) {
-    final bool isAlive = tree['death'] == 0 || 
+    final bool isAlive = tree['death'] == 0 ||
         tree['death'] > DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     return Container(
@@ -130,7 +131,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Tree Image
-            if (tree['imageUri'] != null && tree['imageUri'].toString().isNotEmpty)
+            if (tree['imageUri'] != null &&
+                tree['imageUri'].toString().isNotEmpty)
               Container(
                 height: 200,
                 width: double.infinity,
@@ -180,14 +182,15 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 12),
 
             // Tree ID and Status Row
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: getThemeColors(context)['primary'],
                     borderRadius: BorderRadius.circular(12),
@@ -204,9 +207,10 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isAlive 
+                    color: isAlive
                         ? getThemeColors(context)['success'] ?? Colors.green
                         : getThemeColors(context)['error']!,
                     borderRadius: BorderRadius.circular(12),
@@ -315,7 +319,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
               ],
             ),
 
-            if (tree['geoHash'] != null && tree['geoHash'].toString().isNotEmpty) ...[
+            if (tree['geoHash'] != null &&
+                tree['geoHash'].toString().isNotEmpty) ...[
               const SizedBox(height: 4),
               Row(
                 children: [
@@ -351,7 +356,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                       backgroundColor: getThemeColors(context)['primary'],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                        borderRadius:
+                            BorderRadius.circular(buttonCircularRadius),
                       ),
                       side: const BorderSide(color: Colors.black, width: 2),
                       elevation: buttonBlurRadius,
@@ -378,7 +384,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                       backgroundColor: getThemeColors(context)['secondary'],
                       foregroundColor: getThemeColors(context)['textPrimary'],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                        borderRadius:
+                            BorderRadius.circular(buttonCircularRadius),
                       ),
                       side: BorderSide(
                         color: getThemeColors(context)['border']!,
@@ -521,7 +528,8 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: getThemeColors(context)['secondary'],
                     borderRadius: BorderRadius.circular(16),
@@ -564,7 +572,9 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                         },
                         child: ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: _trees.length + (_hasMore && !_isLoading ? 0 : 0) + (_isLoading ? 1 : 0),
+                          itemCount: _trees.length +
+                              (_hasMore && !_isLoading ? 0 : 0) +
+                              (_isLoading ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index < _trees.length) {
                               return _buildTreeCard(_trees[index]);

@@ -240,9 +240,8 @@ class ContractReadFunctions {
           errorMessage: 'No data returned from contract',
         );
       }
-      final trees = contractResult[0] as List; 
-      final totalCount =
-          (contractResult[1] as BigInt).toInt(); 
+      final trees = contractResult[0] as List;
+      final totalCount = (contractResult[1] as BigInt).toInt();
       final hasMore = contractResult[2] as bool;
 
       final List<Map<String, dynamic>> parsedTrees = trees.map((tree) {
