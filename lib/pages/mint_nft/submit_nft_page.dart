@@ -134,22 +134,27 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: getThemeColors(context)['primary'],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: getThemeColors(context)['primaryBorder']!),
+        color: getThemeColors(context)['primary']!,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: 2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.receipt_long, color: getThemeColors(context)['icon']!),
+              Icon(Icons.receipt_long,
+                  color: getThemeColors(context)['primary']!),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 "Last Transaction:",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: getThemeColors(context)['textPrimary'],
                 ),
               ),
             ],
@@ -157,24 +162,34 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           const SizedBox(height: 8),
           Text(
             "Hash: ${lastTransactionHash!.substring(0, 20)}...",
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'monospace',
               fontSize: 12,
+              color: getThemeColors(context)['textPrimary'],
             ),
           ),
           if (lastTransactionData != null) ...[
             const SizedBox(height: 8),
             Text(
               "Species: ${lastTransactionData!['species']}",
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 12,
+                color: getThemeColors(context)['textPrimary'],
+              ),
             ),
             Text(
               "Photos: ${lastTransactionData!['photos']?.length ?? 0}",
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 12,
+                color: getThemeColors(context)['textPrimary'],
+              ),
             ),
             Text(
               "Location: (${lastTransactionData!['latitude']?.toStringAsFixed(6)}, ${lastTransactionData!['longitude']?.toStringAsFixed(6)})",
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 12,
+                color: getThemeColors(context)['textPrimary'],
+              ),
             ),
           ],
         ],
@@ -190,8 +205,11 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: getThemeColors(context)['error']!,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: getThemeColors(context)['error']!),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: getThemeColors(context)['error']!,
+          width: 2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,11 +219,12 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
               Icon(Icons.error_outline,
                   color: getThemeColors(context)['error']!),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 "Error:",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: getThemeColors(context)['error'],
                 ),
               ),
             ],
@@ -214,7 +233,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
           Text(
             errorMessage!,
             style: TextStyle(
-              color: getThemeColors(context)['error']!,
+              color: getThemeColors(context)['textPrimary'],
               fontSize: 14,
             ),
           ),
@@ -236,38 +255,59 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
             _buildErrorInfo(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isMinting ? null : _mintTreeNft,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isMinting ? null : _mintTreeNft,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: getThemeColors(context)['primary'],
+                      foregroundColor: getThemeColors(context)['textSecondary'],
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: Colors.black, width: 2),
+                      ),
                     ),
-                  ),
-                  child: isMinting
-                      ? const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                    child: isMinting
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      getThemeColors(
+                                          context)['textSecondary']!),
+                                ),
                               ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Minting...",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      getThemeColors(context)['textSecondary'],
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            "Mint NFT",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: getThemeColors(context)['textSecondary'],
                             ),
-                            SizedBox(width: 8),
-                            Text("Minting...", style: TextStyle(fontSize: 16)),
-                          ],
-                        )
-                      : const Text(
-                          "Mint NFT",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                          ),
+                  ),
                 ),
               ),
             ),

@@ -307,7 +307,19 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
       width: double.infinity,
       constraints: BoxConstraints(maxWidth: screenWidth * 0.92),
       decoration: BoxDecoration(
+        color: getThemeColors(context)['background'],
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: getThemeColors(context)['shadow']!,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,9 +328,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
+              color: getThemeColors(context)['primary'],
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
+                topLeft: Radius.circular(22),
+                topRight: Radius.circular(22),
               ),
             ),
             child: Row(
@@ -326,7 +339,12 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
+                    color: getThemeColors(context)['background'],
                     borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: 2,
+                    ),
                   ),
                   child: Icon(
                     Icons.location_on,
@@ -344,14 +362,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: getThemeColors(context)['primary'],
+                          color: getThemeColors(context)['textSecondary'],
                         ),
                       ),
                       Text(
                         'Mark where your tree is planted',
                         style: TextStyle(
                           fontSize: 14,
-                          color: getThemeColors(context)['textPrimary'],
+                          color: getThemeColors(context)['textSecondary']!,
                         ),
                       ),
                     ],
@@ -370,17 +388,18 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: primaryYellowColor,
+                    color: getThemeColors(context)['secondary'],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: getThemeColors(context)['secondary']!,
+                      color: getThemeColors(context)['border']!,
+                      width: 2,
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: getThemeColors(context)['primary'],
+                        color: getThemeColors(context)['textPrimary'],
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -388,7 +407,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         child: Text(
                           'Tap on the map or enter coordinates manually below',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: getThemeColors(context)['textPrimary'],
                             fontWeight: FontWeight.w500,
                           ),
@@ -420,42 +439,43 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: submitCoordinates,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: getThemeColors(context)['primary'],
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: submitCoordinates,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: getThemeColors(context)['primary'],
+                        foregroundColor:
+                            getThemeColors(context)['textSecondary'],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Colors.black, width: 2),
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Continue',
-                          style: TextStyle(
-                            color: getThemeColors(context)['textPrimary'],
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Continue',
+                            style: TextStyle(
+                              color: getThemeColors(context)['textSecondary'],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: getThemeColors(context)['primary'],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(
+                          const SizedBox(width: 8),
+                          Icon(
                             Icons.arrow_forward,
-                            size: 18,
+                            size: 20,
+                            color: getThemeColors(context)['textSecondary'],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -628,10 +648,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: getThemeColors(context)['background'],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: getThemeColors(context)['secondary']!,
+              color: getThemeColors(context)['border']!,
               width: 2,
             ),
           ),

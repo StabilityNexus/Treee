@@ -9,6 +9,7 @@ class MintNftProvider extends ChangeNotifier {
   String _imageUri = "";
   String _qrIpfsHash = "";
   String _geoHash = "";
+  String organisationAddress = "";
   List<String> _initialPhotos = [];
 
   double getLatitude() => _latitude;
@@ -33,6 +34,11 @@ class MintNftProvider extends ChangeNotifier {
 
   void setSpecies(String species) {
     _species = species;
+    notifyListeners();
+  }
+
+  void setOrganisationAddress(String address) {
+    organisationAddress = address;
     notifyListeners();
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/utils/constants/bottom_nav_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 
 class BottomNavigationWidget extends StatelessWidget {
   final String currentRoute;
@@ -24,9 +25,9 @@ class BottomNavigationWidget extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: _getCurrentIndex(),
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-      backgroundColor: const Color.fromARGB(255, 37, 236, 147),
+      selectedItemColor: getThemeColors(context)['secondary'],
+      unselectedItemColor: getThemeColors(context)['textSecondary'],
+      backgroundColor: getThemeColors(context)['primary'],
       elevation: 8,
       onTap: (index) {
         final route = BottomNavConstants.items[index].route;

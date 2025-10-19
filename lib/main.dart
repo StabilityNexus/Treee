@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tree_planting_protocol/pages/home_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
+import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_organisation.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/submit_nft_page.dart';
 import 'package:tree_planting_protocol/pages/organisations_pages/create_organisation.dart';
 import 'package:tree_planting_protocol/pages/organisations_pages/organisation_details_page.dart';
@@ -88,6 +89,13 @@ class MyApp extends StatelessWidget {
           name: 'create_organisation_page',
           builder: (BuildContext context, GoRouterState state) {
             return const CreateOrganisationPage();
+          },
+        ),
+        GoRoute(
+          path: RouteConstants.mintNftOrganisationPath,
+          name: RouteConstants.mintNftOrganisation,
+          builder: (BuildContext context, GoRouterState state) {
+            return const MintNftOrganisationPage();
           },
         ),
         GoRoute(
