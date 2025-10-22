@@ -9,8 +9,10 @@ import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/profile_widgets/profile_section_widget.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/user_nfts_widget.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class UserProfilePage extends StatelessWidget {
+  final String userAddress;
+
+  const UserProfilePage({super.key, required this.userAddress});
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +25,12 @@ class HomePage extends StatelessWidget {
               children: [
                 SizedBox(
                     width: 400,
-                    child: ProfileSectionWidget(
-                      userAddress: walletProvider.currentAddress ?? '',
-                    )),
+                    child: ProfileSectionWidget(userAddress: userAddress)),
                 SizedBox(
                   width: 400,
                   height: 600,
                   child: UserNftsWidget(
-                      isOwnerCalling: true,
-                      userAddress: walletProvider.currentAddress ?? ''),
+                      isOwnerCalling: true, userAddress: userAddress),
                 ),
               ],
             ),

@@ -14,6 +14,7 @@ import 'package:tree_planting_protocol/pages/register_user_page.dart';
 import 'package:tree_planting_protocol/pages/settings_page.dart';
 import 'package:tree_planting_protocol/pages/tree_details_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
+import 'package:tree_planting_protocol/pages/user_profile_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
 
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
@@ -89,6 +90,15 @@ class MyApp extends StatelessWidget {
           name: 'create_organisation_page',
           builder: (BuildContext context, GoRouterState state) {
             return const CreateOrganisationPage();
+          },
+        ),
+        GoRoute(
+          path: '/user-profile/:address',
+          name: 'user_profile',
+          builder: (BuildContext context, GoRouterState state) {
+            final address = state.pathParameters['address'].toString();
+            return UserProfilePage(
+                userAddress: address.isNotEmpty ? address : '');
           },
         ),
         GoRoute(

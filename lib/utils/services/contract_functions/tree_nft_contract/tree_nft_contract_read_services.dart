@@ -37,6 +37,7 @@ class ContractReadResult {
 class ContractReadFunctions {
   static Future<ContractReadResult> getNFTsByUserPaginated({
     required WalletProvider walletProvider,
+    required String userAddress,
     int offset = 0,
     int limit = 10,
   }) async {
@@ -47,13 +48,13 @@ class ContractReadFunctions {
           errorMessage: 'Please connect your wallet before reading NFTs.',
         );
       }
-      final String address = walletProvider.currentAddress.toString();
-      if (!address.startsWith('0x')) {
+      if (!userAddress.startsWith('0x')) {
         return ContractReadResult.error(
           errorMessage: 'Invalid wallet address format',
         );
       }
-      final EthereumAddress userAddress = EthereumAddress.fromHex(address);
+      final EthereumAddress finalUserAddress =
+          EthereumAddress.fromHex(userAddress);
       if (offset < 0 || limit <= 0 || limit > 100) {
         return ContractReadResult.error(
           errorMessage:
@@ -61,7 +62,7 @@ class ContractReadFunctions {
         );
       }
       final List<dynamic> args = [
-        userAddress,
+        finalUserAddress,
         BigInt.from(offset),
         BigInt.from(limit),
       ];
@@ -98,6 +99,7 @@ class ContractReadFunctions {
 
   static Future<ContractReadResult> getProfileDetails({
     required WalletProvider walletProvider,
+    required String currentAddress,
   }) async {
     try {
       if (!walletProvider.isConnected) {
@@ -113,7 +115,6 @@ class ContractReadFunctions {
           errorMessage: 'Invalid wallet address format',
         );
       }
-      final String currentAddress = walletProvider.currentAddress!.toString();
       final EthereumAddress userAddress =
           EthereumAddress.fromHex(currentAddress);
       final List<dynamic> argsProfile = [userAddress];
@@ -152,6 +153,74 @@ class ContractReadFunctions {
       });
     } catch (e) {
       logger.e("Error reading User profile", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to read User Profile: ${e.toString()}',
+      );
+    }
+  }
+
+  static Future<ContractReadResult> getProfileDetailsByAddress({
+    required WalletProvider walletProvider,
+    required String userAddress,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        logger.e("Wallet not connected for reading user data");
+        return ContractReadResult.error(
+          errorMessage:
+              'Please connect your wallet before fetching user details from blockchain',
+        );
+      }
+
+      if (!userAddress.startsWith('0x')) {
+        return ContractReadResult.error(
+          errorMessage: 'Invalid wallet address format',
+        );
+      }
+
+      final EthereumAddress targetAddress =
+          EthereumAddress.fromHex(userAddress);
+      final List<dynamic> argsProfile = [targetAddress];
+      final List<dynamic> argsVerifierTokens = [
+        targetAddress,
+        BigInt.from(0), // offset
+        BigInt.from(100), // limit - fetch up to 100 verifier tokens
+      ];
+
+      final userVerifierTokensResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'getUserVerifierTokenDetails',
+        abi: treeNftContractABI,
+        params: argsVerifierTokens,
+      );
+
+      final userProfileResult = await walletProvider.readContract(
+        contractAddress: treeNFtContractAddress,
+        functionName: 'getUserProfile',
+        abi: treeNftContractABI,
+        params: argsProfile,
+      );
+
+      final profile =
+          userProfileResult.length > 0 ? userProfileResult[0] ?? [] : [];
+      final verifierTokens = userVerifierTokensResult.length > 0
+          ? userVerifierTokensResult[0] ?? []
+          : [];
+      final totalCount = userVerifierTokensResult.length > 1
+          ? userVerifierTokensResult[1]
+          : BigInt.zero;
+
+      logger.d("User Profile for $userAddress");
+      logger.d(profile);
+      logger.d("Verifier Tokens Total Count: $totalCount");
+
+      return ContractReadResult.success(data: {
+        'profile': profile,
+        'verifierTokens': verifierTokens,
+        'totalCount': totalCount
+      });
+    } catch (e) {
+      logger.e("Error reading User profile for $userAddress", error: e);
       return ContractReadResult.error(
         errorMessage: 'Failed to read User Profile: ${e.toString()}',
       );

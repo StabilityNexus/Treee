@@ -153,6 +153,7 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
         walletProvider: walletProvider,
         offset: 0,
         limit: 10,
+        userAddress: widget.userAddress,
       );
 
       if (result.success && result.data != null) {
@@ -358,6 +359,7 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final walletProvider = Provider.of<WalletProvider>(context);
     return Column(
       children: [
         Padding(
@@ -366,7 +368,9 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.isOwnerCalling ? "Your NFTs" : "User NFTs",
+                widget.userAddress == walletProvider.currentAddress
+                    ? 'Your Trees'
+                    : "User's Trees",
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -434,7 +438,9 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
           ),
           const SizedBox(height: 16),
           Text(
-            widget.isOwnerCalling
+            widget.userAddress ==
+                    Provider.of<WalletProvider>(context, listen: false)
+                        .currentAddress
                 ? "You don't have any tree NFTs yet"
                 : "This user doesn't have any tree NFTs yet",
             textAlign: TextAlign.center,

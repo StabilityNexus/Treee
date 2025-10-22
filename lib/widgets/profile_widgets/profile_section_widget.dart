@@ -205,7 +205,9 @@ class UserProfileData {
 }
 
 class ProfileSectionWidget extends StatefulWidget {
-  const ProfileSectionWidget({super.key});
+  final String userAddress;
+
+  const ProfileSectionWidget({super.key, required this.userAddress});
 
   @override
   State<ProfileSectionWidget> createState() => _ProfileSectionWidgetState();
@@ -250,9 +252,10 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
           Provider.of<WalletProvider>(context, listen: false);
 
       logger.d("Calling ContractReadFunctions.getProfileDetails...");
-
+      final String currentAddress = widget.userAddress;
       final result = await ContractReadFunctions.getProfileDetails(
         walletProvider: walletProvider,
+        currentAddress: currentAddress,
       );
 
       logger.d("Contract call completed:");
