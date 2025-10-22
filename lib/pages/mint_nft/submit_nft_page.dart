@@ -7,6 +7,7 @@ import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_write_functions.dart';
+import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_write_functions.dart';
 
 class SubmitNFTPage extends StatefulWidget {
   const SubmitNFTPage({super.key});
@@ -76,22 +77,63 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
     final mintNftProvider =
         Provider.of<MintNftProvider>(context, listen: false);
 
+    logger.i("=== STARTING MINT TRANSACTION ===");
+    logger.i(
+        "Organisation address from provider: '${mintNftProvider.organisationAddress}'");
+    logger.i(
+        "Organisation address length: ${mintNftProvider.organisationAddress.length}");
+    logger.i(
+        "Organisation address isEmpty: ${mintNftProvider.organisationAddress.isEmpty}");
+    logger.i(
+        "Organisation address isNotEmpty: ${mintNftProvider.organisationAddress.isNotEmpty}");
+
     setState(() {
       isMinting = true;
       errorMessage = null;
     });
 
     try {
-      final result = await ContractWriteFunctions.mintNft(
-        walletProvider: walletProvider,
-        latitude: mintNftProvider.getLatitude(),
-        longitude: mintNftProvider.getLongitude(),
-        species: mintNftProvider.getSpecies(),
-        photos: mintNftProvider.getInitialPhotos(),
-        geoHash: mintNftProvider.getGeoHash(),
-        numberOfTrees: mintNftProvider.getNumberOfTrees(),
-        metadata: mintNftProvider.getDetails(),
-      );
+      // Check if organisation is selected
+      final bool isOrganisationMint =
+          mintNftProvider.organisationAddress.isNotEmpty;
+
+      logger
+          .i("Organisation address: '${mintNftProvider.organisationAddress}'");
+      logger.i("Is organisation mint: $isOrganisationMint");
+
+      dynamic result;
+
+      if (isOrganisationMint) {
+        // Call plantTreeProposal for organisation
+        logger.i(
+            ">>> TAKING ORGANISATION PATH: ${mintNftProvider.organisationAddress}");
+        result = await OrganisationContractWriteFunctions.plantTreeProposal(
+          organisationContractAddress: mintNftProvider.organisationAddress,
+          walletProvider: walletProvider,
+          latitude: mintNftProvider.getLatitude(),
+          longitude: mintNftProvider.getLongitude(),
+          species: mintNftProvider.getSpecies(),
+          photos: mintNftProvider.getInitialPhotos(),
+          geoHash: mintNftProvider.getGeoHash(),
+          numberOfTrees: mintNftProvider.getNumberOfTrees(),
+          metadata: mintNftProvider.getDetails(),
+        );
+      } else {
+        // Call mintNft for individual minting
+        logger.i(">>> TAKING INDIVIDUAL PATH - Minting individually");
+        result = await ContractWriteFunctions.mintNft(
+          walletProvider: walletProvider,
+          latitude: mintNftProvider.getLatitude(),
+          longitude: mintNftProvider.getLongitude(),
+          species: mintNftProvider.getSpecies(),
+          photos: mintNftProvider.getInitialPhotos(),
+          geoHash: mintNftProvider.getGeoHash(),
+          numberOfTrees: mintNftProvider.getNumberOfTrees(),
+          metadata: mintNftProvider.getDetails(),
+        );
+      }
+
+      if (!mounted) return;
 
       setState(() {
         isMinting = false;
@@ -108,17 +150,26 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
 
       if (result.success) {
         _showSuccessDialog(
-          'Transaction Sent!',
-          'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-              'The NFT will be minted once the transaction is confirmed.\n\n'
-              'Species: ${result.data['species']}\n'
-              'Photos: ${result.data['photos'].length} uploaded',
+          isOrganisationMint ? 'Proposal Submitted!' : 'Transaction Sent!',
+          isOrganisationMint
+              ? 'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
+                  'Your tree planting proposal has been submitted to the organisation for approval.\n\n'
+                  'Species: ${result.data['species']}\n'
+                  'Photos: ${result.data['photos'].length} uploaded'
+              : 'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
+                  'The NFT will be minted once the transaction is confirmed.\n\n'
+                  'Species: ${result.data['species']}\n'
+                  'Photos: ${result.data['photos'].length} uploaded',
         );
+
+        // Clear the organisation address after successful submission
+        mintNftProvider.clearData();
       } else {
         _showErrorDialog('Transaction Failed', result.errorMessage!);
       }
     } catch (e) {
       logger.e("Unexpected error in _mintTreeNft", error: e);
+      if (!mounted) return;
       setState(() {
         isMinting = false;
         errorMessage = 'Unexpected error: ${e.toString()}';
@@ -244,6 +295,10 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mintNftProvider = Provider.of<MintNftProvider>(context);
+    final bool isOrganisationMint =
+        mintNftProvider.organisationAddress.isNotEmpty;
+
     return BaseScaffold(
       title: "Submit NFT",
       body: SingleChildScrollView(
@@ -289,7 +344,9 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                "Minting...",
+                                isOrganisationMint
+                                    ? "Submitting Proposal..."
+                                    : "Minting...",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -300,7 +357,7 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
                             ],
                           )
                         : Text(
-                            "Mint NFT",
+                            isOrganisationMint ? "Submit Proposal" : "Mint NFT",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

@@ -77,14 +77,10 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
       );
       return;
     }
-
-    // Save the selected organisation to the provider
     Provider.of<MintNftProvider>(context, listen: false)
         .setOrganisationAddress(_selectedOrganisation!);
 
     _showCustomSnackBar("Organisation selected successfully!");
-
-    // Navigate to images page
     context.push(RouteConstants.mintNftImagesPath);
   }
 
@@ -235,11 +231,12 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
               decoration: BoxDecoration(
                 color: getThemeColors(context)['secondary']!,
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 3),
               ),
               child: Icon(
                 Icons.business_outlined,
                 size: 64,
-                color: getThemeColors(context)['primary'],
+                color: getThemeColors(context)['textPrimary'],
               ),
             ),
             const SizedBox(height: 24),
@@ -253,7 +250,7 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              'You are not a member of any organisations yet. Create or join an organisation to mint NFTs on behalf of it.',
+              'You are not a member of any organisations yet. You can mint individually or create/join an organisation.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -261,45 +258,134 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
+            const SizedBox(height: 32),
+            // Mint Individually button (primary action)
+            Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(buttonCircularRadius),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
                   onPressed: () {
-                    context.push('/create-organisation');
+                    logger.i("=== MINT INDIVIDUALLY FROM EMPTY STATE ===");
+                    logger.i("Clearing organisation address to empty string");
+                    Provider.of<MintNftProvider>(context, listen: false)
+                        .setOrganisationAddress("");
+                    final address =
+                        Provider.of<MintNftProvider>(context, listen: false)
+                            .organisationAddress;
+                    logger.i("Organisation address after clearing: '$address'");
+                    logger.i("Address length: ${address.length}");
+                    context.push(RouteConstants.mintNftImagesPath);
                   },
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Create Organisation'),
+                  icon: Icon(Icons.person,
+                      size: 20, color: getThemeColors(context)['textPrimary']),
+                  label: Text(
+                    'Mint Individually',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: getThemeColors(context)['primary'],
-                    foregroundColor: getThemeColors(context)['textSecondary'],
-                    elevation: 4,
+                    foregroundColor: getThemeColors(context)['textPrimary'],
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
+                        horizontal: 24, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(buttonCircularRadius),
                       side: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    context.push('/organisations');
-                  },
-                  icon: const Icon(Icons.search, size: 20),
-                  label: const Text('View All'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: getThemeColors(context)['primary'],
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    side: BorderSide(
-                      color: getThemeColors(context)['primary']!,
-                      width: 2,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(height: 32),
+            Text(
+              'Or manage organisations',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: getThemeColors(context)['textPrimary'],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        context.push('/create-organisation');
+                      },
+                      icon: Icon(Icons.add,
+                          size: 20,
+                          color: getThemeColors(context)['textPrimary']),
+                      label: Text(
+                        'Create',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: getThemeColors(context)['textPrimary'],
+                        backgroundColor: getThemeColors(context)['secondary'],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        side: BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(buttonCircularRadius),
+                        ),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        context.push('/organisations');
+                      },
+                      icon: Icon(Icons.search,
+                          size: 20,
+                          color: getThemeColors(context)['textPrimary']),
+                      label: Text(
+                        'View All',
+                        style: TextStyle(
+                          color: getThemeColors(context)['textPrimary'],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: getThemeColors(context)['textPrimary'],
+                        backgroundColor: getThemeColors(context)['secondary'],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        side: BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(buttonCircularRadius),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -562,8 +648,19 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
                         child: OutlinedButton.icon(
                           onPressed: () {
                             // Clear organization address and skip to images
+                            logger
+                                .i("=== MINT INDIVIDUALLY BUTTON CLICKED ===");
+                            logger.i(
+                                "Clearing organisation address to empty string");
                             Provider.of<MintNftProvider>(context, listen: false)
                                 .setOrganisationAddress("");
+                            final address = Provider.of<MintNftProvider>(
+                                    context,
+                                    listen: false)
+                                .organisationAddress;
+                            logger.i(
+                                "Organisation address after clearing: '$address'");
+                            logger.i("Address length: ${address.length}");
                             context.push(RouteConstants.mintNftImagesPath);
                           },
                           icon: const Icon(Icons.person, size: 20),

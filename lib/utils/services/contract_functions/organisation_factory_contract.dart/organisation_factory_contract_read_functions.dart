@@ -54,6 +54,8 @@ class ContractReadFunctions {
       final EthereumAddress userAddress = EthereumAddress.fromHex(address);
       final List<dynamic> args = [
         userAddress,
+        BigInt.from(0), // offset
+        BigInt.from(100), // limit - fetch up to 100 organisations
       ];
       final result = await walletProvider.readContract(
         contractAddress: organisationFactoryContractAddress,
@@ -71,6 +73,7 @@ class ContractReadFunctions {
       final totalCount =
           result.length > 1 ? int.parse(result[1].toString()) : 0;
       logger.d(organisations);
+      logger.d("Total organisations count: $totalCount");
       return ContractReadResult.success(
         data: {
           'organisations': organisations,

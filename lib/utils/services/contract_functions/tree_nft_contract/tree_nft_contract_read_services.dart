@@ -116,28 +116,40 @@ class ContractReadFunctions {
       final String currentAddress = walletProvider.currentAddress!.toString();
       final EthereumAddress userAddress =
           EthereumAddress.fromHex(currentAddress);
-      final List<dynamic> args = [userAddress];
+      final List<dynamic> argsProfile = [userAddress];
+      final List<dynamic> argsVerifierTokens = [
+        userAddress,
+        BigInt.from(0), // offset
+        BigInt.from(100), // limit - fetch up to 100 verifier tokens
+      ];
       final userVerifierTokensResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'getUserVerifierTokenDetails',
         abi: treeNftContractABI,
-        params: args,
+        params: argsVerifierTokens,
       );
       final userProfileResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'getUserProfile',
         abi: treeNftContractABI,
-        params: args,
+        params: argsProfile,
       );
       final profile =
           userProfileResult.length > 0 ? userProfileResult[0] ?? [] : [];
       final verifierTokens = userVerifierTokensResult.length > 0
           ? userVerifierTokensResult[0] ?? []
           : [];
+      final totalCount = userVerifierTokensResult.length > 1
+          ? userVerifierTokensResult[1]
+          : BigInt.zero;
       logger.d("User Profile");
       logger.d(profile);
-      return ContractReadResult.success(
-          data: {'profile': profile, 'verifierTokens': verifierTokens});
+      logger.d("Verifier Tokens Total Count: $totalCount");
+      return ContractReadResult.success(data: {
+        'profile': profile,
+        'verifierTokens': verifierTokens,
+        'totalCount': totalCount
+      });
     } catch (e) {
       logger.e("Error reading User profile", error: e);
       return ContractReadResult.error(
@@ -181,8 +193,15 @@ class ContractReadFunctions {
           abi: treeNftContractABI);
       final verifiers =
           treeVerifiersResult.length > 0 ? treeVerifiersResult[0] ?? [] : [];
+      final totalCount = treeVerifiersResult.length > 1
+          ? (treeVerifiersResult[1] as BigInt).toInt()
+          : 0;
+      final visibleCount = treeVerifiersResult.length > 2
+          ? (treeVerifiersResult[2] as BigInt).toInt()
+          : 0;
       logger.d("Tree Verifiers Info");
       logger.d(verifiers);
+      logger.d("Total verifications: $totalCount, Visible: $visibleCount");
       final ownerResult = await walletProvider.readContract(
         contractAddress: treeNFtContractAddress,
         functionName: 'ownerOf',
@@ -191,7 +210,13 @@ class ContractReadFunctions {
       );
       final owner = ownerResult.isNotEmpty ? ownerResult[0] : null;
       return ContractReadResult.success(
-        data: {'details': tree, 'verifiers': verifiers, 'owner': owner},
+        data: {
+          'details': tree,
+          'verifiers': verifiers,
+          'owner': owner,
+          'totalCount': totalCount,
+          'visibleCount': visibleCount,
+        },
       );
     } catch (e) {
       logger.e("Error fetching the details of the Tree NFT", error: e);

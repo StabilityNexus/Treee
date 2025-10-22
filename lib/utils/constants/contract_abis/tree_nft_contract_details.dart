@@ -71,10 +71,21 @@ const String treeNftContractABI = '''[
     {
       "type": "function",
       "name": "getAllNFTs",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
-          "name": "",
+          "name": "trees",
           "type": "tuple[]",
           "internalType": "struct Tree[]",
           "components": [
@@ -154,6 +165,11 @@ const String treeNftContractABI = '''[
               "internalType": "uint256"
             }
           ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -173,102 +189,6 @@ const String treeNftContractABI = '''[
           "name": "",
           "type": "address",
           "internalType": "address"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getNFTsByUser",
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple[]",
-          "internalType": "struct Tree[]",
-          "components": [
-            {
-              "name": "id",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "latitude",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "longitude",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "planting",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "death",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "species",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "imageUri",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "qrPhoto",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "metadata",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "photos",
-              "type": "string[]",
-              "internalType": "string[]"
-            },
-            {
-              "name": "geoHash",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "ancestors",
-              "type": "address[]",
-              "internalType": "address[]"
-            },
-            {
-              "name": "lastCareTimestamp",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "careCount",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "numberOfTrees",
-              "type": "uint256",
-              "internalType": "uint256"
-            }
-          ]
         }
       ],
       "stateMutability": "view"
@@ -593,62 +513,6 @@ const String treeNftContractABI = '''[
     },
     {
       "type": "function",
-      "name": "getTreeNftVerifiers",
-      "inputs": [
-        {
-          "name": "_tokenId",
-          "type": "uint256",
-          "internalType": "uint256"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple[]",
-          "internalType": "struct TreeNftVerification[]",
-          "components": [
-            {
-              "name": "verifier",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "timestamp",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "proofHashes",
-              "type": "string[]",
-              "internalType": "string[]"
-            },
-            {
-              "name": "description",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "isHidden",
-              "type": "bool",
-              "internalType": "bool"
-            },
-            {
-              "name": "treeNftId",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "verifierPlanterTokenAddress",
-              "type": "address",
-              "internalType": "address"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
       "name": "getTreeNftVerifiersPaginated",
       "inputs": [
         {
@@ -792,6 +656,16 @@ const String treeNftContractABI = '''[
           "name": "userAddress",
           "type": "address",
           "internalType": "address"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "outputs": [
@@ -836,102 +710,11 @@ const String treeNftContractABI = '''[
               "internalType": "address"
             }
           ]
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getVerifiedTreesByUser",
-      "inputs": [
+        },
         {
-          "name": "verifier",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "tuple[]",
-          "internalType": "struct Tree[]",
-          "components": [
-            {
-              "name": "id",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "latitude",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "longitude",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "planting",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "death",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "species",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "imageUri",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "qrPhoto",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "metadata",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "photos",
-              "type": "string[]",
-              "internalType": "string[]"
-            },
-            {
-              "name": "geoHash",
-              "type": "string",
-              "internalType": "string"
-            },
-            {
-              "name": "ancestors",
-              "type": "address[]",
-              "internalType": "address[]"
-            },
-            {
-              "name": "lastCareTimestamp",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "careCount",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "numberOfTrees",
-              "type": "uint256",
-              "internalType": "uint256"
-            }
-          ]
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -1263,6 +1046,39 @@ const String treeNftContractABI = '''[
           "name": "verifier",
           "type": "address",
           "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "removeVerificationOptimized",
+      "inputs": [
+        {
+          "name": "_verificationId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_verifierArrayIndex",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_verifiedTreesArrayIndex",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_userVerificationIndex",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_verifierTokenAddrIndex",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "outputs": [],

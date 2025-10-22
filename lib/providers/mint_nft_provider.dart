@@ -80,6 +80,9 @@ class MintNftProvider extends ChangeNotifier {
     _qrIpfsHash = "";
     _geoHash = "";
     _initialPhotos.clear();
+    organisationAddress = "";
+    _numberOfTrees = 0;
+    _details = "";
     notifyListeners();
   }
 }

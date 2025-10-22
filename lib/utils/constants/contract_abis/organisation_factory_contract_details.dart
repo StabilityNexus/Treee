@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String organisationFactoryContractAbi = ''' [
+const String organisationFactoryContractAbi = '''[
     {
       "type": "constructor",
       "inputs": [
@@ -62,7 +62,18 @@ const String organisationFactoryContractAbi = ''' [
     {
       "type": "function",
       "name": "getAllOrganisationDetails",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
           "name": "organizationDetails",
@@ -120,6 +131,11 @@ const String organisationFactoryContractAbi = ''' [
               "internalType": "uint256"
             }
           ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -127,12 +143,28 @@ const String organisationFactoryContractAbi = ''' [
     {
       "type": "function",
       "name": "getAllOrganisations",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
-          "name": "",
+          "name": "orgs",
           "type": "address[]",
           "internalType": "address[]"
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -140,12 +172,190 @@ const String organisationFactoryContractAbi = ''' [
     {
       "type": "function",
       "name": "getMyOrganisations",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
-          "name": "",
+          "name": "orgs",
           "type": "address[]",
           "internalType": "address[]"
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getMyOrganisationsAsMember",
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "orgs",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationDetails[]",
+          "components": [
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "organisationPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "owners",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "members",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "ownerCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "memberCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "isActive",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "timeOfCreation",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getMyOrganisationsAsOwner",
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "orgs",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationDetails[]",
+          "components": [
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "organisationPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "owners",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "members",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "ownerCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "memberCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "isActive",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "timeOfCreation",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -233,13 +443,200 @@ const String organisationFactoryContractAbi = ''' [
           "name": "_user",
           "type": "address",
           "internalType": "address"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "outputs": [
         {
-          "name": "",
+          "name": "orgs",
           "type": "address[]",
           "internalType": "address[]"
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getUserOrganisationsAsMember",
+      "inputs": [
+        {
+          "name": "_user",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "orgs",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationDetails[]",
+          "components": [
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "organisationPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "owners",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "members",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "ownerCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "memberCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "isActive",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "timeOfCreation",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getUserOrganisationsAsOwner",
+      "inputs": [
+        {
+          "name": "_user",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "orgs",
+          "type": "tuple[]",
+          "internalType": "struct OrganisationDetails[]",
+          "components": [
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "organisationPhoto",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "owners",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "members",
+              "type": "address[]",
+              "internalType": "address[]"
+            },
+            {
+              "name": "ownerCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "memberCount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "isActive",
+              "type": "bool",
+              "internalType": "bool"
+            },
+            {
+              "name": "timeOfCreation",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -256,6 +653,19 @@ const String organisationFactoryContractAbi = ''' [
         }
       ],
       "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "promoteToOwner",
+      "inputs": [
+        {
+          "name": "_member",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
     },
     {
       "type": "function",

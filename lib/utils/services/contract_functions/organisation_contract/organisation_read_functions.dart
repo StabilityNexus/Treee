@@ -54,6 +54,8 @@ class OrganisationContractReadFunctions {
           errorMessage: 'Invalid wallet address format',
         );
       }
+
+      // Get organisation basic info
       final orgDetailsResult = await walletProvider.readContract(
         contractAddress: organisationContractAddress,
         functionName: 'getOrganisationInfo',
@@ -66,20 +68,41 @@ class OrganisationContractReadFunctions {
           errorMessage: 'No data returned from contract',
         );
       }
+
       final organisationAddress = (orgDetailsResult[0] as EthereumAddress).hex;
       final organisationName = orgDetailsResult[1] as String;
       final organisationDescription = orgDetailsResult[2] as String;
       final organisationLogoHash = orgDetailsResult[3] as String;
+      final timeOfCreation = (orgDetailsResult[6] as BigInt).toInt();
 
-      final owners = (orgDetailsResult[4] as List)
-          .map((e) => (e as EthereumAddress).hex)
-          .toList();
+      // Get owners with pagination
+      final ownersResult = await walletProvider.readContract(
+        contractAddress: organisationContractAddress,
+        functionName: 'getOwners',
+        params: [BigInt.from(0), BigInt.from(100)], // offset, limit
+        abi: organisationContractAbi,
+      );
 
-      final members = (orgDetailsResult[5] as List)
-          .map((e) => (e as EthereumAddress).hex)
-          .toList();
+      final owners = ownersResult.isNotEmpty
+          ? (ownersResult[0] as List)
+              .map((e) => (e as EthereumAddress).hex)
+              .toList()
+          : <String>[];
 
-      final timeOfCreation = orgDetailsResult[6] as BigInt;
+      // Get members with pagination
+      final membersResult = await walletProvider.readContract(
+        contractAddress: organisationContractAddress,
+        functionName: 'getMembers',
+        params: [BigInt.from(0), BigInt.from(100)], // offset, limit
+        abi: organisationContractAbi,
+      );
+
+      final members = membersResult.isNotEmpty
+          ? (membersResult[0] as List)
+              .map((e) => (e as EthereumAddress).hex)
+              .toList()
+          : <String>[];
+
       final isOwner =
           owners.any((o) => o.toLowerCase() == address.toLowerCase());
       final isMember =
@@ -93,7 +116,7 @@ class OrganisationContractReadFunctions {
           'organisationLogoHash': organisationLogoHash,
           'owners': owners,
           'members': members,
-          'timeOfCreation': timeOfCreation.toInt(),
+          'timeOfCreation': timeOfCreation,
           'isMember': isMember,
           'isOwner': isOwner,
         },

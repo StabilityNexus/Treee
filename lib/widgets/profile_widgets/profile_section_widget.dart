@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
@@ -216,6 +217,16 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
   UserProfileData? _userProfileData;
   List<VerificationDetails> _verifierTokens = [];
   bool _isNotRegistered = false;
+  int _displayedTokensCount = 5;
+  String? _expandedTokenAddress;
+
+  // For tree icon variety
+  String _getTreeIcon(int index) {
+    // Use modulo to cycle through tree-1.png to tree-13.png
+    // Add offset based on previous index to avoid adjacent duplicates
+    final treeNumber = ((index * 3) % 13) + 1; // Multiply by 3 for more variety
+    return 'assets/tree-navbar-images/tree-$treeNumber.png';
+  }
 
   @override
   void initState() {
@@ -312,6 +323,7 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
           setState(() {
             _errorMessage =
                 result.errorMessage ?? 'Failed to load profile data';
+            _userProfileData = null;
           });
         }
       }
@@ -327,7 +339,8 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
         });
       } else {
         setState(() {
-          _errorMessage = 'Errorloading User profile details: $e';
+          _errorMessage = 'Error loading User profile details: $e';
+          _userProfileData = null;
         });
       }
     } finally {
@@ -602,126 +615,104 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     logger.d(
         "Building verifier tokens widget, tokens count: ${_verifierTokens.length}");
 
+    final tokensToDisplay =
+        _verifierTokens.take(_displayedTokensCount).toList();
+    final hasMoreTokens = _verifierTokens.length > _displayedTokensCount;
+
     return Container(
-      width: 300,
-      height: 200, // Fixed height to ensure it's visible
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['background'],
-        border: Border.all(
-          color: getThemeColors(context)['primaryBorder'] ?? Colors.grey,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: (getThemeColors(context)['shadow'] ?? Colors.grey),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: getThemeColors(context)['primary'],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.verified,
-                  color: getThemeColors(context)['textSecondary'],
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Verifier Tokens',
-                  style: TextStyle(
-                    color: getThemeColors(context)['textSecondary'],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+          // Header
+          Text(
+            'Verifier Tokens',
+            style: TextStyle(
+              color: getThemeColors(context)['textPrimary'],
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
           ),
           const SizedBox(height: 12),
 
-          // Tokens List
-          Builder(
-            builder: (context) {
-              logger.d(
-                  "Building verifier tokens content, isEmpty: ${_verifierTokens.isEmpty}");
-
-              if (_verifierTokens.isEmpty) {
-                return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: getThemeColors(context)['secondaryBackground'] ??
-                        Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: getThemeColors(context)['border'] ?? Colors.grey,
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: getThemeColors(context)['textPrimary'] ??
-                            Colors.black,
-                        size: 32,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'No verifier tokens found',
-                        style: TextStyle(
-                          color: getThemeColors(context)['textPrimary'] ??
-                              Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return Column(
-                  children: List.generate(
-                    _verifierTokens.length > 3 ? 3 : _verifierTokens.length,
-                    (index) =>
-                        _buildVerifierTokenCard(_verifierTokens[index], index),
-                  ),
-                );
-              }
-            },
-          ),
-
-          if (_verifierTokens.length > 3)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: getThemeColors(context)['secondary'],
-                  borderRadius: BorderRadius.circular(16),
-                ),
+          // Tokens display
+          if (_verifierTokens.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  '+${_verifierTokens.length - 3} more tokens',
+                  'No verifier tokens found',
                   style: TextStyle(
                     color: getThemeColors(context)['textPrimary'],
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            )
+          else
+            // Bubble-style grid layout - wraps automatically
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              alignment: WrapAlignment.start,
+              children: List.generate(
+                tokensToDisplay.length,
+                (index) => _buildTokenBubble(tokensToDisplay[index], index),
+              ),
+            ),
+
+          // Load More button
+          if (hasMoreTokens)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+                child: SizedBox(
+                  height: 40,
+                  child: Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _displayedTokensCount += 5;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(buttonCircularRadius),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: getThemeColors(context)['primary'],
+                          border: Border.all(
+                            color: getThemeColors(context)['border']!,
+                            width: buttonborderWidth,
+                          ),
+                          borderRadius:
+                              BorderRadius.circular(buttonCircularRadius),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Load More',
+                              style: TextStyle(
+                                color: getThemeColors(context)['textPrimary'],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.expand_more,
+                              size: 16,
+                              color: getThemeColors(context)['textPrimary'],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -731,77 +722,212 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     );
   }
 
-  Widget _buildVerifierTokenCard(VerificationDetails token, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['secondaryBackground'],
-        border: Border.all(
-          color: getThemeColors(context)['border']!,
-          width: 1,
+  Widget _buildTokenBubble(VerificationDetails token, int index) {
+    final double tokenAmount = token.numberOfTrees / 1e18;
+
+    // Format with appropriate decimal places based on size
+    String formattedAmount;
+    if (tokenAmount >= 1000000) {
+      formattedAmount = tokenAmount.toStringAsFixed(0);
+    } else if (tokenAmount >= 1000) {
+      formattedAmount = tokenAmount.toStringAsFixed(1);
+    } else if (tokenAmount >= 1) {
+      formattedAmount = tokenAmount.toStringAsFixed(2);
+    } else {
+      formattedAmount = tokenAmount.toStringAsFixed(4);
+    }
+
+    final bool isExpanded =
+        _expandedTokenAddress == token.verifierPlanterTokenAddress;
+
+    // Alternating colors for bubble effect
+    final color = index % 2 == 0
+        ? getThemeColors(context)['primary']
+        : getThemeColors(context)['secondary'];
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isExpanded) {
+            _expandedTokenAddress = null;
+          } else {
+            _expandedTokenAddress = token.verifierPlanterTokenAddress;
+          }
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        constraints: BoxConstraints(
+          minWidth: isExpanded ? 280 : 80,
+          maxWidth: isExpanded ? 300 : 80,
+          minHeight: isExpanded ? 120 : 80,
+          maxHeight: isExpanded ? 140 : 80,
         ),
-        borderRadius: BorderRadius.circular(12),
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(isExpanded ? 16 : 40),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color,
+              border: Border.all(
+                color: getThemeColors(context)['border']!,
+                width: buttonborderWidth,
+              ),
+              borderRadius: BorderRadius.circular(isExpanded ? 16 : 40),
+            ),
+            child: ClipRect(
+              child: isExpanded
+                  ? _buildExpandedTokenContent(token, formattedAmount)
+                  : _buildCollapsedTokenContent(formattedAmount, index),
+            ),
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildCollapsedTokenContent(String amount, int index) {
+    // Format large numbers (e.g., 1000000 -> 1M, 1500 -> 1.5K)
+    String formatAmount(String amt) {
+      try {
+        double value = double.parse(amt);
+        if (value >= 1000000) {
+          return '${(value / 1000000).toStringAsFixed(1)}M';
+        } else if (value >= 1000) {
+          return '${(value / 1000).toStringAsFixed(1)}K';
+        }
+        return amt;
+      } catch (e) {
+        return amt;
+      }
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          _getTreeIcon(index),
+          width: 32,
+          height: 32,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to coin emoji if image fails to load
+            return const Text(
+              '🪙',
+              style: TextStyle(fontSize: 24),
+            );
+          },
+        ),
+        const SizedBox(height: 4),
+        Text(
+          formatAmount(amount),
+          style: TextStyle(
+            color: getThemeColors(context)['textPrimary'],
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+          ),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandedTokenContent(VerificationDetails token, String amount) {
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Verifier address and tree count
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  '${token.verifier.substring(0, 6)}...${token.verifier.substring(token.verifier.length - 4)}',
-                  style: TextStyle(
-                    color: getThemeColors(context)['textPrimary'],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Token Amount',
+                      style: TextStyle(
+                        color: getThemeColors(context)['textPrimary'],
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      amount,
+                      style: TextStyle(
+                        color: getThemeColors(context)['textPrimary'],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: getThemeColors(context)['primary'],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${token.numberOfTrees} 🌳',
-                  style: TextStyle(
-                    color: getThemeColors(context)['textSecondary'],
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  Clipboard.setData(
+                      ClipboardData(text: token.verifierPlanterTokenAddress));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Address copied!'),
+                      duration: const Duration(seconds: 1),
+                      backgroundColor: getThemeColors(context)['primary'],
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.copy,
+                  size: 16,
+                  color: getThemeColors(context)['textPrimary'],
                 ),
               ),
             ],
           ),
-
-          // Description if available
+          const SizedBox(height: 8),
+          Text(
+            'Contract Address',
+            style: TextStyle(
+              color: getThemeColors(context)['textPrimary'],
+              fontSize: 9,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${token.verifierPlanterTokenAddress.substring(0, 10)}...${token.verifierPlanterTokenAddress.substring(token.verifierPlanterTokenAddress.length - 8)}',
+            style: TextStyle(
+              color: getThemeColors(context)['textPrimary'],
+              fontSize: 10,
+              fontFamily: 'monospace',
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
           if (token.description.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
-              token.description.length > 50
-                  ? '${token.description.substring(0, 50)}...'
+              token.description.length > 40
+                  ? '${token.description.substring(0, 40)}...'
                   : token.description,
               style: TextStyle(
                 color: getThemeColors(context)['textPrimary'],
-                fontSize: 10,
+                fontSize: 9,
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ],
-
-          // Timestamp
-          const SizedBox(height: 4),
-          Text(
-            'Verified: ${DateTime.fromMillisecondsSinceEpoch(token.timestamp * 1000).toString().substring(0, 10)}',
-            style: TextStyle(
-              color: getThemeColors(context)['textPrimary']!,
-              fontSize: 9,
-            ),
-          ),
         ],
       ),
     );
@@ -858,26 +984,31 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 150,
-            height: 20,
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.person_add,
-              size: 40,
-              color: Colors.green.shade400,
+          Material(
+            elevation: 4,
+            shape: const CircleBorder(),
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: getThemeColors(context)['primary'],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 3),
+              ),
+              child: Icon(
+                Icons.person_add,
+                size: 60,
+                color: getThemeColors(context)['textPrimary'],
+              ),
             ),
           ),
-          const SizedBox(height: 34),
+          const SizedBox(height: 24),
           Text(
             'Welcome to Tree Planting Protocol!',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.green.shade700,
+              color: getThemeColors(context)['textPrimary'],
             ),
             textAlign: TextAlign.center,
           ),
@@ -886,44 +1017,90 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
             'You haven\'t registered yet. Create your profile to start your tree planting journey!',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade600,
+              color: getThemeColors(context)['textPrimary'],
               height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                context.push('/register-user');
-              },
-              icon: const Icon(Icons.app_registration, size: 20),
-              label: const Text(
-                'Register Now',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(buttonCircularRadius),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  border: Border.all(color: Colors.black, width: 2),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
-                foregroundColor: Colors.white,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    context.push('/register-user');
+                  },
+                  icon: Icon(
+                    Icons.app_registration,
+                    size: 20,
+                    color: getThemeColors(context)['textPrimary'],
+                  ),
+                  label: Text(
+                    'Register Now',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['primary'],
+                    foregroundColor: getThemeColors(context)['textPrimary'],
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(buttonCircularRadius - 2),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          TextButton.icon(
-            onPressed: () => _loadUserProfileData(),
-            icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Check Again'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.green.shade600,
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(buttonCircularRadius),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  border: Border.all(color: Colors.black, width: 2),
+                ),
+                child: TextButton.icon(
+                  onPressed: () => _loadUserProfileData(),
+                  icon: Icon(
+                    Icons.refresh,
+                    size: 18,
+                    color: getThemeColors(context)['textPrimary'],
+                  ),
+                  label: Text(
+                    'Check Again',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['secondary'],
+                    foregroundColor: getThemeColors(context)['textPrimary'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(buttonCircularRadius - 2),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -959,28 +1136,34 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
     logger.d(
         "Building ProfileSectionWidget - isLoading: $_isLoading, isNotRegistered: $_isNotRegistered, userProfileData: ${_userProfileData?.name}");
 
-    return Container(
-        padding: const EdgeInsets.all(16),
-        child: _isLoading
-            ? _buildLoadingState()
-            : _isNotRegistered
-                ? _buildNotRegisteredState()
-                : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: _isLoading
+          ? _buildLoadingState()
+          : _isNotRegistered
+              ? _buildNotRegisteredState()
+              : _userProfileData == null
+                  ? _buildErrorState()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _profileOverview(),
-                        SizedBox(
-                          width: 15,
+                        // First row: Profile overview and token stats
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              _profileOverview(),
+                              const SizedBox(width: 15),
+                              _tokenWidget(),
+                            ],
+                          ),
                         ),
-                        _tokenWidget(),
-                        SizedBox(
-                          width: 15,
-                        ),
+                        const SizedBox(height: 20),
+                        // Second row: Verifier tokens
                         _verifierTokensWidget(),
                       ],
                     ),
-                  ));
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String organisationContractAbi = ''' [
+const String organisationContractAbi = '''[
     {
       "type": "constructor",
       "inputs": [
@@ -148,12 +148,28 @@ const String organisationContractAbi = ''' [
     {
       "type": "function",
       "name": "getMembers",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
-          "name": "",
+          "name": "memberList",
           "type": "address[]",
           "internalType": "address[]"
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -204,12 +220,28 @@ const String organisationContractAbi = ''' [
     {
       "type": "function",
       "name": "getOwners",
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
       "outputs": [
         {
-          "name": "",
+          "name": "ownerList",
           "type": "address[]",
           "internalType": "address[]"
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -303,11 +335,21 @@ const String organisationContractAbi = ''' [
           "name": "status",
           "type": "uint256",
           "internalType": "uint256"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "outputs": [
         {
-          "name": "",
+          "name": "proposals",
           "type": "tuple[]",
           "internalType": "struct TreePlantingProposal[]",
           "components": [
@@ -372,6 +414,11 @@ const String organisationContractAbi = ''' [
               "internalType": "address"
             }
           ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -546,11 +593,21 @@ const String organisationContractAbi = ''' [
           "name": "status",
           "type": "uint256",
           "internalType": "uint256"
+        },
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "outputs": [
         {
-          "name": "",
+          "name": "requests",
           "type": "tuple[]",
           "internalType": "struct OrganisationVerificationRequest[]",
           "components": [
@@ -595,6 +652,11 @@ const String organisationContractAbi = ''' [
               "internalType": "uint256"
             }
           ]
+        },
+        {
+          "name": "totalCount",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
@@ -1079,6 +1141,6 @@ const String organisationContractAbi = ''' [
       "name": "PaginationLimitExceeded",
       "inputs": []
     }
-  ] ''';
+  ]''';
 final String organisationContractAddress =
     dotenv.env['ORGANISATION_FACTORY_CONTRACT_ADDRESS'] ?? '';

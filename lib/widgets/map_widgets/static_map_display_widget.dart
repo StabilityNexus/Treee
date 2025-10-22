@@ -91,7 +91,7 @@ class _StaticCoordinatesMapState extends State<StaticCoordinatesMap> {
           mapController: _mapController,
           options: MapOptions(
             initialCenter: LatLng(latitude, longitude),
-            initialZoom: 12.0,
+            initialZoom: 10.0,
             minZoom: 3.0,
             maxZoom: 18.0,
             interactionOptions: const InteractionOptions(
@@ -104,7 +104,6 @@ class _StaticCoordinatesMapState extends State<StaticCoordinatesMap> {
               setState(() {
                 _mapLoaded = true;
               });
-              _mapController.move(LatLng(latitude, longitude), 15.0);
             },
           ),
           children: [
