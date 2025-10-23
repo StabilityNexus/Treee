@@ -105,9 +105,9 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/tree-navbar-images/logo.png"
+  image_path: "assets/tree-navbar-images/padded-logo.png"
   remove_alpha_ios: true
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/tree-navbar-images/logo.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/tree-navbar-images/padded-logo.png"
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -34,7 +34,7 @@ class StabilityNexusFooterDialog extends StatelessWidget {
               children: [
                 const Spacer(),
                 Text(
-                  'About Stability Nexus',
+                  'About Us',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -52,7 +52,7 @@ class StabilityNexusFooterDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Stability Nexus is the organization behind this innovative tree planting protocol project.',
+              'The Treee Protocol was developed by the Stability Nexus. We are an organization working to make the world more stable.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

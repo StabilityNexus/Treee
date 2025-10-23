@@ -54,26 +54,19 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1,
-                            ),
-                          ),
+                          width: 40,
+                          height: 40,
+                          padding: const EdgeInsets.all(2),
                           child: Image.asset(
                             'assets/tree-navbar-images/logo.png',
-                            width: 28,
-                            height: 28,
+                            width: 40,
+                            height: 40,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {
                               return Icon(
                                 Icons.eco,
                                 color: Colors.green[600],
-                                size: 28,
+                                size: 32,
                               );
                             },
                           ),
@@ -147,17 +140,9 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            width: 36,
-                            height: 36,
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 1,
-                              ),
-                            ),
+                            width: 40,
+                            height: 40,
+                            padding: const EdgeInsets.all(6),
                             child: SvgPicture.asset(
                               'assets/stability-nexus/stability.svg',
                               fit: BoxFit.contain,
