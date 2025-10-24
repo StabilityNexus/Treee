@@ -18,6 +18,7 @@ class UserProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: appName,
+      showBackButton: true,
       body: Consumer<WalletProvider>(
         builder: (context, walletProvider, child) {
           return SingleChildScrollView(

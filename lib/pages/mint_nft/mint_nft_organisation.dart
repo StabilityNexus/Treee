@@ -123,6 +123,8 @@ class _MintNftOrganisationPageState extends State<MintNftOrganisationPage> {
 
     return BaseScaffold(
       title: "Select Organisation",
+      showBackButton: true,
+      isLoading: _isLoading,
       body: _isLoading
           ? _buildLoadingState()
           : _errorMessage != null

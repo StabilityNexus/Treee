@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -505,37 +506,20 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       if (result.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle,
-                    color: getThemeColors(context)['icon']),
-                const SizedBox(width: 8),
-                const Text("Tree verification submitted successfully!"),
-              ],
-            ),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
+        TransactionDialog.showSuccess(
+          context,
+          title: 'Verification Submitted!',
+          message: 'Your tree verification has been submitted successfully!',
+          transactionHash: result.transactionHash,
+          onClose: () async {
+            await loadTreeDetails();
+          },
         );
-
-        await loadTreeDetails();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error, color: getThemeColors(context)['error']),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: Text("Verification failed: ${result.errorMessage}")),
-              ],
-            ),
-            backgroundColor: getThemeColors(context)['error'],
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 5),
-          ),
+        TransactionDialog.showError(
+          context,
+          title: 'Verification Failed',
+          message: result.errorMessage ?? 'An unknown error occurred',
         );
       }
     } catch (e) {
@@ -579,6 +563,10 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     return BaseScaffold(
         title: "Tree NFT Details",
+        showBackButton: true,
+        isLoading: _isLoading,
+        showReloadButton: true,
+        onReload: loadTreeDetails,
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(

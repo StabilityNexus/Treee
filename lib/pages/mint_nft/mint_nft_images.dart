@@ -150,6 +150,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: "Mint Tree NFT",
+      showBackButton: true,
       body: Column(
         children: [
           Container(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
@@ -23,52 +24,21 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
   String? lastTransactionHash;
   Map<String, dynamic>? lastTransactionData;
 
-  void _showSuccessDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle,
-                  color: getThemeColors(context)['primary']),
-              const SizedBox(width: 8),
-              Text(title),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+  void _showSuccessDialog(String title, String message,
+      {String? transactionHash}) {
+    TransactionDialog.showSuccess(
+      context,
+      title: title,
+      message: message,
+      transactionHash: transactionHash,
     );
   }
 
   void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.error, color: getThemeColors(context)['error']),
-              const SizedBox(width: 8),
-              Text(title),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+    TransactionDialog.showError(
+      context,
+      title: title,
+      message: message,
     );
   }
 
@@ -152,14 +122,13 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
         _showSuccessDialog(
           isOrganisationMint ? 'Proposal Submitted!' : 'Transaction Sent!',
           isOrganisationMint
-              ? 'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-                  'Your tree planting proposal has been submitted to the organisation for approval.\n\n'
+              ? 'Your tree planting proposal has been submitted to the organisation for approval.\n\n'
                   'Species: ${result.data['species']}\n'
                   'Photos: ${result.data['photos'].length} uploaded'
-              : 'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-                  'The NFT will be minted once the transaction is confirmed.\n\n'
+              : 'The NFT will be minted once the transaction is confirmed.\n\n'
                   'Species: ${result.data['species']}\n'
                   'Photos: ${result.data['photos'].length} uploaded',
+          transactionHash: result.transactionHash,
         );
 
         // Clear the organisation address after successful submission
@@ -301,6 +270,8 @@ class _SubmitNFTPageState extends State<SubmitNFTPage> {
 
     return BaseScaffold(
       title: "Submit NFT",
+      showBackButton: true,
+      isLoading: isMinting,
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

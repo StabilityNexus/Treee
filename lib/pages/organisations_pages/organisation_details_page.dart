@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
@@ -112,14 +113,20 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
 
       if (result.success) {
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Transaction sent successfully'),
-            // ignore: use_build_context_synchronously
-            backgroundColor: getThemeColors(context)['primary'],
-          ),
+        TransactionDialog.showSuccess(
+          context,
+          title: 'Member Added!',
+          message:
+              'The member has been successfully added to the organisation.',
+          transactionHash: result.transactionHash,
         );
       } else {
+        // ignore: use_build_context_synchronously
+        TransactionDialog.showError(
+          context,
+          title: 'Failed to Add Member',
+          message: result.errorMessage ?? 'An unknown error occurred',
+        );
         setState(() {
           _errorMessage = result.errorMessage ?? "Failed to add member";
         });
@@ -153,14 +160,20 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
 
       if (result.success) {
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Transaction sent successfully'),
-            // ignore: use_build_context_synchronously
-            backgroundColor: getThemeColors(context)['primary'],
-          ),
+        TransactionDialog.showSuccess(
+          context,
+          title: 'Member Removed!',
+          message:
+              'The member has been successfully removed from the organisation.',
+          transactionHash: result.transactionHash,
         );
       } else {
+        // ignore: use_build_context_synchronously
+        TransactionDialog.showError(
+          context,
+          title: 'Failed to Remove Member',
+          message: result.errorMessage ?? 'An unknown error occurred',
+        );
         setState(() {
           _errorMessage = result.errorMessage ?? "Failed to add member";
         });
@@ -569,23 +582,10 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
       title: organisationName.isNotEmpty
           ? organisationName
           : "Organisation Details",
-      actions: [
-        IconButton(
-          onPressed: _isLoading ? null : fetchOrganisationDetails,
-          icon: _isLoading
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        getThemeColors(context)['primary']!),
-                  ),
-                )
-              : const Icon(Icons.refresh),
-          tooltip: 'Reload',
-        ),
-      ],
+      showBackButton: true,
+      isLoading: _isLoading,
+      showReloadButton: true,
+      onReload: fetchOrganisationDetails,
       body: _isLoading
           ? _buildLoadingState()
           : _errorMessage.isNotEmpty

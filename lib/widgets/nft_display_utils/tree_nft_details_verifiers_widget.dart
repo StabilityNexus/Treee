@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -266,34 +267,30 @@ Future<void> _removeVerifier(Verifier verifier, BuildContext context,
     );
 
     if (context.mounted) {
-      final messenger = ScaffoldMessenger.of(context);
       if (result.success) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: const Text("Verifier removed successfully!"),
-            backgroundColor: getThemeColors(context)['primary'],
-            behavior: SnackBarBehavior.floating,
-          ),
+        TransactionDialog.showSuccess(
+          context,
+          title: 'Verifier Removed!',
+          message: 'The verifier has been successfully removed.',
+          transactionHash: result.transactionHash,
+          onClose: () async {
+            await loadTreeDetails();
+          },
         );
-        await loadTreeDetails();
       } else {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text("Failed to remove verifier: ${result.errorMessage}"),
-            backgroundColor: getThemeColors(context)['error'],
-            behavior: SnackBarBehavior.floating,
-          ),
+        TransactionDialog.showError(
+          context,
+          title: 'Failed to Remove Verifier',
+          message: result.errorMessage ?? 'An unknown error occurred',
         );
       }
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error: $e"),
-          backgroundColor: getThemeColors(context)['error'],
-          behavior: SnackBarBehavior.floating,
-        ),
+      TransactionDialog.showError(
+        context,
+        title: 'Error',
+        message: e.toString(),
       );
     }
   }

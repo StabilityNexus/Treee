@@ -93,10 +93,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
 
     return BaseScaffold(
       title: "NFT Details",
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.pop(),
-      ),
+      showBackButton: true,
+      onBackPressed: () => context.pop(),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,

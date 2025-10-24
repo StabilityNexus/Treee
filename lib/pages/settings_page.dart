@@ -203,8 +203,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color:
-                            getThemeColors(context)['error']!,
+                        color: getThemeColors(context)['error']!,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: getThemeColors(context)['error']!,

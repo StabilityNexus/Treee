@@ -286,6 +286,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
 
     return BaseScaffold(
       title: "Mint NFT Coordinates",
+      showBackButton: true,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,

@@ -161,10 +161,9 @@ class _CreateOrganisationPageState extends State<CreateOrganisationPage> {
 
     return BaseScaffold(
       title: "Organisation Details",
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.pop(),
-      ),
+      showBackButton: true,
+      onBackPressed: () => context.pop(),
+      isLoading: _isUploading,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,
