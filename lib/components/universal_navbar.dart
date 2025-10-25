@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
 import 'package:tree_planting_protocol/components/wallet_connect_dialog.dart';
+import 'package:tree_planting_protocol/components/stability_nexus_footer_dialog.dart';
 import 'package:tree_planting_protocol/utils/services/wallet_provider_utils.dart';
 import 'package:tree_planting_protocol/utils/constants/tree_images.dart';
 import 'package:tree_planting_protocol/utils/services/switch_chain_utils.dart';
@@ -52,26 +54,19 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1,
-                            ),
-                          ),
+                          width: 40,
+                          height: 40,
+                          padding: const EdgeInsets.all(2),
                           child: Image.asset(
                             'assets/tree-navbar-images/logo.png',
-                            width: 28,
-                            height: 28,
+                            width: 40,
+                            height: 40,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {
                               return Icon(
                                 Icons.eco,
                                 color: Colors.green[600],
-                                size: 28,
+                                size: 32,
                               );
                             },
                           ),
@@ -135,6 +130,31 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                         // ),
                         const SizedBox(width: 6),
                         if (actions != null) ...actions!,
+                        InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  const StabilityNexusFooterDialog(),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            padding: const EdgeInsets.all(6),
+                            child: SvgPicture.asset(
+                              'assets/stability-nexus/stability.svg',
+                              fit: BoxFit.contain,
+                              placeholderBuilder: (context) => Icon(
+                                Icons.eco,
+                                color: Colors.green[600],
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
                         if (walletProvider.isConnected &&
                             walletProvider.currentAddress != null)
                           _buildWalletMenu(context, walletProvider)
