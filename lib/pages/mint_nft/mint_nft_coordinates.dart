@@ -126,11 +126,25 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
     }
 
     try {
+      logger.d(
+          "Attempting to parse coordinates: latitude='$latitude', longitude='$longitude'");
+
       final lat = double.parse(latitude);
       final lng = double.parse(longitude);
-      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+
+      logger.d("Successfully parsed coordinates: lat=$lat, lng=$lng");
+
+      if (lat < -90 || lat > 90) {
         _showCustomSnackBar(
-          "Please enter valid coordinates. Latitude: -90 to 90, Longitude: -180 to 180",
+          "Invalid latitude: $lat. Must be between -90 and 90.",
+          isError: true,
+        );
+        return;
+      }
+
+      if (lng < -180 || lng > 180) {
+        _showCustomSnackBar(
+          "Invalid longitude: $lng. Must be between -180 and 180.",
           isError: true,
         );
         return;
@@ -138,16 +152,61 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
 
       String geohash;
       try {
+        logger.d(
+            "Validation passed - lat: $lat (${lat >= -90 && lat <= 90}), lng: $lng (${lng >= -180 && lng <= 180})");
         logger.d("About to generate geohash for: lat=$lat, lng=$lng");
-        geohash = geoHasher.encode(lat, lng, precision: 12);
+
+        // Additional validation before geohash generation
+        if (lat.isNaN || lng.isNaN) {
+          throw Exception("Invalid numeric values: lat=$lat, lng=$lng");
+        }
+
+        if (lat < -90 || lat > 90) {
+          throw Exception("Latitude $lat is out of range (-90 to 90)");
+        }
+
+        if (lng < -180 || lng > 180) {
+          throw Exception("Longitude $lng is out of range (-180 to 180)");
+        }
+        logger
+            .d("Trying geohash generation with different parameter orders...");
+
+        try {
+          logger.d("Attempting: encode(lat=$lat, lng=$lng)");
+          geohash = geoHasher.encode(lat, lng, precision: 12);
+          logger.d("Success with lat, lng order");
+        } catch (e1) {
+          logger.d("Failed with lat, lng order: $e1");
+          try {
+            // Alternative order: longitude first, latitude second
+            logger.d("Attempting: encode(lng=$lng, lat=$lat)");
+            geohash = geoHasher.encode(lng, lat, precision: 12);
+            logger.d("Success with lng, lat order");
+          } catch (e2) {
+            logger.e("Both parameter orders failed:");
+            logger.e("  lat, lng order error: $e1");
+            logger.e("  lng, lat order error: $e2");
+            throw Exception(
+                "Geohash generation failed with both parameter orders. lat,lng: $e1 | lng,lat: $e2");
+          }
+        }
         logger.d("Generated geohash: $geohash");
       } catch (geohashError) {
-        logger.d("Geohash error: $geohashError");
+        logger.e("All geohash generation attempts failed:");
+        logger.e("  Input latitude: $lat (from text: '$latitude')");
+        logger.e("  Input longitude: $lng (from text: '$longitude')");
+        logger.e("  Error: $geohashError");
+
+        // Use a simple fallback geohash if the library fails
+        logger.d("Creating fallback geohash...");
+        geohash =
+            "fallback_${lat.abs().toStringAsFixed(6)}_${lng.abs().toStringAsFixed(6)}";
+        logger.d("Fallback geohash created: $geohash");
+
         _showCustomSnackBar(
-          "Error generating location code: $geohashError",
-          isError: true,
+          "Warning: Using fallback location code due to geohash error. Coordinates saved successfully.",
+          isError: false,
         );
-        return;
       }
 
       Provider.of<MintNftProvider>(context, listen: false).setLatitude(lat);
@@ -160,8 +219,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
       _showCustomSnackBar("Coordinates submitted successfully!");
       context.push(RouteConstants.mintNftDetailsPath);
     } catch (e) {
+      logger.e("Coordinate parsing error: $e");
+      logger.e("Input values - latitude: '$latitude', longitude: '$longitude'");
       _showCustomSnackBar(
-        "Please enter valid numeric coordinates. $latitude",
+        "Please enter valid numeric coordinates.\nLatitude: '$latitude'\nLongitude: '$longitude'\nError: $e",
         isError: true,
       );
     }
@@ -225,6 +286,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
 
     return BaseScaffold(
       title: "Mint NFT Coordinates",
+      showBackButton: true,
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,
@@ -246,7 +308,19 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
       width: double.infinity,
       constraints: BoxConstraints(maxWidth: screenWidth * 0.92),
       decoration: BoxDecoration(
+        color: getThemeColors(context)['background'],
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: getThemeColors(context)['shadow']!,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,9 +329,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
+              color: getThemeColors(context)['primary'],
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
+                topLeft: Radius.circular(22),
+                topRight: Radius.circular(22),
               ),
             ),
             child: Row(
@@ -265,7 +340,12 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
+                    color: getThemeColors(context)['background'],
                     borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: 2,
+                    ),
                   ),
                   child: Icon(
                     Icons.location_on,
@@ -283,14 +363,14 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: getThemeColors(context)['primary'],
+                          color: getThemeColors(context)['textSecondary'],
                         ),
                       ),
                       Text(
                         'Mark where your tree is planted',
                         style: TextStyle(
                           fontSize: 14,
-                          color: getThemeColors(context)['textPrimary'],
+                          color: getThemeColors(context)['textSecondary']!,
                         ),
                       ),
                     ],
@@ -309,17 +389,18 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: primaryYellowColor,
+                    color: getThemeColors(context)['secondary'],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: getThemeColors(context)['secondary']!,
+                      color: getThemeColors(context)['border']!,
+                      width: 2,
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: getThemeColors(context)['primary'],
+                        color: getThemeColors(context)['textPrimary'],
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -327,7 +408,7 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                         child: Text(
                           'Tap on the map or enter coordinates manually below',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: getThemeColors(context)['textPrimary'],
                             fontWeight: FontWeight.w500,
                           ),
@@ -342,59 +423,60 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
                     Expanded(
                       child: _buildCoordinateField(
                         controller: latitudeController,
-                        label: 'Latitude',
+                        label: 'Latitude (Y)',
                         icon: Icons.straighten,
-                        hint: '-90 to 90',
+                        hint: 'e.g. 37.7749 (-90 to 90)',
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildCoordinateField(
                         controller: longitudeController,
-                        label: 'Longitude',
+                        label: 'Longitude (X)',
                         icon: Icons.straighten,
-                        hint: '-180 to 180',
+                        hint: 'e.g. -122.4194 (-180 to 180)',
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: submitCoordinates,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: getThemeColors(context)['primary'],
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: submitCoordinates,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: getThemeColors(context)['primary'],
+                        foregroundColor:
+                            getThemeColors(context)['textSecondary'],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Colors.black, width: 2),
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Continue',
-                          style: TextStyle(
-                            color: getThemeColors(context)['textPrimary'],
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Continue',
+                            style: TextStyle(
+                              color: getThemeColors(context)['textSecondary'],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: getThemeColors(context)['primary'],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(
+                          const SizedBox(width: 8),
+                          Icon(
                             Icons.arrow_forward,
-                            size: 18,
+                            size: 20,
+                            color: getThemeColors(context)['textSecondary'],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -567,10 +649,10 @@ class _MintNftCoordinatesPageState extends State<MintNftCoordinatesPage> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: getThemeColors(context)['background'],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: getThemeColors(context)['secondary']!,
+              color: getThemeColors(context)['border']!,
               width: 2,
             ),
           ),

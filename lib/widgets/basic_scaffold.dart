@@ -17,16 +17,27 @@ class BaseScaffold extends StatelessWidget {
   final bool extendBodyBehindAppBar;
   final bool showBottomNavigation;
   final Widget? leading;
+  final bool showBackButton;
+  final bool isLoading;
+  final VoidCallback? onBackPressed;
+  final VoidCallback? onReload;
+  final bool showReloadButton;
 
-  const BaseScaffold(
-      {super.key,
-      required this.body,
-      this.title,
-      this.actions,
-      this.floatingActionButton,
-      this.extendBodyBehindAppBar = false,
-      this.showBottomNavigation = true,
-      this.leading});
+  const BaseScaffold({
+    super.key,
+    required this.body,
+    this.title,
+    this.actions,
+    this.floatingActionButton,
+    this.extendBodyBehindAppBar = false,
+    this.showBottomNavigation = true,
+    this.leading,
+    this.showBackButton = false,
+    this.isLoading = false,
+    this.onBackPressed,
+    this.onReload,
+    this.showReloadButton = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +70,16 @@ class BaseScaffold extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar:
-              UniversalNavbar(title: title, actions: actions, leading: leading),
+          appBar: UniversalNavbar(
+            title: title,
+            actions: actions,
+            leading: leading,
+            showBackButton: showBackButton,
+            isLoading: isLoading,
+            onBackPressed: onBackPressed,
+            onReload: onReload,
+            showReloadButton: showReloadButton,
+          ),
           extendBodyBehindAppBar: extendBodyBehindAppBar,
           body: bodyContent,
           floatingActionButton: floatingActionButton,

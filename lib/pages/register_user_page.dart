@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_write_functions.dart';
@@ -32,51 +33,21 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
     super.dispose();
   }
 
-  void _showSuccessDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green),
-              const SizedBox(width: 8),
-              Text(title),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+  void _showSuccessDialog(String title, String message,
+      {String? transactionHash}) {
+    TransactionDialog.showSuccess(
+      context,
+      title: title,
+      message: message,
+      transactionHash: transactionHash,
     );
   }
 
   void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.error, color: getThemeColors(context)['error']),
-              const SizedBox(width: 8),
-              Text(title),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+    TransactionDialog.showError(
+      context,
+      title: title,
+      message: message,
     );
   }
 
@@ -151,9 +122,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
       if (result.success) {
         _showSuccessDialog(
           'Registration Successful!',
-          'User registered successfully!\n\n'
-              'Transaction hash: ${result.transactionHash!.substring(0, 10)}...\n\n'
-              'Welcome to the Tree Planting Protocol!',
+          'User registered successfully! Welcome to the Tree Planting Protocol!',
+          transactionHash: result.transactionHash,
         );
       } else {
         _showErrorDialog('Registration Failed', result.errorMessage!);
@@ -174,6 +144,8 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: "Register",
+      showBackButton: true,
+      isLoading: _isLoading,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -306,7 +278,7 @@ class _RegisterUserPageState extends State<RegisterUserPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: getThemeColors(context)['secondaryBorder']!,
+                color: getThemeColors(context)['primaryBorder']!,
                 width: 2,
               ),
               boxShadow: [
@@ -449,7 +421,7 @@ Widget _buildFormField({
             ),
             child: Icon(
               icon,
-              color: getThemeColors(context)['primary'],
+              color: getThemeColors(context)['icon'],
               size: 18,
             ),
           ),

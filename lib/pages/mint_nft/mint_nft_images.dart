@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
@@ -149,6 +150,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       title: "Mint Tree NFT",
+      showBackButton: true,
       body: Column(
         children: [
           Container(
@@ -171,27 +173,68 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed:
-                                _isUploading ? null : _pickAndUploadImages,
-                            icon: const Icon(Icons.add_photo_alternate),
-                            label: Text(
-                              'Add Photos',
-                              style: TextStyle(color: primaryGreenColor),
+                          flex: 2,
+                          child: Material(
+                            elevation: 4,
+                            borderRadius:
+                                BorderRadius.circular(buttonCircularRadius),
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  _isUploading ? null : _pickAndUploadImages,
+                              icon: const Icon(Icons.add_photo_alternate,
+                                  size: 20),
+                              label: const Text('Add Photos'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    getThemeColors(context)['primary'],
+                                foregroundColor:
+                                    getThemeColors(context)['textSecondary'],
+                                elevation: 0,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      buttonCircularRadius),
+                                  side: const BorderSide(
+                                      color: Colors.black, width: 2),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        if (_uploadedHashes.isNotEmpty)
-                          ElevatedButton.icon(
-                            onPressed: _isUploading ? null : _removeAllImages,
-                            icon: const Icon(Icons.delete_sweep),
-                            label: const Text('Remove All'),
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor:
-                                  getThemeColors(context)['secondaryButton'],
+                        if (_uploadedHashes.isNotEmpty) ...[
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Material(
+                              elevation: 4,
+                              borderRadius:
+                                  BorderRadius.circular(buttonCircularRadius),
+                              child: OutlinedButton.icon(
+                                onPressed:
+                                    _isUploading ? null : _removeAllImages,
+                                icon: const Icon(Icons.delete_sweep, size: 20),
+                                label: const Text('Clear All'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor:
+                                      getThemeColors(context)['textSecondary'],
+                                  backgroundColor: getThemeColors(
+                                      context)['secondaryButton'],
+                                  elevation: 0,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  side: BorderSide(
+                                    color: getThemeColors(context)['border']!,
+                                    width: 2,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        buttonCircularRadius),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -336,15 +379,37 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _uploadedHashes.isEmpty
-                          ? null
-                          : () {
-                              context.push('/mint-nft/submit-nft');
-                            },
-                      child: Text(
-                        "Submit NFT",
-                        style: Theme.of(context).textTheme.titleMedium,
+                    Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(buttonCircularRadius),
+                      child: ElevatedButton(
+                        onPressed: _uploadedHashes.isEmpty
+                            ? null
+                            : () {
+                                context.push('/mint-nft/submit-nft');
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: getThemeColors(context)['primary'],
+                          foregroundColor:
+                              getThemeColors(context)['textSecondary'],
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(buttonCircularRadius),
+                            side:
+                                const BorderSide(color: Colors.black, width: 2),
+                          ),
+                        ),
+                        child: Text(
+                          "Submit NFT",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: getThemeColors(context)['textSecondary'],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),

@@ -14,8 +14,23 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final List<Widget>? actions;
   final Widget? leading;
+  final bool showBackButton;
+  final bool isLoading;
+  final VoidCallback? onBackPressed;
+  final VoidCallback? onReload;
+  final bool showReloadButton;
 
-  const UniversalNavbar({super.key, this.title, this.actions, this.leading});
+  const UniversalNavbar({
+    super.key,
+    this.title,
+    this.actions,
+    this.leading,
+    this.showBackButton = false,
+    this.isLoading = false,
+    this.onBackPressed,
+    this.onReload,
+    this.showReloadButton = false,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(120.0);
@@ -48,6 +63,31 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   if (leading != null) ...[
                     leading!,
+                  ] else if (showBackButton) ...[
+                    Container(
+                      width: 36,
+                      height: 36,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onPressed:
+                            onBackPressed ?? () => Navigator.of(context).pop(),
+                        tooltip: 'Go Back',
+                      ),
+                    ),
                   ],
                   Expanded(
                     flex: 2,
@@ -72,7 +112,17 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (title != null)
+                        if (isLoading)
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        else if (title != null)
                           Flexible(
                             child: Text(
                               title!,
@@ -100,34 +150,30 @@ class UniversalNavbar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // Container(
-                        //   width: 36,
-                        //   height: 36,
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.white.withOpacity(0.2),
-                        //     borderRadius: BorderRadius.circular(8),
-                        //     border: Border.all(
-                        //       color: Colors.white.withOpacity(0.3),
-                        //       width: 1,
-                        //     ),
-                        //   ),
-                        //   child: IconButton(
-                        //     padding: EdgeInsets.zero,
-                        //     icon: Icon(
-                        //       themeProvider.isDarkMode
-                        //           ? Icons.light_mode
-                        //           : Icons.dark_mode,
-                        //       color: Colors.white,
-                        //       size: 18,
-                        //     ),
-                        //     onPressed: () {
-                        //       themeProvider.toggleTheme();
-                        //     },
-                        //     tooltip: themeProvider.isDarkMode
-                        //         ? 'Switch to Light Mode'
-                        //         : 'Switch to Dark Mode',
-                        //   ),
-                        // ),
+                        if (showReloadButton && onReload != null)
+                          Container(
+                            width: 36,
+                            height: 36,
+                            margin: const EdgeInsets.only(right: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: isLoading ? null : onReload,
+                              tooltip: 'Reload Data',
+                            ),
+                          ),
                         const SizedBox(width: 6),
                         if (actions != null) ...actions!,
                         InkWell(

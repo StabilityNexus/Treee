@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-String apiKey = dotenv.get('API_KEY', fallback: "");
-String apiSecret = dotenv.get('API_SECRET', fallback: "");
+String apiKey = dotenv.get('PINATA_API_KEY', fallback: "");
+String apiSecret = dotenv.get('PINATA_API_SECRET', fallback: "");
 
 Future<String?> uploadToIPFS(
     File imageFile, Function(bool) setUploadingState) async {

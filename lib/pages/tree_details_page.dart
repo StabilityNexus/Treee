@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
@@ -31,12 +32,103 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
   String? loggedInUser = "";
   bool canVerify = false;
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   Tree? treeDetails;
+  int _verifiersOffset = 0;
+  final int _verifiersLimit = 10;
+  int _totalVerifiersCount = 0;
+  int _visibleVerifiersCount = 0;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     loadTreeDetails();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.8 &&
+        !_isLoadingMore &&
+        _verifiersOffset + _verifiersLimit < _visibleVerifiersCount) {
+      _loadMoreVerifiers();
+    }
+  }
+
+  Future<void> _loadMoreVerifiers() async {
+    if (_isLoadingMore) return;
+
+    setState(() {
+      _isLoadingMore = true;
+      _verifiersOffset += _verifiersLimit;
+    });
+
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final result = await ContractReadFunctions.getTreeNFTInfo(
+      walletProvider: walletProvider,
+      id: toInt(widget.treeId),
+      offset: _verifiersOffset,
+      limit: _verifiersLimit,
+    );
+
+    if (result.success && result.data != null) {
+      final List<dynamic> verifiersData = result.data['verifiers'] ?? [];
+      // Parse the verifiers using the same method from Tree model
+      final List<Verifier> newVerifiers = _parseVerifiers(verifiersData);
+      setState(() {
+        treeDetails?.verifiers.addAll(newVerifiers);
+        _isLoadingMore = false;
+      });
+    } else {
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
+  static List<Verifier> _parseVerifiers(List<dynamic> verifiersData) {
+    List<Verifier> verifiers = [];
+    for (int i = 0; i < verifiersData.length; i++) {
+      var verifierEntry = verifiersData[i];
+
+      try {
+        if (verifierEntry is String) {
+          verifiers.add(Verifier(
+            address: verifierEntry,
+            timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            proofHashes: [],
+            description: "Verified",
+            isActive: true,
+            verificationId: i,
+          ));
+        } else if (verifierEntry is List) {
+          if (verifierEntry.isNotEmpty) {
+            if (verifierEntry.length == 1) {
+              verifiers.add(Verifier(
+                address: verifierEntry[0].toString(),
+                timestamp: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                proofHashes: [],
+                description: "Verified",
+                isActive: true,
+                verificationId: i,
+              ));
+            } else if (verifierEntry.length >= 6) {
+              verifiers.add(Verifier.fromList(verifierEntry));
+            }
+          }
+        }
+      } catch (e) {
+        logger.e("Error parsing verifier at index $i: $e");
+      }
+    }
+    return verifiers;
   }
 
   Future<void> loadTreeDetails() async {
@@ -44,17 +136,25 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     loggedInUser = walletProvider.currentAddress.toString();
     setState(() {
       _isLoading = true;
+      _verifiersOffset = 0;
     });
     final result = await ContractReadFunctions.getTreeNFTInfo(
-        walletProvider: walletProvider,
-        id: toInt(widget.treeId),
-        offset: TREE_VERIFIERS_OFFSET,
-        limit: TREE_VERIFIERS_LIMIT);
+      walletProvider: walletProvider,
+      id: toInt(widget.treeId),
+      offset: _verifiersOffset,
+      limit: _verifiersLimit,
+    );
     if (result.success && result.data != null) {
       final List<dynamic> treesData = result.data['details'] ?? [];
       final List<dynamic> verifiersData = result.data['verifiers'] ?? [];
       final String owner = result.data['owner'].toString();
+      final int totalCount = result.data['totalCount'] ?? 0;
+      final int visibleCount = result.data['visibleCount'] ?? 0;
+
       treeDetails = Tree.fromContractData(treesData, verifiersData, owner);
+      _totalVerifiersCount = totalCount;
+      _visibleVerifiersCount = visibleCount;
+
       canVerify = true;
       for (var verifier in verifiersData) {
         if (verifier[0].toString().toLowerCase() ==
@@ -194,92 +294,109 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
               ],
             ),
           ),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.symmetric(vertical: 16.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: canVerify
-                  ? getThemeColors(context)['primary']
-                  : getThemeColors(context)['secondary'],
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: getThemeColors(context)['textPrimary']!,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  canVerify ? Icons.verified : Icons.lock,
-                  color: getThemeColors(context)['textPrimary']!,
-                  size: 32,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  canVerify ? "Tree Verification" : "Verification Disabled",
-                  style: TextStyle(
+          Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(12.0),
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: canVerify
+                    ? getThemeColors(context)['primary']
+                    : getThemeColors(context)['secondary'],
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    canVerify ? Icons.verified : Icons.lock,
                     color: getThemeColors(context)['textPrimary']!,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    size: 32,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  canVerify
-                      ? "Confirm this tree's authenticity"
-                      : "You cannot verify this tree",
-                  style: TextStyle(
-                    color: getThemeColors(context)['textPrimary'],
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: canVerify
-                      ? () async {
-                          _showVerificationDialog();
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: getThemeColors(context)['background'],
-                    foregroundColor: canVerify
-                        ? getThemeColors(context)['primary']
-                        : getThemeColors(context)['secondary'],
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                  const SizedBox(height: 8),
+                  Text(
+                    canVerify ? "Tree Verification" : "Verification Disabled",
+                    style: TextStyle(
+                      color: getThemeColors(context)['textPrimary']!,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    elevation: 0,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        canVerify ? Icons.check_circle : Icons.cancel,
-                        size: 20,
+                  const SizedBox(height: 4),
+                  Text(
+                    canVerify
+                        ? "Confirm this tree's authenticity"
+                        : "You cannot verify this tree",
+                    style: TextStyle(
+                      color: getThemeColors(context)['textPrimary'],
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(25),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.black, width: 2),
                       ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        "Verify Tree",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      child: ElevatedButton(
+                        onPressed: canVerify
+                            ? () async {
+                                _showVerificationDialog();
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              getThemeColors(context)['background'],
+                          foregroundColor: canVerify
+                              ? getThemeColors(context)['textPrimary']
+                              : getThemeColors(context)['textSecondary'],
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(23),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              canVerify ? Icons.check_circle : Icons.cancel,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              "Verify Tree",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           treeVerifiersSection(
-              loggedInUser, treeDetails, loadTreeDetails, context),
+            loggedInUser,
+            treeDetails,
+            loadTreeDetails,
+            context,
+            currentCount: treeDetails?.verifiers.length ?? 0,
+            totalCount: _totalVerifiersCount,
+            visibleCount: _visibleVerifiersCount,
+          ),
         ],
       ),
     );
@@ -291,36 +408,40 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
   }
 
   Widget _buildDetailCard(String title, String value) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: getThemeColors(context)['background'],
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-            color: getThemeColors(context)['primaryBorder']!, width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: getThemeColors(context)['textPrimary'],
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: getThemeColors(context)['background'],
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: getThemeColors(context)['textPrimary'],
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: getThemeColors(context)['textPrimary'],
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: getThemeColors(context)['textPrimary'],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -385,37 +506,20 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       if (result.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle,
-                    color: getThemeColors(context)['icon']),
-                const SizedBox(width: 8),
-                const Text("Tree verification submitted successfully!"),
-              ],
-            ),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
+        TransactionDialog.showSuccess(
+          context,
+          title: 'Verification Submitted!',
+          message: 'Your tree verification has been submitted successfully!',
+          transactionHash: result.transactionHash,
+          onClose: () async {
+            await loadTreeDetails();
+          },
         );
-
-        await loadTreeDetails();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error, color: getThemeColors(context)['error']),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: Text("Verification failed: ${result.errorMessage}")),
-              ],
-            ),
-            backgroundColor: getThemeColors(context)['error'],
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 5),
-          ),
+        TransactionDialog.showError(
+          context,
+          title: 'Verification Failed',
+          message: result.errorMessage ?? 'An unknown error occurred',
         );
       }
     } catch (e) {
@@ -459,9 +563,14 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     return BaseScaffold(
         title: "Tree NFT Details",
+        showBackButton: true,
+        isLoading: _isLoading,
+        showReloadButton: true,
+        onReload: loadTreeDetails,
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -478,6 +587,30 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                         child: _buildTreeNFTDetailsSection(
                             screenHeight, screenWidth, context),
                       ),
+                      if (_isLoadingMore)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Loading more verifiers...",
+                                style: TextStyle(
+                                  color:
+                                      getThemeColors(context)['textSecondary'],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -616,25 +749,71 @@ class _VerificationModalState extends State<_VerificationModal> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select Image Source"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Colors.black, width: 2),
+          ),
+          backgroundColor: getThemeColors(context)['background'],
+          title: Text(
+            "Select Image Source",
+            style: TextStyle(
+              color: getThemeColors(context)['textPrimary'],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Camera"),
-                onTap: () {
-                  Navigator.pop(context);
-                  _takePhoto();
-                },
+              Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['background'],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.camera_alt,
+                        color: getThemeColors(context)['primary']),
+                    title: Text(
+                      "Camera",
+                      style: TextStyle(
+                        color: getThemeColors(context)['textPrimary'],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _takePhoto();
+                    },
+                  ),
+                ),
               ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text("Gallery"),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage();
-                },
+              const SizedBox(height: 12),
+              Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['background'],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.photo_library,
+                        color: getThemeColors(context)['primary']),
+                    title: Text(
+                      "Gallery",
+                      style: TextStyle(
+                        color: getThemeColors(context)['textPrimary'],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImage();
+                    },
+                  ),
+                ),
               ),
             ],
           ),
@@ -654,33 +833,52 @@ class _VerificationModalState extends State<_VerificationModal> {
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 2),
       ),
       child: Container(
         constraints: BoxConstraints(
           maxHeight: dialogHeight,
           maxWidth: dialogWidth,
         ),
+        decoration: BoxDecoration(
+          color: getThemeColors(context)['background'],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black, width: 2),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              decoration: BoxDecoration(
+                color: getThemeColors(context)['primary'],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  topRight: Radius.circular(14),
+                ),
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
               child: Row(
                 children: [
-                  Icon(Icons.verified, color: Colors.green.shade600, size: 28),
+                  Icon(Icons.verified,
+                      color: getThemeColors(context)['textPrimary'], size: 28),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       "Verify Tree",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        color: getThemeColors(context)['textPrimary'],
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close,
+                        color: getThemeColors(context)['textPrimary']),
                   ),
                 ],
               ),
@@ -691,25 +889,45 @@ class _VerificationModalState extends State<_VerificationModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Verification Description",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: getThemeColors(context)['textPrimary'],
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _descriptionController,
                       maxLines: 3,
+                      style: TextStyle(
+                        color: getThemeColors(context)['textPrimary'],
+                      ),
                       decoration: InputDecoration(
                         hintText:
                             "Describe your verification (e.g., tree health, location accuracy, etc.)",
+                        hintStyle: TextStyle(
+                          color: getThemeColors(context)['textSecondary'],
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                              color: getThemeColors(context)['primary']!,
+                              width: 2),
                         ),
                         filled: true,
-                        fillColor: Colors.grey.shade50,
+                        fillColor: getThemeColors(context)['background'],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -729,20 +947,38 @@ class _VerificationModalState extends State<_VerificationModal> {
                               ),
                             ),
                             Flexible(
-                              child: TextButton.icon(
-                                onPressed: _selectedImages.length < 3
-                                    ? _showImageSourceDialog
-                                    : null,
-                                icon: const Icon(Icons.add_photo_alternate,
-                                    size: 18),
-                                label: const Text("Add",
-                                    style: TextStyle(fontSize: 12)),
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
+                              child: Material(
+                                elevation: 4,
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: getThemeColors(context)['primary'],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: Colors.black, width: 2),
+                                  ),
+                                  child: TextButton.icon(
+                                    onPressed: _selectedImages.length < 3
+                                        ? _showImageSourceDialog
+                                        : null,
+                                    icon: Icon(Icons.add_photo_alternate,
+                                        size: 18,
+                                        color: getThemeColors(
+                                            context)['textPrimary']),
+                                    label: Text("Add",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: getThemeColors(
+                                              context)['textPrimary'],
+                                        )),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -760,10 +996,15 @@ class _VerificationModalState extends State<_VerificationModal> {
                           itemBuilder: (context, index) {
                             return Container(
                               margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: Colors.black, width: 2),
+                              ),
                               child: Stack(
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(6),
                                     child: Image.file(
                                       _selectedImages[index],
                                       width: 80,
@@ -782,6 +1023,8 @@ class _VerificationModalState extends State<_VerificationModal> {
                                           color:
                                               getThemeColors(context)['error'],
                                           shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color: Colors.black, width: 1),
                                         ),
                                         child: const Icon(
                                           Icons.close,
@@ -802,8 +1045,9 @@ class _VerificationModalState extends State<_VerificationModal> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: getThemeColors(context)['background'],
+                          color: getThemeColors(context)['secondary'],
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 2),
                         ),
                         child: Row(
                           children: [
@@ -813,11 +1057,16 @@ class _VerificationModalState extends State<_VerificationModal> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation(
-                                    getThemeColors(context)['primary']),
+                                    getThemeColors(context)['textPrimary']),
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Text("Uploading images to IPFS..."),
+                            Text(
+                              "Uploading images to IPFS...",
+                              style: TextStyle(
+                                color: getThemeColors(context)['textPrimary'],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -827,51 +1076,82 @@ class _VerificationModalState extends State<_VerificationModal> {
             ),
             Container(
               padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                ),
+              ),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(
-                            color: getThemeColors(context)['textPrimary']),
+                    child: Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: getThemeColors(context)['background'],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 2),
+                        ),
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                                color: getThemeColors(context)['textPrimary']),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
-                    child: ElevatedButton(
-                      onPressed: _isUploading ||
-                              _descriptionController.text.trim().isEmpty
-                          ? null
-                          : () async {
-                              if (_selectedImages.isNotEmpty &&
-                                  _uploadedHashes.length !=
-                                      _selectedImages.length) {
-                                await _uploadImages();
-                              }
-                              Navigator.pop(context);
-                              widget.onVerify(
-                                description: _descriptionController.text.trim(),
-                                proofHashes: _uploadedHashes,
-                              );
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: getThemeColors(context)['primary'],
-                        foregroundColor: getThemeColors(context)['background'],
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
+                    child: Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 2),
                         ),
-                      ),
-                      child: Text(
-                        _selectedImages.isNotEmpty &&
-                                _uploadedHashes.length != _selectedImages.length
-                            ? "Upload & Verify"
-                            : "Verify Tree",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        child: ElevatedButton(
+                          onPressed: _isUploading ||
+                                  _descriptionController.text.trim().isEmpty
+                              ? null
+                              : () async {
+                                  if (_selectedImages.isNotEmpty &&
+                                      _uploadedHashes.length !=
+                                          _selectedImages.length) {
+                                    await _uploadImages();
+                                  }
+                                  if (!mounted) return;
+                                  Navigator.pop(context);
+                                  widget.onVerify(
+                                    description:
+                                        _descriptionController.text.trim(),
+                                    proofHashes: _uploadedHashes,
+                                  );
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: getThemeColors(context)['primary'],
+                            foregroundColor:
+                                getThemeColors(context)['textPrimary'],
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: Text(
+                            _selectedImages.isNotEmpty &&
+                                    _uploadedHashes.length !=
+                                        _selectedImages.length
+                                ? "Upload & Verify"
+                                : "Verify Tree",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                     ),
                   ),

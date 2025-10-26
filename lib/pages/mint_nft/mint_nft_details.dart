@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/route_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/utils/constants/tree_species_constants.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
-import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_view_details_with_map.dart';
 
 class MintNftDetailsPage extends StatefulWidget {
   const MintNftDetailsPage({super.key});
@@ -16,15 +16,25 @@ class MintNftDetailsPage extends StatefulWidget {
 
 class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   final descriptionController = TextEditingController();
-  final speciesController = TextEditingController();
+  String? selectedSpecies;
+  int numberOfTrees = 1;
 
   void submitDetails() {
     final description = descriptionController.text;
-    final species = speciesController.text;
 
-    if (description.isEmpty || species.isEmpty) {
+    if (description.isEmpty ||
+        selectedSpecies == null ||
+        selectedSpecies!.isEmpty) {
       _showCustomSnackBar(
-        "Please enter both description and species.",
+        "Please enter description and select a tree species.",
+        isError: true,
+      );
+      return;
+    }
+
+    if (numberOfTrees <= 0) {
+      _showCustomSnackBar(
+        "Please select at least 1 tree.",
         isError: true,
       );
       return;
@@ -32,10 +42,15 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
 
     Provider.of<MintNftProvider>(context, listen: false)
         .setDescription(description);
-    Provider.of<MintNftProvider>(context, listen: false).setSpecies(species);
+    Provider.of<MintNftProvider>(context, listen: false)
+        .setSpecies(selectedSpecies!);
+    Provider.of<MintNftProvider>(context, listen: false)
+        .setNumberOfTrees(numberOfTrees);
 
     _showCustomSnackBar("Details submitted successfully!");
-    context.push(RouteConstants.mintNftImagesPath);
+
+    // Navigate to organization selection page
+    context.push(RouteConstants.mintNftOrganisationPath);
   }
 
   void _showCustomSnackBar(String message, {bool isError = false}) {
@@ -78,10 +93,8 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
 
     return BaseScaffold(
       title: "NFT Details",
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.pop(),
-      ),
+      showBackButton: true,
+      onBackPressed: () => context.pop(),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.05,
@@ -103,14 +116,19 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
       width: double.infinity,
       constraints: BoxConstraints(maxWidth: screenWidth * 0.92),
       decoration: BoxDecoration(
+        color: getThemeColors(context)['background'],
         borderRadius: BorderRadius.circular(24),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: const Color(0xFF1CD381),
-        //     blurRadius: 20,
-        //     offset: const Offset(0, 8),
-        //   ),
-        // ],
+        border: Border.all(
+          color: getThemeColors(context)['border']!,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: getThemeColors(context)['shadow']!,
+            blurRadius: 10,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,15 +137,10 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              // gradient: LinearGradient(
-              //   colors: [
-              //     const Color(0xFF1CD381),
-              //     const Color(0xFF1CD381),
-              //   ],
-              // ),
+              color: getThemeColors(context)['primary'],
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
+                topLeft: Radius.circular(22),
+                topRight: Radius.circular(22),
               ),
             ),
             child: Row(
@@ -137,10 +150,14 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   decoration: BoxDecoration(
                     color: getThemeColors(context)['background'],
                     borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: getThemeColors(context)['border']!,
+                      width: 2,
+                    ),
                   ),
                   child: Icon(
                     Icons.edit_note,
-                    color: getThemeColors(context)['icon'],
+                    color: getThemeColors(context)['primary'],
                     size: 28,
                   ),
                 ),
@@ -154,14 +171,14 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: getThemeColors(context)['textPrimary'],
+                          color: getThemeColors(context)['textSecondary'],
                         ),
                       ),
                       Text(
                         'Tell us about your tree',
                         style: TextStyle(
                           fontSize: 14,
-                          color: getThemeColors(context)['textPrimary'],
+                          color: getThemeColors(context)['textSecondary']!,
                         ),
                       ),
                     ],
@@ -175,13 +192,9 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField(
-                  controller: speciesController,
-                  label: 'Tree Species',
-                  hint: 'e.g., Oak, Pine, Maple...',
-                  icon: Icons.eco,
-                  maxLines: 1,
-                ),
+                _buildSpeciesDropdown(),
+                const SizedBox(height: 20),
+                _buildNumberOfTreesPicker(),
                 const SizedBox(height: 20),
                 _buildFormField(
                   controller: descriptionController,
@@ -192,42 +205,43 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
                   minLines: 3,
                 ),
                 const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: submitDetails,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: getThemeColors(context)['primary'],
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: submitDetails,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: getThemeColors(context)['primary'],
+                        foregroundColor:
+                            getThemeColors(context)['textSecondary'],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Colors.black, width: 2),
+                        ),
                       ),
-                      shadowColor: primaryGreenColor,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Continue',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: getThemeColors(context)['textSecondary'],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: getThemeColors(context)['primary'],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(
+                          const SizedBox(width: 8),
+                          Icon(
                             Icons.arrow_forward,
-                            size: 18,
+                            size: 20,
+                            color: getThemeColors(context)['textSecondary'],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -246,6 +260,7 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     required IconData icon,
     int maxLines = 1,
     int? minLines,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,24 +292,18 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: getThemeColors(context)['background'],
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFFFAEB96),
+              color: getThemeColors(context)['border']!,
               width: 2,
             ),
-            // boxShadow: [
-            //   BoxShadow(
-            //     // color: const Color(0xFF1CD381),
-            //     blurRadius: 8,
-            //     offset: const Offset(0, 2),
-            //   ),
-            // ],
           ),
           child: TextField(
             controller: controller,
             maxLines: maxLines,
             minLines: minLines,
+            keyboardType: keyboardType,
             style: TextStyle(
               fontSize: 16,
               color: getThemeColors(context)['textPrimary'],
@@ -320,40 +329,211 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
     );
   }
 
-  // ignore: unused_element
-  Widget _buildPreviewSection() {
+  Widget _buildSpeciesDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.eco,
+                color: getThemeColors(context)['icon'],
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Tree Species',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1CD381),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFFAEB96),
+              width: 2,
+            ),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: selectedSpecies,
+            decoration: InputDecoration(
+              hintText: 'Select tree species...',
+              hintStyle: TextStyle(
+                color: getThemeColors(context)['background'],
+                fontSize: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.all(20),
+              filled: true,
+              fillColor: getThemeColors(context)['background'],
+            ),
+            style: TextStyle(
+              fontSize: 16,
+              color: getThemeColors(context)['textPrimary'],
+              height: 1.4,
+            ),
+            items: TreeSpeciesConstants.getAllSpecies().map((String species) {
+              return DropdownMenuItem<String>(
+                value: species,
+                child: Text(species),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedSpecies = newValue;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberOfTreesPicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.format_list_numbered,
+                color: getThemeColors(context)['icon'],
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Number of Trees',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1CD381),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 120,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFFAEB96),
+              width: 2,
+            ),
+          ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Decrease button
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAEB96),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.preview,
-                  color: primaryGreenColor,
-                  size: 20,
+                margin: const EdgeInsets.all(8),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (numberOfTrees > 1) {
+                      setState(() {
+                        numberOfTrees--;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['primary'],
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(12),
+                  ),
+                  child: const Icon(
+                    Icons.remove,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                'Live Preview',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: primaryGreenColor,
+
+              // Number display
+              Expanded(
+                flex: 2,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: getThemeColors(context)['background'],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: getThemeColors(context)['primary']!,
+                      width: 2,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$numberOfTrees',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: getThemeColors(context)['primary'],
+                        ),
+                      ),
+                      Text(
+                        numberOfTrees == 1 ? 'Tree' : 'Trees',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: getThemeColors(context)['textPrimary'],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Increase button
+              Container(
+                margin: const EdgeInsets.all(8),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (numberOfTrees < 100) {
+                      // Set a reasonable max limit
+                      setState(() {
+                        numberOfTrees++;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['primary'],
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(12),
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        const NewNFTMapWidget(),
       ],
     );
   }
@@ -361,7 +541,6 @@ class _MintNftCoordinatesPageState extends State<MintNftDetailsPage> {
   @override
   void dispose() {
     descriptionController.dispose();
-    speciesController.dispose();
     super.dispose();
   }
 }

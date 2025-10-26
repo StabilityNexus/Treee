@@ -397,14 +397,14 @@ class WalletProvider extends ChangeNotifier {
   // ignore: unused_element
   String _getCurrentSessionChainId() {
     final sessions = _web3App!.sessions.getAll();
-    if (!sessions.isNotEmpty) {
+    if (sessions.isEmpty) {
       throw Exception('No active WalletConnect session');
     }
     final accounts = sessions.first.namespaces['eip155']?.accounts;
     if (accounts != null && accounts.isNotEmpty) {
       return accounts.first.split(':')[1];
     }
-    return '11155111'; // Default to Sepolia if no accounts found
+    return '11155111';
   }
 
   Future<bool> switchChain(String newChainId) async {
@@ -483,6 +483,42 @@ class WalletProvider extends ChangeNotifier {
         throw Exception('Wallet not connected');
       }
 
+      final sessions = _web3App!.sessions.getAll();
+      if (sessions.isEmpty) {
+        logger.w(
+            'No active WalletConnect sessions found, wallet may be disconnected');
+        _updateConnection(
+          isConnected: false,
+          address: null,
+          chainId: null,
+          message: 'Session expired - please reconnect',
+        );
+        throw Exception(
+            'WalletConnect session expired. Please reconnect your wallet.');
+      }
+
+      final session = sessions.first;
+
+      if (DateTime.now().millisecondsSinceEpoch / 1000 > session.expiry) {
+        logger.w('WalletConnect session has expired');
+        _updateConnection(
+          isConnected: false,
+          address: null,
+          chainId: null,
+          message: 'Session expired - please reconnect',
+        );
+        throw Exception(
+            'WalletConnect session has expired. Please reconnect your wallet.');
+      }
+
+      final accounts = session.namespaces['eip155']?.accounts;
+      if (accounts == null || accounts.isEmpty) {
+        logger.w('No accounts found in WalletConnect session');
+        throw Exception(
+            'No accounts found in wallet session. Please reconnect your wallet.');
+      }
+
+      logger.d('WalletConnect session validated successfully');
       _updateStatus('Preparing transaction...');
 
       final abiList = json.decode(abi) as List<dynamic>;
@@ -544,11 +580,6 @@ class WalletProvider extends ChangeNotifier {
       }
 
       _updateStatus('Opening wallet for transaction approval...');
-      final sessions = _web3App!.sessions.getAll();
-      if (sessions.isEmpty) {
-        throw Exception('No active WalletConnect session');
-      }
-      final session = sessions.first;
       final requestParams = SessionRequestParams(
         method: 'eth_sendTransaction',
         params: [transaction],
