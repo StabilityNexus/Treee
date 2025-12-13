@@ -151,7 +151,7 @@ class MapControlsWidget extends StatelessWidget {
         // Load trees button
         Container(
           decoration: BoxDecoration(
-            color: getThemeColors(context)['primary'],
+            color: getThemeColors(context)['primary'] ?? Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -193,8 +193,14 @@ class TreeInfoCard extends StatelessWidget {
     required this.onClose,
   });
 
-  double _convertCoordinate(int coordinate) {
+  double _convertLatitude(int coordinate) {
+    // Encoding: (latitude + 90.0) * 1e6
     return (coordinate / 1000000.0) - 90.0;
+  }
+  
+  double _convertLongitude(int coordinate) {
+    // Encoding: (longitude + 180.0) * 1e6
+    return (coordinate / 1000000.0) - 180.0;
   }
 
   String _formatDate(int timestamp) {
@@ -273,8 +279,8 @@ class TreeInfoCard extends StatelessWidget {
                 _buildInfoRow(
                   Icons.location_on,
                   'Location',
-                  '${_convertCoordinate(tree.latitude).toStringAsFixed(5)}, '
-                      '${_convertCoordinate(tree.longitude).toStringAsFixed(5)}',
+                  '${_convertLatitude(tree.latitude).toStringAsFixed(5)}, '
+                      '${_convertLongitude(tree.longitude).toStringAsFixed(5)}',
                 ),
                 _buildInfoRow(
                   Icons.calendar_today,
@@ -300,7 +306,7 @@ class TreeInfoCard extends StatelessWidget {
                     icon: const Icon(Icons.visibility),
                     label: const Text('View Full Details'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: getThemeColors(context)['primary'],
+                      backgroundColor: getThemeColors(context)['primary'] ?? Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                     ),
                   ),

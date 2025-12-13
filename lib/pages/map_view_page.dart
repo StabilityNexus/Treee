@@ -144,8 +144,14 @@ class _MapViewPageState extends State<MapViewPage> {
     context.push('/tree-details/${tree.id}');
   }
 
-  double _convertCoordinate(int coordinate) {
+  double _convertLatitude(int coordinate) {
+    // Encoding: (latitude + 90.0) * 1e6
     return (coordinate / 1000000.0) - 90.0;
+  }
+  
+  double _convertLongitude(int coordinate) {
+    // Encoding: (longitude + 180.0) * 1e6
+    return (coordinate / 1000000.0) - 180.0;
   }
 
   @override
@@ -186,8 +192,8 @@ class _MapViewPageState extends State<MapViewPage> {
             // Tree markers
             MarkerLayer(
               markers: mapProvider.loadedTrees.map((tree) {
-                final lat = _convertCoordinate(tree.latitude);
-                final lng = _convertCoordinate(tree.longitude);
+                final lat = _convertLatitude(tree.latitude);
+                final lng = _convertLongitude(tree.longitude);
                 
                 return Marker(
                   point: LatLng(lat, lng),
@@ -351,15 +357,22 @@ class _MapViewPageState extends State<MapViewPage> {
   }
 
   Widget _buildConnectWalletPrompt() {
+    final themeColors = getThemeColors(context);
+    final primaryColor = themeColors['primary'] ?? Theme.of(context).colorScheme.primary;
+    final backgroundColor = themeColors['background'] ?? Theme.of(context).colorScheme.surface;
+    final borderColor = themeColors['border'] ?? Theme.of(context).colorScheme.outline;
+    final textPrimaryColor = themeColors['textPrimary'] ?? Theme.of(context).colorScheme.onSurface;
+    final textSecondaryColor = themeColors['textSecondary'] ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    
     return Center(
       child: Container(
         margin: const EdgeInsets.all(24),
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: getThemeColors(context)['background'],
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: getThemeColors(context)['border']!,
+            color: borderColor,
             width: 2,
           ),
         ),
@@ -369,7 +382,7 @@ class _MapViewPageState extends State<MapViewPage> {
             Icon(
               Icons.account_balance_wallet,
               size: 64,
-              color: getThemeColors(context)['primary'],
+              color: primaryColor,
             ),
             const SizedBox(height: 16),
             Text(
@@ -377,7 +390,7 @@ class _MapViewPageState extends State<MapViewPage> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: getThemeColors(context)['textPrimary'],
+                color: textPrimaryColor,
               ),
             ),
             const SizedBox(height: 8),
@@ -386,7 +399,7 @@ class _MapViewPageState extends State<MapViewPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: getThemeColors(context)['textSecondary'],
+                color: textSecondaryColor,
               ),
             ),
           ],

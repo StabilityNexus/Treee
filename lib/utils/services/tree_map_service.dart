@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:tree_planting_protocol/models/tree_details.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
@@ -50,8 +51,8 @@ class TreeMapService {
       
       // Filter trees within bounding box
       final List<Tree> treesInBounds = allTrees.where((tree) {
-        final lat = _convertCoordinate(tree.latitude);
-        final lng = _convertCoordinate(tree.longitude);
+        final lat = _convertLatitude(tree.latitude);
+        final lng = _convertLongitude(tree.longitude);
         
         return lat >= minLat && 
                lat <= maxLat && 
@@ -140,13 +141,13 @@ class TreeMapService {
     final dLat = _degreesToRadians(lat2 - lat1);
     final dLon = _degreesToRadians(lon2 - lon1);
     
-    final a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(_degreesToRadians(lat1)) *
-            Math.cos(_degreesToRadians(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
+    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) *
+            math.cos(_degreesToRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
     
-    final c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     
     return earthRadius * c;
   }
@@ -195,9 +196,16 @@ class TreeMapService {
     );
   }
   
-  static double _convertCoordinate(int coordinate) {
+  static double _convertLatitude(int coordinate) {
     // Convert from fixed-point representation to decimal degrees
+    // Encoding: (latitude + 90.0) * 1e6
     return (coordinate / 1000000.0) - 90.0;
+  }
+  
+  static double _convertLongitude(int coordinate) {
+    // Convert from fixed-point representation to decimal degrees
+    // Encoding: (longitude + 180.0) * 1e6
+    return (coordinate / 1000000.0) - 180.0;
   }
   
   static bool _isGeohashInList(String treeGeohash, List<String> targetGeohashes, int precision) {
@@ -222,71 +230,6 @@ class TreeMapService {
   }
   
   static double _degreesToRadians(double degrees) {
-    return degrees * (3.141592653589793 / 180);
-  }
-}
-
-// Math helper class for trigonometric functions
-class Math {
-  static double sin(double x) => _sin(x);
-  static double cos(double x) => _cos(x);
-  static double sqrt(double x) => _sqrt(x);
-  static double atan2(double y, double x) => _atan2(y, x);
-  
-  static double _sin(double x) {
-    return x - (x * x * x) / 6 + (x * x * x * x * x) / 120;
-  }
-  
-  static double _cos(double x) {
-    return 1 - (x * x) / 2 + (x * x * x * x) / 24;
-  }
-  
-  static double _sqrt(double x) {
-    if (x < 0) return double.nan;
-    if (x == 0) return 0;
-    
-    double guess = x / 2;
-    double prevGuess;
-    
-    do {
-      prevGuess = guess;
-      guess = (guess + x / guess) / 2;
-    } while ((guess - prevGuess).abs() > 0.0001);
-    
-    return guess;
-  }
-  
-  static double _atan2(double y, double x) {
-    // Simple atan2 approximation
-    if (x > 0) {
-      return _atan(y / x);
-    } else if (x < 0 && y >= 0) {
-      return _atan(y / x) + 3.141592653589793;
-    } else if (x < 0 && y < 0) {
-      return _atan(y / x) - 3.141592653589793;
-    } else if (x == 0 && y > 0) {
-      return 3.141592653589793 / 2;
-    } else if (x == 0 && y < 0) {
-      return -3.141592653589793 / 2;
-    }
-    return 0;
-  }
-  
-  static double _atan(double x) {
-    // Taylor series approximation for atan
-    if (x.abs() > 1) {
-      return (3.141592653589793 / 2) - _atan(1 / x);
-    }
-    double result = 0;
-    double term = x;
-    int n = 1;
-    
-    while (term.abs() > 0.0001 && n < 20) {
-      result += term;
-      n += 2;
-      term = -term * x * x * (n - 2) / n;
-    }
-    
-    return result;
+    return degrees * (math.pi / 180);
   }
 }
