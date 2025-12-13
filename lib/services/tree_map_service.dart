@@ -32,25 +32,41 @@ class MapTreeData {
 
   LatLng get position => LatLng(latitude, longitude);
 
+  /// Safely convert dynamic value to int (handles BigInt, num, String)
+  static int _asInt(dynamic v, {int fallback = 0}) {
+    if (v == null) return fallback;
+    if (v is int) return v;
+    if (v is BigInt) return v.toInt();
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? fallback;
+  }
+
+  /// Safely convert dynamic value to String
+  static String _asString(dynamic v, {String fallback = ''}) {
+    if (v == null) return fallback;
+    if (v is String) return v;
+    return v.toString();
+  }
+
   factory MapTreeData.fromContractData(Map<String, dynamic> data) {
-    final lat = _convertLatitude(data['latitude'] ?? 0);
-    final lng = _convertLongitude(data['longitude'] ?? 0);
-    final death = data['death'] ?? 0;
+    final lat = _convertLatitude(_asInt(data['latitude']));
+    final lng = _convertLongitude(_asInt(data['longitude']));
+    final death = _asInt(data['death']);
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     // Tree is alive if death is 0 (not set) or death timestamp is in the future
     final isAlive = death == 0 || death >= now;
 
     return MapTreeData(
-      id: data['id'] ?? 0,
+      id: _asInt(data['id']),
       latitude: lat,
       longitude: lng,
-      species: data['species'] ?? 'Unknown',
-      imageUri: data['imageUri'] ?? '',
-      geoHash: data['geoHash'] ?? '',
+      species: _asString(data['species'], fallback: 'Unknown'),
+      imageUri: _asString(data['imageUri']),
+      geoHash: _asString(data['geoHash']),
       isAlive: isAlive,
-      careCount: data['careCount'] ?? 0,
-      plantingDate: data['planting'] ?? 0,
-      numberOfTrees: data['numberOfTrees'] ?? 1,
+      careCount: _asInt(data['careCount']),
+      plantingDate: _asInt(data['plantingDate'] ?? data['planting']),
+      numberOfTrees: _asInt(data['numberOfTrees'], fallback: 1),
     );
   }
 
@@ -105,7 +121,8 @@ class TreeMapService {
   int _totalTreeCount = 0;
   bool _hasMore = true;
 
-  List<MapTreeData> get allTrees => _allTrees;
+  /// Returns an unmodifiable view of all trees to prevent external mutation
+  List<MapTreeData> get allTrees => List.unmodifiable(_allTrees);
   int get totalTreeCount => _totalTreeCount;
 
   /// Clear all cached data
@@ -162,7 +179,7 @@ class TreeMapService {
       }
 
       // Fetch new geohashes if needed
-      if (geohashesToFetch.isNotEmpty && _hasMore) {
+      if (geohashesToFetch.isNotEmpty) {
         await _fetchTreesFromBlockchain(
           walletProvider: walletProvider,
           geohashes: geohashesToFetch,
@@ -216,7 +233,9 @@ class TreeMapService {
           final geohash = tree.geoHash.isNotEmpty
               ? tree.geoHash.substring(
                   0,
-                  GeohashService.defaultPrecision.clamp(1, tree.geoHash.length))
+                  GeohashService.defaultPrecision
+                      .clamp(1, tree.geoHash.length)
+                      .toInt())
               : _geohashService.encode(tree.latitude, tree.longitude);
 
           _addTreeToCache(geohash, tree);
@@ -253,10 +272,10 @@ class TreeMapService {
         await fetchAllTrees(walletProvider: walletProvider, limit: 100);
       }
 
-      // Convert geohashes to Set for O(1) prefix matching
+      // Convert geohashes to Set for membership check
       final geohashSet = geohashes.toSet();
 
-      // Single pass over all trees - O(n) instead of O(n×m)
+      // Iterate over all trees and check prefix matches - O(n * m)
       for (final tree in _allTrees) {
         // Compute encoded geohash once per tree
         final encodedGeohash =
@@ -330,7 +349,8 @@ class TreeMapService {
     // Use geohash to pre-filter trees for better performance
     final centerGeohash = _geohashService.encode(latitude, longitude);
     final neighborGeohashes = _geohashService.getNeighbors(centerGeohash);
-    final geohashSet = neighborGeohashes.toSet();
+    // Include center geohash to avoid dropping trees in the current cell
+    final geohashSet = {centerGeohash, ...neighborGeohashes};
 
     // Pre-filter by geohash (reduces distance calculations)
     final candidateTrees = _allTrees.where((tree) {
@@ -346,16 +366,16 @@ class TreeMapService {
       return geohashSet.any((gh) => computedHash.startsWith(gh) || gh.startsWith(computedHash));
     }).toList();
 
-    // Filter by exact distance and sort
+    // Filter by exact distance and cache distances to avoid recalculating during sort
     final center = LatLng(latitude, longitude);
-    return candidateTrees.where((tree) {
+    final treesWithDistance = <(MapTreeData, double)>[];
+    for (final tree in candidateTrees) {
       final distance = _geohashService.calculateDistance(center, tree.position);
-      return distance <= radiusMeters;
-    }).toList()
-      ..sort((a, b) {
-        final distA = _geohashService.calculateDistance(center, a.position);
-        final distB = _geohashService.calculateDistance(center, b.position);
-        return distA.compareTo(distB);
-      });
+      if (distance <= radiusMeters) {
+        treesWithDistance.add((tree, distance));
+      }
+    }
+    treesWithDistance.sort((a, b) => a.$2.compareTo(b.$2));
+    return treesWithDistance.map((e) => e.$1).toList();
   }
 }
