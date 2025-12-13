@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:tree_planting_protocol/pages/home_page.dart';
+import 'package:tree_planting_protocol/pages/map_view_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_organisation.dart';
@@ -17,6 +18,7 @@ import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/user_profile_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
 
+import 'package:tree_planting_protocol/providers/map_provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
@@ -152,6 +154,13 @@ class MyApp extends StatelessWidget {
             ),
           ],
         ),
+        GoRoute(
+          path: RouteConstants.mapViewPath,
+          name: RouteConstants.mapView,
+          builder: (BuildContext context, GoRouterState state) {
+            return const MapViewPage();
+          },
+        ),
       ],
       errorBuilder: (context, state) => Scaffold(
         body: Center(
@@ -165,6 +174,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => WalletProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => MintNftProvider()),
+        ChangeNotifierProvider(create: (context) => MapProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

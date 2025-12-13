@@ -30,6 +30,12 @@ class BottomNavConstants {
       route: RouteConstants.allTreesPath,
     ),
     BottomNavItem(
+      label: 'Map',
+      icon: Icons.map_outlined,
+      activeIcon: Icons.map,
+      route: RouteConstants.mapViewPath,
+    ),
+    BottomNavItem(
       label: 'Settings',
       icon: Icons.settings_outlined,
       activeIcon: Icons.settings,
