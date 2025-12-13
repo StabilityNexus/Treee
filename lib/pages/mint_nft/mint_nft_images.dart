@@ -4,11 +4,26 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
+import 'package:tree_planting_protocol/providers/arweave_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
+import 'package:tree_planting_protocol/utils/services/arweave_services.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+
+/// ============================================================================
+/// MINT NFT IMAGES PAGE - ARWEAVE STORAGE
+/// ============================================================================
+/// Updated to use Arweave instead of IPFS for permanent, decentralized image
+/// storage. Arweave provides 200+ year data persistence guarantees.
+/// 
+/// Hackathon flow:
+/// 1. User selects multiple images
+/// 2. Images uploaded to Arweave (permanent decentralized storage)
+/// 3. Arweave transaction IDs captured and stored in provider
+/// 4. Transaction IDs later sent to blockchain contract
+/// 5. Future image access uses TX IDs + Arweave gateway
+/// ============================================================================
 
 class MultipleImageUploadPage extends StatefulWidget {
   const MultipleImageUploadPage({super.key});
@@ -23,7 +38,9 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   int _uploadingIndex = -1;
-  List<String> _uploadedHashes = [];
+  
+  // 🔗 ARWEAVE: Store transaction IDs instead of IPFS hashes
+  List<String> _uploadedArweaveTransactionIds = [];
   List<File> _processingImages = [];
 
   @override
@@ -31,29 +48,40 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MintNftProvider>(context, listen: false);
+      // 🔗 ARWEAVE: Load Arweave transaction IDs from provider
       setState(() {
-        _uploadedHashes = List.from(provider.getInitialPhotos());
+        _uploadedArweaveTransactionIds =
+            List.from(provider.getArweaveTransactionIds());
       });
     });
   }
 
-  Future<void> _pickAndUploadImages() async {
+  /// 🔗 ARWEAVE: Updated upload function using Arweave instead of IPFS
+  /// 
+  /// Key differences from IPFS:
+  /// - Returns Arweave transaction ID (43 chars) instead of IPFS hash
+  /// - Transaction ID is permanent and verifiable on-chain
+  /// - Data guaranteed available for 200+ years
+  /// - Can be stored directly in blockchain contracts
+  Future<void> _pickAndUploadImagesToArweave() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage();
       if (images.isEmpty) return;
 
-      logger.d('Selected ${images.length} images for upload');
+      logger.d('🔗 Selected ${images.length} images for Arweave upload');
 
       // ignore: use_build_context_synchronously
-      final provider = Provider.of<MintNftProvider>(context, listen: false);
+      final mintProvider = Provider.of<MintNftProvider>(context, listen: false);
+      final arweaveProvider = Provider.of<ArweaveProvider>(context, listen: false);
 
       setState(() {
         _processingImages = images.map((image) => File(image.path)).toList();
         _isUploading = true;
       });
 
-      List<String> newHashes = [];
+      List<String> newTransactionIds = [];
 
+      // 🔗 ARWEAVE: Upload each image and collect transaction IDs
       for (int i = 0; i < images.length; i++) {
         setState(() {
           _uploadingIndex = i;
@@ -61,19 +89,46 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
 
         try {
           File imageFile = File(images[i].path);
-          String? hash = await uploadToIPFS(imageFile, (isUploading) {});
+          
+          // 📤 Upload to Arweave (not IPFS)
+          final arweaveResult = await uploadToArweave(
+            imageFile,
+            (isUploading) {
+              // Update UI during upload
+              setState(() {});
+            },
+            metadata: {
+              'index': '${i + 1}',
+              'total': '${images.length}',
+              'app': 'TreePlantingProtocol',
+              'nftType': 'tree',
+            },
+          );
 
-          if (hash != null) {
-            newHashes.add(hash);
+          if (arweaveResult != null) {
+            // 🔑 ARWEAVE: Store transaction ID (permanent reference)
+            newTransactionIds.add(arweaveResult.transactionId);
             setState(() {
-              _uploadedHashes.add(hash);
+              _uploadedArweaveTransactionIds.add(arweaveResult.transactionId);
             });
-            logger.d('Successfully uploaded image ${i + 1}: $hash');
+            
+            // Also add to Arweave provider for state management
+            await arweaveProvider.uploadFileToArweave(
+              'tree_nft_image_${i + 1}',
+              imageFile,
+              metadata: {
+                'index': '${i + 1}',
+                'total': '${images.length}',
+              },
+            );
+            
+            logger.d(
+                '✅ Arweave upload success: ${arweaveResult.transactionId}');
           } else {
-            _showSnackBar('Failed to upload image ${i + 1}');
+            _showSnackBar('❌ Failed to upload image ${i + 1} to Arweave');
           }
         } catch (e) {
-          logger.e('Error uploading image ${i + 1}: $e');
+          logger.e('🚨 Error uploading image ${i + 1}: $e');
           _showSnackBar('Error uploading image ${i + 1}: $e');
         }
       }
@@ -83,10 +138,23 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
         _uploadingIndex = -1;
         _processingImages.clear();
       });
-      provider.setInitialPhotos(_uploadedHashes);
 
-      if (newHashes.isNotEmpty) {
-        _showSnackBar('Successfully uploaded ${newHashes.length} images');
+      // 🔗 ARWEAVE: Update MintNftProvider with Arweave TX IDs
+      // This stores the transaction IDs that will be sent to blockchain
+      for (String txId in newTransactionIds) {
+        mintProvider.addArweavePhoto(
+          'tree_nft_image_${newTransactionIds.indexOf(txId) + 1}',
+          txId,
+          metadata: {
+            'uploadedAt': DateTime.now().toIso8601String(),
+            'provider': 'arweave',
+          },
+        );
+      }
+
+      if (newTransactionIds.isNotEmpty) {
+        _showSnackBar(
+            '✅ Successfully uploaded ${newTransactionIds.length} images to Arweave');
       }
     } catch (e) {
       setState(() {
@@ -94,19 +162,28 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
         _uploadingIndex = -1;
         _processingImages.clear();
       });
-      _showSnackBar('Error selecting images: $e');
+      _showSnackBar('❌ Error selecting images: $e');
     }
   }
 
-  void _removeUploadedHash(int index) {
+  /// 🔗 ARWEAVE: Remove a specific uploaded image (transaction ID)
+  void _removeUploadedArweaveTransaction(int index) {
     setState(() {
-      _uploadedHashes.removeAt(index);
+      _uploadedArweaveTransactionIds.removeAt(index);
     });
     final provider = Provider.of<MintNftProvider>(context, listen: false);
-    provider.setInitialPhotos(_uploadedHashes);
-    _showSnackBar('Image removed');
+    // Update provider with remaining transaction IDs
+    provider.clearPhotos();
+    for (int i = 0; i < _uploadedArweaveTransactionIds.length; i++) {
+      provider.addArweavePhoto(
+        'tree_nft_image_${i + 1}',
+        _uploadedArweaveTransactionIds[i],
+      );
+    }
+    _showSnackBar('✅ Image removed');
   }
 
+  /// 🔗 ARWEAVE: Remove all uploaded images
   void _removeAllImages() {
     showDialog(
       context: context,
@@ -123,13 +200,13 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  _uploadedHashes.clear();
+                  _uploadedArweaveTransactionIds.clear();
                 });
                 final provider =
                     Provider.of<MintNftProvider>(context, listen: false);
-                provider.setInitialPhotos([]);
+                provider.clearPhotos();
                 Navigator.of(context).pop();
-                _showSnackBar('All images removed');
+                _showSnackBar('✅ All images removed');
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Remove All'),
@@ -180,7 +257,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                 BorderRadius.circular(buttonCircularRadius),
                             child: ElevatedButton.icon(
                               onPressed:
-                                  _isUploading ? null : _pickAndUploadImages,
+                                  _isUploading ? null : _pickAndUploadImagesToArweave,
                               icon: const Icon(Icons.add_photo_alternate,
                                   size: 20),
                               label: const Text('Add Photos'),
@@ -364,8 +441,8 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                               const SizedBox(height: 8),
                               Text(
                                 _uploadingIndex >= 0
-                                    ? 'Uploading image ${_uploadingIndex + 1}...'
-                                    : 'Processing images...',
+                                    ? '🔗 Uploading to Arweave... ${_uploadingIndex + 1}/${_processingImages.length}'
+                                    : '⏳ Processing images...',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
@@ -373,9 +450,9 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                         ),
                       ),
                     const SizedBox(height: 16),
-                    if (_uploadedHashes.isNotEmpty)
+                    if (_uploadedArweaveTransactionIds.isNotEmpty)
                       Text(
-                        'Uploaded Images (${_uploadedHashes.length})',
+                        '✅ Arweave Uploads (${_uploadedArweaveTransactionIds.length})',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     const SizedBox(height: 16),
@@ -383,7 +460,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                       elevation: 4,
                       borderRadius: BorderRadius.circular(buttonCircularRadius),
                       child: ElevatedButton(
-                        onPressed: _uploadedHashes.isEmpty
+                        onPressed: _uploadedArweaveTransactionIds.isEmpty
                             ? null
                             : () {
                                 context.push('/mint-nft/submit-nft');
@@ -420,7 +497,7 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
             ),
           ),
           Expanded(
-            child: _uploadedHashes.isEmpty
+            child: _uploadedArweaveTransactionIds.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -451,8 +528,9 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: _uploadedHashes.length,
+                    itemCount: _uploadedArweaveTransactionIds.length,
                     itemBuilder: (context, index) {
+                      final txId = _uploadedArweaveTransactionIds[index];
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
@@ -461,11 +539,11 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                             child: Text('${index + 1}'),
                           ),
                           title: Text(
-                            'Image ${index + 1}',
+                            'Image ${index + 1} (Arweave)',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            _uploadedHashes[index],
+                            '🔗 TX: ${txId.substring(0, 20)}...',
                             style: const TextStyle(fontSize: 12),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -477,15 +555,15 @@ class _MultipleImageUploadPageState extends State<MultipleImageUploadPage> {
                                 icon: const Icon(Icons.open_in_new),
                                 onPressed: () {
                                   _showSnackBar(
-                                      'IPFS Hash: ${_uploadedHashes[index]}');
+                                      '🔗 Arweave TX: $txId');
                                 },
-                                tooltip: 'View IPFS Hash',
+                                tooltip: 'View Arweave TX ID',
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete,
                                     color: getThemeColors(
                                         context)['secondaryButton']),
-                                onPressed: () => _removeUploadedHash(index),
+                                onPressed: () => _removeUploadedArweaveTransaction(index),
                                 tooltip: 'Remove',
                               ),
                             ],
