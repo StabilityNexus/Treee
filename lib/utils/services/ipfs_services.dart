@@ -3,18 +3,16 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-String apiKey = dotenv.get('PINATA_API_KEY', fallback: "");
-String apiSecret = dotenv.get('PINATA_API_SECRET', fallback: "");
+String apiToken = dotenv.get('WEB3_STORAGE_TOKEN', fallback: "");
 
 Future<String?> uploadToIPFS(
     File imageFile, Function(bool) setUploadingState) async {
   setUploadingState(true);
 
-  var url = Uri.parse("https://api.pinata.cloud/pinning/pinFileToIPFS");
+  var url = Uri.parse("https://api.web3.storage/upload");
   var request = http.MultipartRequest("POST", url);
   request.headers.addAll({
-    "pinata_api_key": apiKey,
-    "pinata_secret_api_key": apiSecret,
+    "Authorization": "Bearer $apiToken",
   });
 
   request.files.add(await http.MultipartFile.fromPath("file", imageFile.path));
@@ -24,7 +22,9 @@ Future<String?> uploadToIPFS(
 
   if (response.statusCode == 200) {
     var jsonResponse = json.decode(await response.stream.bytesToString());
-    return "https://gateway.pinata.cloud/ipfs/${jsonResponse['IpfsHash']}";
+    // Web3.Storage returns a CID in the response
+    String cid = jsonResponse['cid'];
+    return "https://w3s.link/ipfs/$cid";
   } else {
     return null;
   }

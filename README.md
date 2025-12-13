@@ -139,7 +139,7 @@ flutter run
 ## 🛠 **Tech Stack**  
 - **Frontend**: Flutter, Dart  
 - **Blockchain**: Solidity, Hardhat  
-- **Storage**: IPFS (for metadata storage)  
+- **Storage**: Web3.Storage/Storacha (free decentralized IPFS storage)    
 
 ## 🌿 **Join the Movement**  
 🌍 Every tree counts! By using the **Tree Planting Protocol**, you contribute to a transparent, verifiable, and sustainable future. Let's make the world greener—one tree at a time.  
