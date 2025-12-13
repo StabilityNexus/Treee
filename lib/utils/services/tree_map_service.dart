@@ -27,7 +27,7 @@ class TreeMapService {
       final result = await ContractReadFunctions.getRecentTreesPaginated(
         walletProvider: walletProvider,
         offset: 0,
-        limit: 50, // Fetch more trees to filter from
+        limit: math.max(50, maxTrees), // Fetch enough trees to satisfy maxTrees after filtering
       );
       
       if (!result.success || result.data == null) {
@@ -93,7 +93,7 @@ class TreeMapService {
       final result = await ContractReadFunctions.getRecentTreesPaginated(
         walletProvider: walletProvider,
         offset: 0,
-        limit: 50,
+        limit: math.max(50, maxTrees), // Fetch enough trees to satisfy maxTrees after filtering
       );
       
       if (!result.success || result.data == null) {

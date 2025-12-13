@@ -141,7 +141,7 @@ class _MapViewPageState extends State<MapViewPage> {
   }
 
   void _viewTreeDetails(Tree tree) {
-    context.push('/tree-details/${tree.id}');
+    context.push('/trees/${tree.id}');
   }
 
   double _convertLatitude(int coordinate) {
