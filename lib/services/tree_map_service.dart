@@ -33,8 +33,8 @@ class MapTreeData {
   LatLng get position => LatLng(latitude, longitude);
 
   factory MapTreeData.fromContractData(Map<String, dynamic> data) {
-    final lat = _convertCoordinate(data['latitude'] ?? 0);
-    final lng = _convertCoordinate(data['longitude'] ?? 0);
+    final lat = _convertLatitude(data['latitude'] ?? 0);
+    final lng = _convertLongitude(data['longitude'] ?? 0);
     final death = data['death'] ?? 0;
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     // Tree is alive if death is 0 (not set) or death timestamp is in the future
@@ -54,8 +54,16 @@ class MapTreeData {
     );
   }
 
-  static double _convertCoordinate(int coordinate) {
+  /// Convert stored latitude from fixed-point to decimal degrees
+  /// Contract stores as (latitude + 90) * 1000000
+  static double _convertLatitude(int coordinate) {
     return (coordinate / 1000000.0) - 90.0;
+  }
+
+  /// Convert stored longitude from fixed-point to decimal degrees
+  /// Contract stores as (longitude + 180) * 1000000
+  static double _convertLongitude(int coordinate) {
+    return (coordinate / 1000000.0) - 180.0;
   }
 }
 
@@ -314,17 +322,33 @@ class TreeMapService {
     required double longitude,
     double radiusMeters = 5000,
   }) async {
-    final centerGeohash = _geohashService.encode(latitude, longitude);
-    final neighborGeohashes = _geohashService.getNeighbors(centerGeohash);
-
     // Ensure we have trees loaded
     if (_allTrees.isEmpty) {
       await fetchAllTrees(walletProvider: walletProvider, limit: 100);
     }
 
-    // Filter trees within radius
+    // Use geohash to pre-filter trees for better performance
+    final centerGeohash = _geohashService.encode(latitude, longitude);
+    final neighborGeohashes = _geohashService.getNeighbors(centerGeohash);
+    final geohashSet = neighborGeohashes.toSet();
+
+    // Pre-filter by geohash (reduces distance calculations)
+    final candidateTrees = _allTrees.where((tree) {
+      // Check if tree's geohash matches any neighbor geohash prefix
+      if (tree.geoHash.isNotEmpty) {
+        final treePrefix = tree.geoHash.length >= centerGeohash.length
+            ? tree.geoHash.substring(0, centerGeohash.length)
+            : tree.geoHash;
+        return geohashSet.any((gh) => gh.startsWith(treePrefix) || treePrefix.startsWith(gh));
+      }
+      // Compute geohash for trees without one
+      final computedHash = _geohashService.encode(tree.latitude, tree.longitude);
+      return geohashSet.any((gh) => computedHash.startsWith(gh) || gh.startsWith(computedHash));
+    }).toList();
+
+    // Filter by exact distance and sort
     final center = LatLng(latitude, longitude);
-    return _allTrees.where((tree) {
+    return candidateTrees.where((tree) {
       final distance = _geohashService.calculateDistance(center, tree.position);
       return distance <= radiusMeters;
     }).toList()
