@@ -8,6 +8,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_read_functions.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/organisation_contract/organisation_write_functions.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 import 'package:tree_planting_protocol/widgets/organisation_details_page/tabs/tabs.dart';
 
 class OrganisationDetailsPage extends StatefulWidget {
@@ -400,32 +401,11 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
                 ),
               ],
             ),
-            child: ClipOval(
-              child: organisationLogoHash.isNotEmpty
-                  ? Image.network(
-                      organisationLogoHash,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: getThemeColors(context)['primary'],
-                          child: const Icon(
-                            Icons.business,
-                            size: 40,
-                            color: Colors.white,
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: getThemeColors(context)['secondary'],
-                          child: const CircularProgressIndicator(
-                            color: Colors.black,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
+            child: organisationLogoHash.isNotEmpty
+                ? CircularImageLoaderWidget(
+                    imageUrl: organisationLogoHash,
+                    radius: 60,
+                    errorWidget: Container(
                       color: getThemeColors(context)['primary'],
                       child: const Icon(
                         Icons.business,
@@ -433,7 +413,15 @@ class _OrganisationDetailsPageState extends State<OrganisationDetailsPage>
                         color: Colors.white,
                       ),
                     ),
-            ),
+                  )
+                : Container(
+                    color: getThemeColors(context)['primary'],
+                    child: const Icon(
+                        Icons.business,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
           ),
           const SizedBox(height: 16),
           Text(

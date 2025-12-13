@@ -7,6 +7,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 
 class VerificationDetails {
   final String verifier;
@@ -375,56 +376,9 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                         "UI: Profile photo isEmpty: ${_userProfileData!.profilePhoto.isEmpty}");
 
                     return _userProfileData!.profilePhoto.isNotEmpty
-                        ? Image.network(
-                            _userProfileData!.profilePhoto,
-                            fit: BoxFit.cover,
-                            headers: {
-                              'Access-Control-Allow-Origin': '*',
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              logger.e(
-                                  "Profile photo loading error for URL: ${_userProfileData!.profilePhoto}");
-                              logger.e("Error: $error");
-                              logger.e("Stack trace: $stackTrace");
-
-                              // Try alternative IPFS gateway if original fails
-                              String originalUrl =
-                                  _userProfileData!.profilePhoto;
-                              if (originalUrl.contains('pinata.cloud')) {
-                                String ipfsHash =
-                                    originalUrl.split('/ipfs/').last;
-                                String alternativeUrl =
-                                    'https://ipfs.io/ipfs/$ipfsHash';
-                                logger.d(
-                                    "Trying alternative IPFS gateway: $alternativeUrl");
-
-                                return Image.network(
-                                  alternativeUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error2, stackTrace2) {
-                                    logger.e(
-                                        "Alternative IPFS gateway also failed: $error2");
-                                    return const Icon(
-                                      Icons.person,
-                                      size: 40,
-                                      color: Colors.black,
-                                    );
-                                  },
-                                );
-                              }
-
-                              return const Icon(
-                                Icons.person,
-                                size: 40,
-                                color: Colors.black,
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const CircularProgressIndicator(
-                                color: Colors.black,
-                              );
-                            },
+                        ? CircularImageLoaderWidget(
+                            imageUrl: _userProfileData!.profilePhoto,
+                            radius: 70,
                           )
                         : Container(
                             color: Colors.green.shade300,

@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 
 class RecentTreesWidget extends StatefulWidget {
   const RecentTreesWidget({super.key});
@@ -152,33 +153,9 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    tree['imageUri'],
+                  child: ImageLoaderWidget(
+                    imageUrl: tree['imageUri'],
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: getThemeColors(context)['secondary'],
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            size: 40,
-                            color: getThemeColors(context)['textPrimary'],
-                          ),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: getThemeColors(context)['secondary'],
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                getThemeColors(context)['primary']!),
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               ),

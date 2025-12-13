@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 import 'package:tree_planting_protocol/widgets/profile_widgets/profile_section_widget.dart';
 
 class UserProfileViewerWidget extends StatefulWidget {
@@ -155,57 +156,19 @@ class _UserProfileViewerWidgetState extends State<UserProfileViewerWidget> {
                 width: 3,
               ),
             ),
-            child: ClipOval(
-              child: _userProfileData!.profilePhoto.isNotEmpty
-                  ? Image.network(
-                      _userProfileData!.profilePhoto,
-                      fit: BoxFit.cover,
-                      headers: {
-                        'Access-Control-Allow-Origin': '*',
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        // Try alternative IPFS gateway if original fails
-                        String originalUrl = _userProfileData!.profilePhoto;
-                        if (originalUrl.contains('pinata.cloud')) {
-                          String ipfsHash = originalUrl.split('/ipfs/').last;
-                          String alternativeUrl =
-                              'https://ipfs.io/ipfs/$ipfsHash';
-
-                          return Image.network(
-                            alternativeUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error2, stackTrace2) {
-                              return Icon(
-                                Icons.person,
-                                size: 40,
-                                color: getThemeColors(context)['textSecondary'],
-                              );
-                            },
-                          );
-                        }
-
-                        return Icon(
-                          Icons.person,
-                          size: 40,
-                          color: getThemeColors(context)['textSecondary'],
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return CircularProgressIndicator(
-                          color: getThemeColors(context)['primary'],
-                        );
-                      },
-                    )
-                  : Container(
-                      color: getThemeColors(context)['secondary'],
-                      child: Icon(
-                        Icons.person,
-                        size: 40,
-                        color: getThemeColors(context)['textPrimary'],
-                      ),
+            child: _userProfileData!.profilePhoto.isNotEmpty
+                ? CircularImageLoaderWidget(
+                    imageUrl: _userProfileData!.profilePhoto,
+                    radius: 50,
+                  )
+                : Container(
+                    color: getThemeColors(context)['secondary'],
+                    child: Icon(
+                      Icons.person,
+                      size: 40,
+                      color: getThemeColors(context)['textPrimary'],
                     ),
-            ),
+                  ),
           ),
           const SizedBox(height: 16),
           Text(
