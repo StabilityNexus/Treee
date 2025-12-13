@@ -93,9 +93,16 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
     await _loadTrees();
   }
 
-  double _convertCoordinate(int coordinate) {
+  double _convertLatitude(int coordinate) {
     // Convert from fixed-point representation to decimal degrees
+    // Encoding: (latitude + 90.0) * 1e6
     return (coordinate / 1000000.0) - 90.0;
+  }
+  
+  double _convertLongitude(int coordinate) {
+    // Convert from fixed-point representation to decimal degrees
+    // Encoding: (longitude + 180.0) * 1e6
+    return (coordinate / 1000000.0) - 180.0;
   }
 
   String _formatDate(int timestamp) {
@@ -253,7 +260,7 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    'Location: ${_convertCoordinate(tree['latitude']).toStringAsFixed(6)}, ${_convertCoordinate(tree['longitude']).toStringAsFixed(6)}',
+                    'Location: ${_convertLatitude(tree['latitude']).toStringAsFixed(6)}, ${_convertLongitude(tree['longitude']).toStringAsFixed(6)}',
                     style: TextStyle(
                       fontSize: 14,
                       color: getThemeColors(context)['textPrimary'],
