@@ -42,6 +42,8 @@ class _NearbyTreesWidgetState extends State<NearbyTreesWidget> {
   }
 
   Future<void> _loadNearbyTrees() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -53,6 +55,9 @@ class _NearbyTreesWidgetState extends State<NearbyTreesWidget> {
         timeout: const Duration(seconds: 15),
       );
 
+      // Check mounted after await
+      if (!mounted) return;
+
       if (!locationInfo.isValid) {
         setState(() {
           _errorMessage = 'Could not determine your location';
@@ -63,10 +68,11 @@ class _NearbyTreesWidgetState extends State<NearbyTreesWidget> {
 
       _userLocation = LatLng(locationInfo.latitude!, locationInfo.longitude!);
 
-      // Get wallet provider
+      // Get wallet provider (safe to use context now since we checked mounted)
       final walletProvider = Provider.of<WalletProvider>(context, listen: false);
       
       if (!walletProvider.isConnected) {
+        if (!mounted) return;
         setState(() {
           _errorMessage = 'Please connect your wallet';
           _isLoading = false;
@@ -82,12 +88,16 @@ class _NearbyTreesWidgetState extends State<NearbyTreesWidget> {
         radiusMeters: widget.radiusMeters,
       );
 
+      // Check mounted after await
+      if (!mounted) return;
+
       setState(() {
         _nearbyTrees = trees.take(widget.maxTrees).toList();
         _isLoading = false;
       });
     } catch (e) {
       logger.e('Error loading nearby trees: $e');
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'Failed to load nearby trees';
         _isLoading = false;
