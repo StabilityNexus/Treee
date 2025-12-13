@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:tree_planting_protocol/pages/home_page.dart';
+import 'package:tree_planting_protocol/pages/explore_trees_map_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_details.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_images.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_organisation.dart';
@@ -66,6 +67,13 @@ class MyApp extends StatelessWidget {
           name: 'settings_page',
           builder: (BuildContext context, GoRouterState state) {
             return const SettingsPage();
+          },
+        ),
+        GoRoute(
+          path: RouteConstants.exploreMapPath,
+          name: RouteConstants.exploreMap,
+          builder: (BuildContext context, GoRouterState state) {
+            return const ExploreTreesMapPage();
           },
         ),
         GoRoute(

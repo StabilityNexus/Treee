@@ -35,43 +35,78 @@ class _AllTreesPageState extends State<AllTreesPage> {
         // Header with Mint NFT Button
         Container(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
             children: [
-              Icon(
-                Icons.eco,
-                size: 28,
-                color: getThemeColors(context)['primary'],
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Discover Trees',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: getThemeColors(context)['textPrimary'],
-                ),
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: () {
-                  context.push('/mint-nft');
-                },
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'Mint NFT',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: getThemeColors(context)['primary'],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+              Row(
+                children: [
+                  Icon(
+                    Icons.eco,
+                    size: 28,
+                    color: getThemeColors(context)['primary'],
                   ),
-                  side: const BorderSide(color: Colors.black, width: 2),
-                  elevation: buttonBlurRadius,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                  const SizedBox(width: 8),
+                  Text(
+                    'Discover Trees',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: getThemeColors(context)['textPrimary'],
+                    ),
+                  ),
+                  const Spacer(),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.push('/mint-nft');
+                    },
+                    icon: const Icon(Icons.add, size: 20),
+                    label: const Text(
+                      'Mint NFT',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: getThemeColors(context)['primary'],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(buttonCircularRadius),
+                      ),
+                      side: const BorderSide(color: Colors.black, width: 2),
+                      elevation: buttonBlurRadius,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Explore Map Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    context.push('/explore-map');
+                  },
+                  icon: const Icon(Icons.map, size: 20),
+                  label: const Text(
+                    'Explore Trees on Map',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getThemeColors(context)['secondary'],
+                    foregroundColor: getThemeColors(context)['textPrimary'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(buttonCircularRadius),
+                    ),
+                    side: BorderSide(
+                      color: getThemeColors(context)['border']!,
+                      width: buttonborderWidth,
+                    ),
+                    elevation: buttonBlurRadius,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ),
