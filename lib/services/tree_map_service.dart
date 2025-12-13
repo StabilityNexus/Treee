@@ -36,7 +36,9 @@ class MapTreeData {
     final lat = _convertCoordinate(data['latitude'] ?? 0);
     final lng = _convertCoordinate(data['longitude'] ?? 0);
     final death = data['death'] ?? 0;
-    final isAlive = death == 0 || death > DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    // Tree is alive if death is 0 (not set) or death timestamp is in the future
+    final isAlive = death == 0 || death >= now;
 
     return MapTreeData(
       id: data['id'] ?? 0,
