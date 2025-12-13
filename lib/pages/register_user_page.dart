@@ -7,7 +7,7 @@ import 'package:tree_planting_protocol/components/transaction_dialog.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_write_functions.dart';
-import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
+import 'package:tree_planting_protocol/utils/services/storage_service.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
 class RegisterUserPage extends StatefulWidget {

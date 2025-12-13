@@ -7,6 +7,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
+import 'package:tree_planting_protocol/utils/services/storage_service.dart';
 
 class VerificationDetails {
   final String verifier;
@@ -387,14 +388,14 @@ class _ProfileSectionWidgetState extends State<ProfileSectionWidget> {
                               logger.e("Error: $error");
                               logger.e("Stack trace: $stackTrace");
 
-                              // Try alternative IPFS gateway if original fails
+                              // Try alternative IPFS gateways if original fails
                               String originalUrl =
                                   _userProfileData!.profilePhoto;
-                              if (originalUrl.contains('pinata.cloud')) {
-                                String ipfsHash =
-                                    originalUrl.split('/ipfs/').last;
-                                String alternativeUrl =
-                                    'https://ipfs.io/ipfs/$ipfsHash';
+                              final alternatives = StorageService.getAlternativeGateways(originalUrl);
+                              
+                              if (alternatives.length > 1) {
+                                // Try the second gateway (first is usually the original)
+                                String alternativeUrl = alternatives[1];
                                 logger.d(
                                     "Trying alternative IPFS gateway: $alternativeUrl");
 

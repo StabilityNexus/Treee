@@ -8,7 +8,7 @@ import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_write_functions.dart';
 import 'package:tree_planting_protocol/utils/services/conversion_functions.dart';
-import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
+import 'package:tree_planting_protocol/utils/services/storage_service.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/static_map_display_widget.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/tree_nft_details_verifiers_widget.dart';
