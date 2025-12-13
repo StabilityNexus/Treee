@@ -154,6 +154,9 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
   void _updateVisibleTrees() {
     if (!mounted) return;
 
+    // Guard: don't access camera before map is ready
+    if (!_mapReady) return;
+
     final bounds = _mapController.camera.visibleBounds;
     final zoom = _mapController.camera.zoom;
 
