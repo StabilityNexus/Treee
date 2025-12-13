@@ -192,7 +192,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
           lat: (treeDetails!.latitude / 1e6) -
               90.0, // Data stored on the contract is positive in all cases (needs to be converted)
           lng: (treeDetails!.longitude / 1e6) -
-              180.0, // Data stored on the contract is positive in all cases (needs to be converted)
+              90.0, // Data stored on the contract is positive in all cases (needs to be converted)
         ),
       ),
     );
@@ -243,7 +243,7 @@ class _TreeDetailsPageState extends State<TreeDetailsPage> {
                   ),
                   child: Center(
                     child: Text(
-                      ((treeDetails!.longitude / 1e6) - 180.0)
+                      ((treeDetails!.longitude / 1e6) - 90.0)
                           .toStringAsFixed(6),
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -908,7 +908,7 @@ class _VerificationModalState extends State<_VerificationModal> {
                         hintText:
                             "Describe your verification (e.g., tree health, location accuracy, etc.)",
                         hintStyle: TextStyle(
-                          color: getThemeColors(context)['textSecondary'],
+                          color: Colors.grey.shade600,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
