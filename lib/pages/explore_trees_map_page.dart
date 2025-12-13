@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
-import 'package:tree_planting_protocol/services/geohash_service.dart';
 import 'package:tree_planting_protocol/services/tree_map_service.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
@@ -24,7 +23,6 @@ class ExploreTreesMapPage extends StatefulWidget {
 class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
   late MapController _mapController;
   final TreeMapService _treeMapService = TreeMapService();
-  final GeohashService _geohashService = GeohashService();
   final LocationService _locationService = LocationService();
 
   List<TreeCluster> _clusters = [];
@@ -38,6 +36,11 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
   bool _showTreeDetails = false;
   MapFilterOptions _filterOptions = const MapFilterOptions();
   List<String> _availableSpecies = [];
+
+  // Map ready state to prevent race conditions
+  bool _mapReady = false;
+  LatLng? _pendingCenter;
+  double? _pendingZoom;
 
   // Default center (can be changed based on user location)
   static const LatLng _defaultCenter = LatLng(28.6139, 77.2090); // Delhi, India
@@ -72,19 +75,51 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
       final locationInfo = await _locationService.getCurrentLocationWithTimeout(
         timeout: const Duration(seconds: 10),
       );
-      
-      if (locationInfo.isValid && mounted) {
+
+      if (!mounted) return;
+
+      if (locationInfo.isValid) {
+        final location = LatLng(locationInfo.latitude!, locationInfo.longitude!);
         setState(() {
-          _userLocation = LatLng(locationInfo.latitude!, locationInfo.longitude!);
+          _userLocation = location;
         });
-        
-        // Move map to user location
-        _mapController.move(_userLocation!, 12.0);
+
+        // Move map to user location if ready, otherwise defer
+        _moveMapTo(location, 12.0);
       }
     } catch (e) {
       logger.w('Could not get user location: $e');
       // Use default center
     }
+  }
+
+  /// Safely move the map, deferring if not ready
+  void _moveMapTo(LatLng center, double zoom) {
+    if (_mapReady) {
+      _mapController.move(center, zoom);
+    } else {
+      // Defer until map is ready
+      _pendingCenter = center;
+      _pendingZoom = zoom;
+    }
+  }
+
+  /// Called when the map is ready
+  void _onMapReady() {
+    if (!mounted) return;
+
+    setState(() {
+      _mapReady = true;
+    });
+
+    // Apply any pending move
+    if (_pendingCenter != null) {
+      _mapController.move(_pendingCenter!, _pendingZoom ?? 12.0);
+      _pendingCenter = null;
+      _pendingZoom = null;
+    }
+
+    _updateVisibleTrees();
   }
 
   Future<void> _loadTrees() async {
@@ -201,7 +236,8 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
 
   void _onSearchResultSelected(MapSearchResult result) {
     // Move map to the result location
-    _mapController.move(result.location, result.type == SearchResultType.tree ? 16.0 : 14.0);
+    _moveMapTo(
+        result.location, result.type == SearchResultType.tree ? 16.0 : 14.0);
 
     // If it's a tree, show its details
     if (result.tree != null) {
@@ -243,13 +279,13 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
       });
     } else {
       // Zoom in to cluster
-      _mapController.move(cluster.center, _currentZoom + 2);
+      _moveMapTo(cluster.center, _currentZoom + 2);
     }
   }
 
   void _centerOnUserLocation() async {
     if (_userLocation != null) {
-      _mapController.move(_userLocation!, 14.0);
+      _moveMapTo(_userLocation!, 14.0);
     } else {
       await _getUserLocation();
     }
@@ -285,9 +321,7 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
                 _onMapMove();
               }
             },
-            onMapReady: () {
-              _updateVisibleTrees();
-            },
+            onMapReady: _onMapReady,
           ),
           children: [
             // OpenStreetMap tiles
@@ -866,7 +900,9 @@ class _ExploreTreesMapPageState extends State<ExploreTreesMapPage> {
                       _buildDetailChip(
                         context,
                         icon: Icons.grid_on,
-                        label: tree.geoHash.substring(0, 6),
+                        label: tree.geoHash.length >= 6
+                            ? tree.geoHash.substring(0, 6)
+                            : tree.geoHash,
                       ),
                   ],
                 ),

@@ -52,46 +52,36 @@ class GeohashService {
   }
 
   /// Get neighboring geohashes (8 surrounding + center)
+  /// Uses dart_geohash's native neighbor() function for correct traversal
   List<String> getNeighbors(String geohash) {
+    if (geohash.isEmpty) return [];
+
     final neighbors = <String>[geohash];
-    
-    // Get all 8 neighbors
-    final directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
+
+    // Use dart_geohash's native Direction enum for all 8 neighbors
+    final directions = [
+      Direction.NORTH,
+      Direction.NORTHEAST,
+      Direction.EAST,
+      Direction.SOUTHEAST,
+      Direction.SOUTH,
+      Direction.SOUTHWEST,
+      Direction.WEST,
+      Direction.NORTHWEST,
+    ];
+
     for (final direction in directions) {
       try {
-        final neighbor = _getNeighbor(geohash, direction);
+        final neighbor = _geoHasher.neighbor(geohash, direction);
         if (neighbor.isNotEmpty) {
           neighbors.add(neighbor);
         }
       } catch (_) {
-        // Skip invalid neighbors at edges
+        // Skip invalid neighbors at edges (e.g., at poles or date line)
       }
     }
-    
-    return neighbors;
-  }
 
-  String _getNeighbor(String geohash, String direction) {
-    if (geohash.isEmpty) return '';
-    
-    final center = decode(geohash);
-    final precision = geohash.length;
-    final latDelta = _getLatDelta(precision);
-    final lngDelta = _getLngDelta(precision);
-    
-    double newLat = center.latitude;
-    double newLng = center.longitude;
-    
-    if (direction.contains('n')) newLat += latDelta;
-    if (direction.contains('s')) newLat -= latDelta;
-    if (direction.contains('e')) newLng += lngDelta;
-    if (direction.contains('w')) newLng -= lngDelta;
-    
-    // Clamp to valid ranges
-    newLat = newLat.clamp(-90.0, 90.0);
-    newLng = newLng.clamp(-180.0, 180.0);
-    
-    return encode(newLat, newLng, precision: precision);
+    return neighbors;
   }
 
   /// Get geohashes covering a bounding box

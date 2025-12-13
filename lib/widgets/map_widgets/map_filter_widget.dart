@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 
+/// Sentinel object to distinguish "not provided" from "explicitly null"
+const _unset = Object();
+
 /// Filter options for the tree map
 class MapFilterOptions {
   final bool showAliveOnly;
@@ -20,21 +23,30 @@ class MapFilterOptions {
     this.plantedBefore,
   });
 
+  /// Creates a copy with the given fields replaced.
+  /// Uses sentinel pattern to allow explicitly setting nullable fields to null.
   MapFilterOptions copyWith({
     bool? showAliveOnly,
     bool? showDeceasedOnly,
-    String? speciesFilter,
-    int? minCareCount,
-    DateTime? plantedAfter,
-    DateTime? plantedBefore,
+    Object? speciesFilter = _unset,
+    Object? minCareCount = _unset,
+    Object? plantedAfter = _unset,
+    Object? plantedBefore = _unset,
   }) {
     return MapFilterOptions(
       showAliveOnly: showAliveOnly ?? this.showAliveOnly,
       showDeceasedOnly: showDeceasedOnly ?? this.showDeceasedOnly,
-      speciesFilter: speciesFilter ?? this.speciesFilter,
-      minCareCount: minCareCount ?? this.minCareCount,
-      plantedAfter: plantedAfter ?? this.plantedAfter,
-      plantedBefore: plantedBefore ?? this.plantedBefore,
+      speciesFilter: speciesFilter == _unset
+          ? this.speciesFilter
+          : speciesFilter as String?,
+      minCareCount:
+          minCareCount == _unset ? this.minCareCount : minCareCount as int?,
+      plantedAfter: plantedAfter == _unset
+          ? this.plantedAfter
+          : plantedAfter as DateTime?,
+      plantedBefore: plantedBefore == _unset
+          ? this.plantedBefore
+          : plantedBefore as DateTime?,
     );
   }
 

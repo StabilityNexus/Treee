@@ -83,11 +83,13 @@ class TreeMapService {
   TreeMapService._internal();
 
   final GeohashService _geohashService = GeohashService();
-  
+
   // Cache for loaded trees by geohash
   final Map<String, List<MapTreeData>> _treeCache = {};
+  // O(1) lookup for duplicate prevention per geohash
+  final Map<String, Set<int>> _treeCacheIds = {};
   final Set<String> _loadingGeohashes = {};
-  
+
   // All loaded trees
   List<MapTreeData> _allTrees = [];
   int _totalTreeCount = 0;
@@ -99,10 +101,22 @@ class TreeMapService {
   /// Clear all cached data
   void clearCache() {
     _treeCache.clear();
+    _treeCacheIds.clear();
     _loadingGeohashes.clear();
     _allTrees.clear();
     _totalTreeCount = 0;
     _hasMore = true;
+  }
+
+  /// Add tree to cache with O(1) duplicate check
+  void _addTreeToCache(String geohash, MapTreeData tree) {
+    _treeCache.putIfAbsent(geohash, () => []);
+    _treeCacheIds.putIfAbsent(geohash, () => {});
+
+    // O(1) duplicate check using Set
+    if (_treeCacheIds[geohash]!.add(tree.id)) {
+      _treeCache[geohash]!.add(tree);
+    }
   }
 
   /// Fetch trees for visible map area using geohash-based queries
@@ -187,16 +201,15 @@ class TreeMapService {
             .map((data) => MapTreeData.fromContractData(data as Map<String, dynamic>))
             .toList();
 
-        // Add to cache by geohash
+        // Add to cache by geohash with O(1) duplicate check
         for (final tree in newTrees) {
-          final geohash = tree.geoHash.isNotEmpty 
-              ? tree.geoHash.substring(0, GeohashService.defaultPrecision.clamp(1, tree.geoHash.length))
+          final geohash = tree.geoHash.isNotEmpty
+              ? tree.geoHash.substring(
+                  0,
+                  GeohashService.defaultPrecision.clamp(1, tree.geoHash.length))
               : _geohashService.encode(tree.latitude, tree.longitude);
-          
-          _treeCache.putIfAbsent(geohash, () => []);
-          if (!_treeCache[geohash]!.any((t) => t.id == tree.id)) {
-            _treeCache[geohash]!.add(tree);
-          }
+
+          _addTreeToCache(geohash, tree);
         }
 
         if (offset == 0) {
@@ -230,15 +243,21 @@ class TreeMapService {
         await fetchAllTrees(walletProvider: walletProvider, limit: 100);
       }
 
-      // Organize trees by geohash
+      // Convert geohashes to Set for O(1) prefix matching
+      final geohashSet = geohashes.toSet();
+
+      // Single pass over all trees - O(n) instead of O(n×m)
       for (final tree in _allTrees) {
-        for (final geohash in geohashes) {
-          if (tree.geoHash.startsWith(geohash) || 
-              _geohashService.encode(tree.latitude, tree.longitude).startsWith(geohash)) {
-            _treeCache.putIfAbsent(geohash, () => []);
-            if (!_treeCache[geohash]!.any((t) => t.id == tree.id)) {
-              _treeCache[geohash]!.add(tree);
-            }
+        // Compute encoded geohash once per tree
+        final encodedGeohash =
+            _geohashService.encode(tree.latitude, tree.longitude);
+
+        // Check each requested geohash for prefix match
+        for (final geohash in geohashSet) {
+          if (tree.geoHash.startsWith(geohash) ||
+              encodedGeohash.startsWith(geohash)) {
+            // O(1) duplicate check and add
+            _addTreeToCache(geohash, tree);
           }
         }
       }
