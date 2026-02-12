@@ -372,12 +372,7 @@ class _RecentTreesWidgetState extends State<RecentTreesWidget> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Map view coming soon!'),
-                          backgroundColor: getThemeColors(context)['secondary'],
-                        ),
-                      );
+                      context.push('/nearby-trees');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: getThemeColors(context)['secondary'],

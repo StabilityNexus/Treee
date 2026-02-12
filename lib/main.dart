@@ -16,6 +16,7 @@ import 'package:tree_planting_protocol/pages/tree_details_page.dart';
 import 'package:tree_planting_protocol/pages/trees_page.dart';
 import 'package:tree_planting_protocol/pages/user_profile_page.dart';
 import 'package:tree_planting_protocol/pages/mint_nft/mint_nft_coordinates.dart';
+import 'package:tree_planting_protocol/pages/nearby_trees_map_page.dart';
 
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/providers/theme_provider.dart';
@@ -135,6 +136,13 @@ class MyApp extends StatelessWidget {
                 },
               ),
             ]),
+        GoRoute(
+          path: '/nearby-trees',
+          name: 'nearby_trees',
+          builder: (BuildContext context, GoRouterState state) {
+            return const NearbyTreesMapPage();
+          },
+        ),
         GoRoute(
           path: RouteConstants.allTreesPath,
           name: RouteConstants.allTrees,
