@@ -119,9 +119,16 @@ class _PlantingProposalsTabState extends State<PlantingProposalsTab>
     return '${address.substring(0, 6)}...${address.substring(address.length - 4)}';
   }
 
-  double _convertCoordinate(int coordinate) {
+  double _convertLatitude(int coordinate) {
     // Convert from fixed-point representation to decimal degrees
-    return coordinate / 1000000.0;
+    // Encoding: (latitude + 90.0) * 1e6
+    return (coordinate / 1000000.0) - 90.0;
+  }
+  
+  double _convertLongitude(int coordinate) {
+    // Convert from fixed-point representation to decimal degrees
+    // Encoding: (longitude + 180.0) * 1e6
+    return (coordinate / 1000000.0) - 180.0;
   }
 
   Widget _buildProposalCard(Map<String, dynamic> proposal) {
@@ -200,8 +207,8 @@ class _PlantingProposalsTabState extends State<PlantingProposalsTab>
               ),
               const SizedBox(width: 4),
               Text(
-                'Lat: ${_convertCoordinate(proposal['latitude']).toStringAsFixed(6)}, '
-                'Lng: ${_convertCoordinate(proposal['longitude']).toStringAsFixed(6)}',
+                'Lat: ${_convertLatitude(proposal['latitude']).toStringAsFixed(6)}, '
+                'Lng: ${_convertLongitude(proposal['longitude']).toStringAsFixed(6)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: getThemeColors(context)['textPrimary'],
