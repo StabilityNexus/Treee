@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/widgets/nft_display_utils/recent_trees_widget.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
+import 'package:tree_planting_protocol/pages/nearby_trees_map_page.dart';
 
 class AllTreesPage extends StatefulWidget {
   const AllTreesPage({super.key});
@@ -52,6 +53,37 @@ class _AllTreesPageState extends State<AllTreesPage> {
                 ),
               ),
               const Spacer(),
+              // Map button for nearby trees
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NearbyTreesMapPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.map, size: 20),
+                label: const Text(
+                  'Map',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[600],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(buttonCircularRadius),
+                  ),
+                  side: const BorderSide(color: Colors.black, width: 2),
+                  elevation: buttonBlurRadius,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Mint NFT button
               ElevatedButton.icon(
                 onPressed: () {
                   context.push('/mint-nft');

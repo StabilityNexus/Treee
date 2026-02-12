@@ -252,7 +252,7 @@ class _UserNftsWidgetState extends State<UserNftsWidget> {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    'Location: ${(tree.latitude / 1000000) - 90}, ${(tree.longitude / 1000000) - 180}',
+                    'Location: ${(tree.latitude / 1000000) - 90}, ${(tree.longitude / 1000000) - 90}',
                     style: TextStyle(
                         color: getThemeColors(context)['textPrimary']),
                   ),

@@ -3,6 +3,8 @@ import 'package:web3dart/web3dart.dart';
 import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/constants/contract_abis/tree_nft_contract_details.dart';
+import 'package:tree_planting_protocol/utils/mock_data/mock_trees.dart';
+import 'package:tree_planting_protocol/utils/geohash_utils.dart';
 
 class ContractReadResult {
   final bool success;
@@ -380,5 +382,129 @@ class ContractReadFunctions {
         errorMessage: 'Failed to read recent trees: ${e.toString()}',
       );
     }
+  }
+
+  /// Get trees near a specific location using geohash-based spatial indexing
+  /// 
+  /// [centerLat]: Latitude of center point
+  /// [centerLng]: Longitude of center point
+  /// [radiusKm]: Search radius in kilometers (default: 5km)
+  /// [limit]: Maximum number of trees to return (default: 100)
+  /// 
+  /// Uses client-side geohash filtering for efficient spatial queries
+  static Future<ContractReadResult> getNearbyTrees({
+    required WalletProvider walletProvider,
+    required double centerLat,
+    required double centerLng,
+    double radiusKm = 5.0,
+    int limit = 100,
+  }) async {
+    try {
+      if (!walletProvider.isConnected) {
+        return ContractReadResult.error(
+          errorMessage: 'Please connect your wallet first',
+        );
+      }
+
+      // Step 1: Calculate geohash coverage for the search area
+      final coverageGeohashes = GeohashUtils.getCoverageGeohashes(
+        centerLat,
+        centerLng,
+        radiusKm,
+      );
+      
+      logger.i("Searching for trees in geohashes: $coverageGeohashes");
+
+      // Step 2: Fetch all trees from blockchain
+      // TODO: When contract supports geohash queries, only fetch trees in coverage area
+      // For now, fetch recent trees and filter client-side
+      final allTreesResult = await getRecentTreesPaginated(
+        walletProvider: walletProvider,
+        offset: 0,
+        limit: 50, // Contract maximum is 50 trees per query
+      );
+
+      if (!allTreesResult.success || allTreesResult.data == null) {
+        return ContractReadResult.error(
+          errorMessage: allTreesResult.errorMessage ?? 'Failed to fetch trees',
+        );
+      }
+
+      // Extract trees list from result data
+      final resultData = allTreesResult.data as Map<String, dynamic>;
+      final allTrees = resultData['trees'] as List<Map<String, dynamic>>;
+      
+      if (allTrees.isEmpty) {
+        logger.i("No trees found in blockchain");
+        return ContractReadResult.success(
+          data: {
+            'trees': [],
+            'totalCount': 0,
+            'centerLat': centerLat,
+            'centerLng': centerLng,
+            'radiusKm': radiusKm,
+          },
+        );
+      }
+
+      // Step 3: Filter trees by distance and geohash
+      final nearbyTrees = <Map<String, dynamic>>[];
+      
+      for (final tree in allTrees) {
+        // Convert contract coordinates to decimal degrees
+        final treeLat = _convertCoordinate(tree['latitude'] as int);
+        final treeLng = _convertCoordinate(tree['longitude'] as int);
+
+        // Calculate distance from center
+        final distance = GeohashUtils.calculateDistance(
+          centerLat,
+          centerLng,
+          treeLat,
+          treeLng,
+        );
+
+        // Check if tree is within radius
+        if (distance <= radiusKm) {
+          // Add distance to tree data
+          final treeWithDistance = Map<String, dynamic>.from(tree);
+          treeWithDistance['distanceKm'] = distance;
+          treeWithDistance['distanceMeters'] = (distance * 1000).round();
+          nearbyTrees.add(treeWithDistance);
+        }
+
+        // Stop if we've found enough trees
+        if (nearbyTrees.length >= limit) break;
+      }
+
+      // Step 4: Sort by distance (closest first)
+      nearbyTrees.sort((a, b) {
+        final distA = a['distanceKm'] as double;
+        final distB = b['distanceKm'] as double;
+        return distA.compareTo(distB);
+      });
+
+      logger.i("Found ${nearbyTrees.length} trees within ${radiusKm}km");
+
+      return ContractReadResult.success(
+        data: {
+          'trees': nearbyTrees,
+          'totalCount': nearbyTrees.length,
+          'centerLat': centerLat,
+          'centerLng': centerLng,
+          'radiusKm': radiusKm,
+          'searchedGeohashes': coverageGeohashes,
+        },
+      );
+    } catch (e) {
+      logger.e("Error fetching nearby trees", error: e);
+      return ContractReadResult.error(
+        errorMessage: 'Failed to fetch nearby trees: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Convert contract fixed-point coordinate to decimal degrees
+  static double _convertCoordinate(int coordinate) {
+    return (coordinate / 1000000.0) - 90.0;
   }
 }

@@ -166,7 +166,9 @@ class _UserProfileViewerWidgetState extends State<UserProfileViewerWidget> {
                       errorBuilder: (context, error, stackTrace) {
                         // Try alternative IPFS gateway if original fails
                         String originalUrl = _userProfileData!.profilePhoto;
-                        if (originalUrl.contains('pinata.cloud')) {
+                        // Support both Pinata (legacy) and Web3.Storage URLs
+                        if (originalUrl.contains('pinata.cloud') || 
+                            originalUrl.contains('w3s.link')) {
                           String ipfsHash = originalUrl.split('/ipfs/').last;
                           String alternativeUrl =
                               'https://ipfs.io/ipfs/$ipfsHash';
