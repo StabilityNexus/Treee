@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/providers/wallet_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_write_functions.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 
 class Verifier {
   final String address;
@@ -807,12 +808,11 @@ void _showVerifierDetailsModal(
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(6),
-                                  child: Image.network(
-                                    verifier.proofHashes[index],
+                                  child: ImageLoaderWidget(
+                                    imageUrl: verifier.proofHashes[index],
                                     fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
+                                    placeholderColor: Colors.grey.shade100,
+                                    errorWidget: Container(
                                       color: Colors.grey.shade100,
                                       child: Icon(
                                         Icons.broken_image,
@@ -820,22 +820,6 @@ void _showVerifierDetailsModal(
                                         size: 30,
                                       ),
                                     ),
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        color: getThemeColors(
-                                            context)['background'],
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation(
-                                                getThemeColors(
-                                                    context)['primary']),
-                                          ),
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
                               );

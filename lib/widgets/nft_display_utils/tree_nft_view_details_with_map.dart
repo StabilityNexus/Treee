@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
+import 'package:tree_planting_protocol/widgets/image_loader_widget.dart';
 import 'package:tree_planting_protocol/widgets/map_widgets/flutter_map_widget.dart';
 
 class NewNFTMapWidget extends StatefulWidget {
@@ -281,8 +282,8 @@ class _NewNFTMapWidgetState extends State<NewNFTMapWidget> {
                                   clipBehavior: Clip.antiAlias,
                                   child: Stack(
                                     children: [
-                                      Image.network(
-                                        provider.getInitialPhotos()[index],
+                                      ImageLoaderWidget(
+                                        imageUrl: provider.getInitialPhotos()[index],
                                         height: 150,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
