@@ -7,7 +7,7 @@ import 'package:tree_planting_protocol/providers/mint_nft_provider.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
-import 'package:tree_planting_protocol/utils/services/ipfs_services.dart';
+import 'package:tree_planting_protocol/utils/services/storage_service.dart';
 import 'package:tree_planting_protocol/widgets/basic_scaffold.dart';
 
 class MultipleImageUploadPage extends StatefulWidget {

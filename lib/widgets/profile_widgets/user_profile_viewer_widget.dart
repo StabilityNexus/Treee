@@ -6,6 +6,7 @@ import 'package:tree_planting_protocol/utils/constants/ui/color_constants.dart';
 import 'package:tree_planting_protocol/utils/constants/ui/dimensions.dart';
 import 'package:tree_planting_protocol/utils/logger.dart';
 import 'package:tree_planting_protocol/utils/services/contract_functions/tree_nft_contract/tree_nft_contract_read_services.dart';
+import 'package:tree_planting_protocol/utils/services/storage_service.dart';
 import 'package:tree_planting_protocol/widgets/profile_widgets/profile_section_widget.dart';
 
 class UserProfileViewerWidget extends StatefulWidget {
@@ -164,12 +165,12 @@ class _UserProfileViewerWidgetState extends State<UserProfileViewerWidget> {
                         'Access-Control-Allow-Origin': '*',
                       },
                       errorBuilder: (context, error, stackTrace) {
-                        // Try alternative IPFS gateway if original fails
+                        // Try alternative IPFS gateways if original fails
                         String originalUrl = _userProfileData!.profilePhoto;
-                        if (originalUrl.contains('pinata.cloud')) {
-                          String ipfsHash = originalUrl.split('/ipfs/').last;
-                          String alternativeUrl =
-                              'https://ipfs.io/ipfs/$ipfsHash';
+                        final alternatives = StorageService.getAlternativeGateways(originalUrl);
+                        
+                        if (alternatives.length > 1) {
+                          String alternativeUrl = alternatives[1];
 
                           return Image.network(
                             alternativeUrl,
